@@ -1,0 +1,25 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ReportList from "../../components/ReportList";
+---
+
+<Layout title="Berichte" activeNav="reports">
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-bold text-slate-900">Berichte</h1>
+    <div class="flex gap-2">
+      <a
+        href="/reports/new-player"
+        class="rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm font-medium"
+      >
+        + Spieler
+      </a>
+      <a
+        href="/reports/new-team"
+        class="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm font-medium"
+      >
+        + Team
+      </a>
+    </div>
+  </div>
+  <ReportList client:load />
+</Layout>

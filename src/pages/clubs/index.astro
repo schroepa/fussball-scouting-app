@@ -1,0 +1,9 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ClubsList from "../../components/ClubsList";
+---
+
+<Layout title="Vereine" activeNav="clubs">
+  <h1 class="text-2xl font-bold text-slate-900 mb-4">Vereine</h1>
+  <ClubsList client:load />
+</Layout>

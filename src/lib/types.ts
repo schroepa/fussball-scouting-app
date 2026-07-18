@@ -1,0 +1,169 @@
+/**
+ * Zentrale Domänen-Typen der Scouting-App.
+ * Diese Typen bilden sowohl die lokale (Dexie/IndexedDB) als auch die
+ * zentrale (Supabase/Postgres) Datenhaltung ab. Siehe docs/PLANNING.md.
+ */
+
+export type SyncStatus = "pending" | "synced" | "error";
+
+export type Bezugstyp = "spiel" | "training" | "sonstige_beobachtung";
+
+export type Berichtsart = "gegner_analyse" | "eigenes_team";
+
+export type Empfehlung =
+  | "unbedingt_beobachten"
+  | "im_blick_behalten"
+  | "kein_potenzial";
+
+export const BEZUGSTYP_LABELS: Record<Bezugstyp, string> = {
+  spiel: "Spiel",
+  training: "Training",
+  sonstige_beobachtung: "Sonstige Beobachtung",
+};
+
+export const BERICHTSART_LABELS: Record<Berichtsart, string> = {
+  gegner_analyse: "Gegner-Analyse",
+  eigenes_team: "Eigenes Team",
+};
+
+export const EMPFEHLUNG_LABELS: Record<Empfehlung, string> = {
+  unbedingt_beobachten: "Unbedingt beobachten",
+  im_blick_behalten: "Im Blick behalten",
+  kein_potenzial: "Kein Potenzial",
+};
+
+/** Ein Verein/Club, manuell angelegt oder importiert (external_ref gesetzt). */
+export interface Club {
+  id: string;
+  name: string;
+  land: string;
+  liga?: string;
+  logoUrl?: string;
+  externalSource?: string;
+  externalRef?: string;
+  customFields?: Record<string, unknown>;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+/** Ein Spieler, manuell angelegt oder importiert. */
+export interface Player {
+  id: string;
+  vorname: string;
+  nachname: string;
+  geburtsdatum?: string;
+  nationalitaet?: string;
+  positionen: string[];
+  starkerFuss?: "links" | "rechts" | "beidfuessig";
+  groesseCm?: number;
+  aktuellerClubId?: string;
+  fotoUrl?: string;
+  fotoBlob?: Blob;
+  externalSource?: string;
+  externalRef?: string;
+  customFields?: Record<string, unknown>;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+/** Ein Spiel (optional als Bezug für Berichte). */
+export interface Match {
+  id: string;
+  heimClubId?: string;
+  heimClubName: string;
+  gastClubId?: string;
+  gastClubName: string;
+  wettbewerb?: string;
+  datum: string;
+  spielort?: string;
+  externalSource?: string;
+  externalRef?: string;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface RatingValue {
+  attributeKey: string;
+  value: number;
+}
+
+export interface MediaRef {
+  id: string;
+  typ: "foto" | "video" | "video_link";
+  localBlobKey?: string;
+  url?: string;
+  syncStatus: SyncStatus;
+}
+
+/** Spieler-Scouting-Bericht. */
+export interface PlayerReport {
+  id: string;
+  playerId: string;
+  scoutId: string;
+  bezugstyp: Bezugstyp;
+  matchId?: string;
+  datum: string;
+  positionBeobachtet?: string;
+  ratings: RatingValue[];
+  gesamtbewertung?: number;
+  staerken?: string;
+  schwaechen?: string;
+  freitextNotizen?: string;
+  empfehlung?: Empfehlung;
+  tags: string[];
+  media: MediaRef[];
+  customFields?: Record<string, unknown>;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+/** Team-Bericht: Gegner-Analyse ODER Analyse des eigenen/beobachteten Teams. */
+export interface TeamReport {
+  id: string;
+  clubId: string;
+  scoutId: string;
+  berichtsart: Berichtsart;
+  bezugstyp: Bezugstyp;
+  matchId?: string;
+  datum: string;
+  formation?: string;
+  spielstil?: string;
+  standardsituationen?: string;
+  staerken?: string;
+  schwaechen?: string;
+  schluesselspielerIds: string[];
+  media: MediaRef[];
+  customFields?: Record<string, unknown>;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export type AttributeAppliesTo = "player" | "team";
+export type AttributeType = "skala" | "text" | "auswahl";
+
+/** Erweiterbare Bewertungs-/Feld-Definition (Grundlage für M6). */
+export interface AttributeDefinition {
+  id: string;
+  giltFuer: AttributeAppliesTo;
+  key: string;
+  name: string;
+  typ: AttributeType;
+  skalaMin?: number;
+  skalaMax?: number;
+  auswahlOptionen?: string[];
+  gruppe?: string;
+  istCustom: boolean;
+  reihenfolge: number;
+}
+
+export interface Scout {
+  id: string;
+  name: string;
+  email: string;
+  authProvider?: string;
+}

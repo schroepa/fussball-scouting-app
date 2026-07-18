@@ -1,0 +1,10 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import TeamReportDetail from "../../../components/TeamReportDetail";
+
+const { id } = Astro.params;
+---
+
+<Layout title="Team-Bericht" activeNav="reports">
+  <TeamReportDetail reportId={id as string} client:load />
+</Layout>

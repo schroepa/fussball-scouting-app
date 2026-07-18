@@ -1,0 +1,71 @@
+---
+import "../styles/global.css";
+import SyncStatusBar from "../components/SyncStatusBar";
+
+interface Props {
+  title?: string;
+  activeNav?: "home" | "reports" | "players" | "clubs";
+}
+
+const { title = "Fussball Scouting", activeNav } = Astro.props;
+
+const navItems = [
+  { key: "home", href: "/", label: "Start", icon: "🏠" },
+  { key: "reports", href: "/reports", label: "Berichte", icon: "📋" },
+  { key: "players", href: "/players", label: "Spieler", icon: "🧍" },
+  { key: "clubs", href: "/clubs", label: "Vereine", icon: "🏟️" },
+] as const;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="description" content="Mobile-first Scouting-App zur offline-fähigen Erfassung von Spieler- und Team-Daten." />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} · Fussball Scouting</title>
+  </head>
+  <body class="pb-20">
+    <header class="sticky top-0 z-10 bg-slate-900 text-white px-4 py-3 flex items-center justify-between shadow">
+      <a href="/" class="font-semibold text-lg flex items-center gap-2">
+        ⚽ <span>Fussball Scouting</span>
+      </a>
+      <SyncStatusBar client:load />
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 py-4">
+      <slot />
+    </main>
+
+    <nav class="fixed bottom-0 inset-x-0 z-10 bg-white border-t border-slate-200 flex justify-around py-1 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+            activeNav === item.key ? "text-emerald-600" : "text-slate-500",
+          ]}
+        >
+          <span class="text-xl leading-none">{item.icon}</span>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <script>
+      import { registerSW } from "virtual:pwa-register";
+
+      registerSW({
+        immediate: true,
+        onOfflineReady() {
+          console.log("App ist offline-fähig.");
+        },
+      });
+    </script>
+  </body>
+</html>
