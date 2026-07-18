@@ -131,11 +131,13 @@ Bereits umgesetzt (M0 + M1 + Basis-Export, siehe `docs/PLANNING.md`):
 ### Datenimport (M2 – teilweise)
 
 - [x] Seite **Import** (`/import`): Spieler/Vereine über TheSportsDB suchen und übernehmen
-- [x] **Jugend/Kader-Scraper** (kein Token): Vereins-URL → Mannschaften (inkl. Jugend) → öffentliche Kaderlisten von fussball.de; Namensliste als Fallback
+- [x] **Transfermarkt-Import** (empfohlen für Jugend): Vereins-URL → Kader mit Name, Position, Geburtsdatum (z. B. U17)
+- [x] **fussball.de-Scraper**: Mannschaften + öffentliche Kader; Namensliste als Fallback
+- [x] Optional **SportDB.dev** (`SPORTDB_API_KEY`): API-Proxy auf Transfermarkt – ohne Key nutzt die App den direkten Scrape
 - [x] fussball.de-Verein + Spiele via `api-fussball.de` (benötigt `API_FUSSBALL_TOKEN`; Dienst oft offline)
 - [x] Deduplizierung über `external_source` + `external_ref`
 - [x] Manuelle Spieler-Anlage unter **Spieler**
-- Hinweis: Viele Jugend-Kader sind auf fussball.de **nicht freigegeben**. Der Scraper meldet das und bietet eine Namensliste (eine Zeile pro Spieler) als Fallback.
+- Hinweis: Viele Jugend-Kader sind auf fussball.de **nicht freigegeben**. Für Jugend besser Transfermarkt nutzen.
 
 Noch offen:
 

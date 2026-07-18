@@ -6,7 +6,7 @@ import type {
 } from "../lib/import/types";
 import { persistImportResult } from "../lib/import/persist";
 
-type Tab = "spieler" | "fussballde" | "scraper";
+type Tab = "transfermarkt" | "scraper" | "spieler" | "fussballde";
 
 interface ScrapedTeam {
   teamId: string;
@@ -20,13 +20,15 @@ type ScrapeResult = ImportSearchResult & {
   seasonUsed?: string;
   notice?: string;
   error?: string;
+  via?: string;
 };
 
 export default function ImportPanel() {
-  const [tab, setTab] = useState<Tab>("scraper");
+  const [tab, setTab] = useState<Tab>("transfermarkt");
   const [query, setQuery] = useState("");
   const [fussballUrl, setFussballUrl] = useState("");
   const [scrapeUrl, setScrapeUrl] = useState("");
+  const [tmUrl, setTmUrl] = useState("");
   const [season, setSeason] = useState("2526");
   const [teams, setTeams] = useState<ScrapedTeam[]>([]);
   const [clubContext, setClubContext] = useState<ImportedClub | null>(null);
@@ -75,8 +77,38 @@ export default function ImportPanel() {
       if (!res.ok) throw new Error(data.error || "Import fehlgeschlagen.");
       setResult(data);
       setStatus(
-        `${data.clubs.length} Verein(e), ${data.matches.length} Spiel(e) gefunden. Für Spieler-Kader bitte den Tab „Jugend/Kader“ nutzen.`
+        `${data.clubs.length} Verein(e), ${data.matches.length} Spiel(e) gefunden. Für Spieler-Kader bitte Transfermarkt oder manuelle Liste nutzen.`
       );
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runTransfermarkt = async () => {
+    setLoading(true);
+    setError(null);
+    setStatus(null);
+    setResult(null);
+    try {
+      const res = await fetch("/api/import/transfermarkt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ urlOrId: tmUrl.trim() }),
+      });
+      const data = (await res.json()) as ScrapeResult;
+      if (!res.ok) throw new Error(data.error || "Transfermarkt-Import fehlgeschlagen.");
+      if (data.clubs[0]) setClubContext(data.clubs[0]);
+      setResult({
+        clubs: data.clubs,
+        players: data.players,
+        matches: data.matches,
+      });
+      const parts: string[] = [];
+      if (data.notice) parts.push(data.notice);
+      if (data.via) parts.push(`Quelle: ${data.via}`);
+      setStatus(parts.join(" ") || null);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -88,6 +120,37 @@ export default function ImportPanel() {
     teamId?: string;
     importAllSquads?: boolean;
   }) => {
+    const url = scrapeUrl.trim();
+    if (/transfermarkt\./i.test(url)) {
+      setTmUrl(url);
+      setTab("transfermarkt");
+      setLoading(true);
+      setError(null);
+      setStatus(null);
+      setResult(null);
+      try {
+        const res = await fetch("/api/import/transfermarkt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ urlOrId: url }),
+        });
+        const data = (await res.json()) as ScrapeResult;
+        if (!res.ok) throw new Error(data.error || "Transfermarkt-Import fehlgeschlagen.");
+        if (data.clubs[0]) setClubContext(data.clubs[0]);
+        setResult({
+          clubs: data.clubs,
+          players: data.players,
+          matches: data.matches,
+        });
+        setStatus(data.notice ?? null);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setStatus(null);
@@ -97,7 +160,7 @@ export default function ImportPanel() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          urlOrId: scrapeUrl.trim(),
+          urlOrId: url,
           mode: opts?.teamId ? "squad" : "auto",
           teamId: opts?.teamId,
           season,
@@ -258,19 +321,19 @@ export default function ImportPanel() {
         <p className="font-medium text-slate-800">So funktioniert der Import</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>
-            <strong>Jugend/Kader</strong>: leichter fussball.de-Scraper –
-            Mannschaften + öffentliche Kader (kein API-Token nötig).
+            <strong>Transfermarkt</strong>: Jugendkader mit Namen, Position,
+            Geburtsdatum (z.&nbsp;B. U17) – empfohlen.
           </li>
           <li>
-            Jugend-Kader sind oft <em>nicht freigegeben</em>. Dann Namensliste
-            einfügen (eine Zeile pro Spieler).
+            <strong>fussball.de</strong>: Mannschaften laden; Kader oft gesperrt.
+            Dann Namensliste nutzen.
+          </li>
+          <li>
+            <strong>SportDB.dev</strong>: API-Proxy auf Transfermarkt (braucht
+            kostenlosen API-Key) – optional in <code className="bg-slate-100 px-1">.env</code>.
           </li>
           <li>
             <strong>Spieler suchen</strong> (TheSportsDB): bekannte Profis.
-          </li>
-          <li>
-            <strong>fussball.de-API</strong>: Verein + Spiele (braucht Token;
-            derzeit oft offline).
           </li>
         </ul>
       </div>
@@ -278,7 +341,8 @@ export default function ImportPanel() {
       <div className="flex flex-wrap gap-2">
         {(
           [
-            { key: "scraper", label: "Jugend/Kader" },
+            { key: "transfermarkt", label: "Transfermarkt" },
+            { key: "scraper", label: "fussball.de" },
             { key: "spieler", label: "Spieler suchen" },
             { key: "fussballde", label: "fussball.de-API" },
           ] as const
@@ -344,6 +408,40 @@ export default function ImportPanel() {
             className="w-full rounded-lg bg-emerald-600 text-white py-2.5 font-medium disabled:opacity-50"
           >
             Verein von fussball.de laden
+          </button>
+        </div>
+      )}
+
+      {tab === "transfermarkt" && (
+        <div className="space-y-2">
+          <input
+            type="text"
+            placeholder="https://www.transfermarkt.de/…/verein/35633"
+            value={tmUrl}
+            onChange={(e) => setTmUrl(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+          <p className="text-xs text-slate-500">
+            Vereins-/Jugendseiten-URL oder ID. Beispiel BFC Dynamo U17 funktioniert
+            gut für Jugendkader. Optional:{" "}
+            <code className="bg-slate-100 px-1">SPORTDB_API_KEY</code> von{" "}
+            <a
+              href="https://sportdb.dev/"
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              sportdb.dev
+            </a>
+            .
+          </p>
+          <button
+            type="button"
+            onClick={runTransfermarkt}
+            disabled={loading || !tmUrl.trim()}
+            className="w-full rounded-lg bg-emerald-600 text-white py-2.5 font-medium disabled:opacity-50"
+          >
+            Kader von Transfermarkt laden
           </button>
         </div>
       )}
