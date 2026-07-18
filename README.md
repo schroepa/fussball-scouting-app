@@ -1,146 +1,183 @@
-# ⚽ Fussball Scouting App
+# Fussball Scouting App
 
-Mobile-first, **offline-fähige** Web-App für Fußball-Scouts zur Erfassung von
-Spieler- und Team-Daten direkt am Spielfeldrand.
+Mobile-first Web-App für Fußball-Scouts: Spieler und Teams am Spielfeldrand bewerten, offline weiterarbeiten und Berichte als PDF/JSON exportieren.
 
-Der vollständige Feature- und Architektur-Plan (inkl. Meilensteinen) steht in
-[`docs/PLANNING.md`](docs/PLANNING.md). Dieses README beschreibt, wie das
-Projekt lokal eingerichtet, entwickelt und deployed wird.
+Zielgruppe sind Scouts im **deutschen Amateur- und Jugendbereich**. Stammdaten können von Transfermarkt, fussball.de und TheSportsDB importiert werden; eigene Notizen und Bewertungen bleiben im Mittelpunkt.
+
+---
+
+## Features
+
+### Scouting am Platz
+- **Spielerberichte** mit Bewertungsraster (Technik, Taktik, Athletik, Mentalität, 1–10), Gesamtnote, Empfehlung und Freitext
+- **Teamberichte** als Gegner-Analyse oder Einschätzung des eigenen Teams
+- **Bezugstyp** je Beobachtung: Spiel, Training oder sonstige Beobachtung
+- **Kamera-Foto** direkt im Bericht (PWA)
+- Klare Listen- und Detailansichten mit Badges
+
+### Offline-first
+- Alle Erfassungen laufen lokal in **IndexedDB** (Dexie)
+- Ohne Netz weiter scoutingfähig
+- Sync nach Supabase, sobald Verbindung und Login vorhanden sind
+
+### Import von Stammdaten
+| Quelle | Wofür | Hinweis |
+|--------|--------|---------|
+| **Transfermarkt** | Jugend- und Vereinsskader (Name, Position, Geburtsdatum) | Empfohlen für U-Teams |
+| **fussball.de** | Mannschaften, ggf. öffentliche Kader | Jugendkader oft gesperrt → Namensliste-Fallback |
+| **TheSportsDB** | Bekannte Spieler/Vereine suchen | Eher Profi-/bekannte Namen |
+| **Manuell** | Spieler selbst anlegen oder Namensliste einfügen | Immer verfügbar |
+
+### Export & Sync
+- PDF- und JSON-Export pro Bericht
+- Google-Login oder Magic Link (Supabase)
+- Outbox-Sync: lokale Änderungen werden nachgezogen
+
+---
 
 ## Tech-Stack
 
-- **[Astro 7](https://astro.build)** mit React-Islands (`@astrojs/react`) und
-  Tailwind CSS
-- **PWA/Offline**: [`@vite-pwa/astro`](https://vite-pwa-org.netlify.app/frameworks/astro)
-  (Service Worker, Web-App-Manifest)
-- **Lokale Datenhaltung**: [Dexie.js](https://dexie.org) (IndexedDB) – die App
-  funktioniert dadurch vollständig ohne Internetverbindung
-- **Zentrale Datenbank**: [Supabase](https://supabase.com) (Postgres + Auth +
-  Storage), Free Tier
-- **ORM**: [Drizzle](https://orm.drizzle.team) für das Datenbankschema
-- **PDF-Export**: [jsPDF](https://github.com/parallax/jsPDF)
-- **Hosting**: GitHub + [Vercel](https://vercel.com) (`@astrojs/vercel`-Adapter)
+| Bereich | Technologie |
+|---------|-------------|
+| Frontend | [Astro 7](https://astro.build) + React Islands + Tailwind CSS 4 |
+| Offline / PWA | Dexie (IndexedDB), `@vite-pwa/astro` |
+| Backend / Auth | [Supabase](https://supabase.com) (Postgres, Auth, Storage) – Free Tier |
+| Schema | [Drizzle ORM](https://orm.drizzle.team) |
+| Export | jsPDF |
+| Hosting | [Vercel](https://vercel.com) (`@astrojs/vercel`) |
 
-Alle Entscheidungen und Begründungen dazu stehen in
-[`docs/PLANNING.md`](docs/PLANNING.md).
+Architektur und Meilensteine: Branch `cursor/scouting-app-planning-0911` → `docs/PLANNING.md`.
 
-## Lokal starten (funktioniert auch ohne Supabase-Setup)
+---
+
+## Schnellstart
+
+Voraussetzung: **Node.js ≥ 22.12**
 
 ```bash
+git clone https://github.com/schroepa/fussball-scouting-app.git
+cd fussball-scouting-app
 npm install
 npm run dev
 ```
 
-Die App ist dann unter `http://localhost:4321` erreichbar. **Ohne
-Supabase-Konfiguration läuft die App im reinen Lokal-Modus**: Erfassung von
-Spielern, Vereinen und Berichten funktioniert vollständig (inkl. Kamera und
-PDF/JSON-Export), nur Login und Synchronisation über mehrere Geräte hinweg
-sind deaktiviert.
+App: [http://localhost:4321](http://localhost:4321)
 
-> PWA-Funktionen (Service Worker/Offline-Cache) sind nur im Produktions-Build
-> aktiv. Zum Testen: `npm run build && npm run preview`.
+**Ohne Supabase** läuft die App im Lokal-Modus: Spieler, Vereine, Berichte, Kamera und Export funktionieren. Login und geräteübergreifender Sync sind dann deaktiviert.
 
-## Supabase einrichten (für Login & Synchronisation)
-
-1. Kostenloses Projekt auf [supabase.com](https://supabase.com) anlegen.
-2. Unter **Authentication → Sign In / Providers**: Google-OAuth aktivieren
-   (Client-ID/Secret aus der [Google Cloud Console](https://console.cloud.google.com/auth/clients)
-   eintragen). Unter **URL Configuration**: Site URL z. B. `http://localhost:4321`,
-   Redirect URL `http://localhost:4321/auth/callback`. In Google Cloud muss als
-   Weiterleitungs-URI die Supabase-Callback-URL stehen:
-   `https://<project-ref>.supabase.co/auth/v1/callback`.
-3. **Tabellen + Policies einmalig anlegen:** Im Supabase-Dashboard →
-   **SQL Editor** den kompletten Inhalt von
-   [`supabase/setup.sql`](supabase/setup.sql) einfügen und **Run** klicken.
-   (Das erzeugt alle Tabellen, den Auth-Trigger und die Row-Level-Security.)
-4. `.env` aus `.env.example` erstellen und `PUBLIC_SUPABASE_URL` /
-   `PUBLIC_SUPABASE_ANON_KEY` eintragen (Publishable Key reicht).
-5. Optional später: Storage-Bucket `report-media` für Foto-Upload beim Sync.
-
-Sobald Supabase konfiguriert ist, erfordert die App einen Login (Google oder
-Magic Link). Ohne Konfiguration bleibt der reine Lokal-Modus möglich.
-
-## Datenbankschema ändern
-
-Das Schema wird zentral in [`drizzle/schema.ts`](drizzle/schema.ts) gepflegt.
+PWA (Service Worker) nur im Produktions-Build:
 
 ```bash
-npm run db:generate   # erzeugt eine neue SQL-Migration in supabase/migrations/
-npm run db:push        # wendet das Schema direkt auf die Supabase-DB an (SUPABASE_DB_URL nötig)
-npm run db:studio      # öffnet Drizzle Studio zum Durchsuchen der Daten
+npm run build && npm run preview
 ```
 
-RLS-Policies werden bewusst getrennt in [`supabase/policies.sql`](supabase/policies.sql)
-gepflegt (siehe Kommentar dort für die Sicherheitslogik).
+---
 
-## Deployment auf Vercel
+## Umgebungsvariablen
 
-1. Repository auf GitHub pushen (bereits erledigt, falls du dieses README liest).
-2. Auf [vercel.com](https://vercel.com) ein neues Projekt aus dem Repo
-   anlegen – der `@astrojs/vercel`-Adapter wird automatisch erkannt.
-3. Unter **Project Settings → Environment Variables** die Variablen aus
-   `.env.example` eintragen (`PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`).
-4. In der Google Cloud Console und in Supabase Auth die Vercel-Domain als
-   Redirect-URL (`https://<deine-domain>/auth/callback`) hinterlegen.
+`.env` aus `.env.example` anlegen:
 
-> **Hinweis:** Der Vercel-**Hobby**-Plan ist laut Nutzungsbedingungen nur für
-> nicht-kommerzielle, private Nutzung gedacht. Für ein privates Testprojekt
-> passt das; bei kommerzieller Nutzung (z. B. bezahlter Verein) wäre der
-> Pro-Plan nötig. Details in `docs/PLANNING.md`.
+| Variable | Pflicht? | Beschreibung |
+|----------|----------|--------------|
+| `PUBLIC_SUPABASE_URL` | für Login/Sync | Supabase-Projekt-URL |
+| `PUBLIC_SUPABASE_ANON_KEY` | für Login/Sync | Publishable / Anon Key |
+| `SUPABASE_DB_URL` | nur Migrationen | DB-Connection (nie `PUBLIC_`, nie committen) |
+| `THESPORTSDB_API_KEY` | optional | Default-Hobby-Key `123` |
+| `API_FUSSBALL_TOKEN` | optional | Token von [api-fussball.de](https://api-fussball.de) |
+| `SPORTDB_API_KEY` | optional | Key von [sportdb.dev](https://sportdb.dev) (Transfermarkt-Proxy) |
+
+---
+
+## Supabase (Login & Sync)
+
+1. Projekt auf [supabase.com](https://supabase.com) anlegen (Free Tier reicht).
+2. **Authentication → Providers:** Google OAuth aktivieren; Client-ID/Secret aus der [Google Cloud Console](https://console.cloud.google.com/auth/clients).
+3. **URL Configuration:** Site URL z. B. `http://localhost:4321`, Redirect `http://localhost:4321/auth/callback`.
+4. In Google Cloud als Redirect-URI eintragen:  
+   `https://<project-ref>.supabase.co/auth/v1/callback`
+5. Im **SQL Editor** den Inhalt von [`supabase/setup.sql`](supabase/setup.sql) ausführen (Tabellen, Auth-Trigger, RLS).
+6. `PUBLIC_SUPABASE_URL` und `PUBLIC_SUPABASE_ANON_KEY` in `.env` setzen.
+
+Mit konfiguriertem Supabase ist Login Pflicht. Ohne Konfiguration bleibt der reine Offline-Modus.
+
+Schema-Änderungen:
+
+```bash
+npm run db:generate   # Migration aus drizzle/schema.ts
+npm run db:push       # Schema direkt pushen (braucht SUPABASE_DB_URL)
+npm run db:studio     # Drizzle Studio
+```
+
+RLS-Policies: [`supabase/policies.sql`](supabase/policies.sql)
+
+---
+
+## Import nutzen
+
+Unter **`/import`**:
+
+1. **Transfermarkt** – Vereins-URL einfügen, z. B.  
+   `https://www.transfermarkt.de/bfc-dynamo-u17/startseite/verein/35633`  
+   → Kader mit Namen, Positionen und Geburtsdaten übernehmen.
+2. **fussball.de** – Vereins-URL → Mannschaften; Kader nur wenn öffentlich freigegeben.
+3. **Spieler suchen** – TheSportsDB für bekannte Namen.
+4. **Namensliste** – eine Zeile pro Spieler (`Nachname, Vorname` oder `Vorname Nachname`), wenn keine Quelle liefert.
+
+Deduplizierung über `external_source` + `external_ref`.
+
+---
+
+## Deployment (Vercel)
+
+1. Repo mit Vercel verbinden (Adapter `@astrojs/vercel` ist vorkonfiguriert).
+2. Environment Variables aus `.env.example` setzen (mindestens Supabase-Public-Keys).
+3. In Supabase und Google Cloud die Produktiv-Domain als Redirect hinterlegen:  
+   `https://<deine-domain>/auth/callback`
+
+> Vercel Hobby ist für private/nicht-kommerzielle Nutzung gedacht. Für bezahlten Vereinseinsatz den Pro-Plan prüfen.
+
+---
 
 ## Projektstruktur
 
 ```
 src/
-  components/     React-Islands (Formulare, Listen, Badges, Kamera, Sync-Status)
-  layouts/        Astro-Layout (Navigation, PWA-Registrierung)
+  components/     React-Islands (Formulare, Import, Kamera, Sync)
+  layouts/        App-Layout, Navigation, PWA
   lib/
-    types.ts                 Zentrale Domänen-Typen
-    attributeDefinitions.ts  MVP-Bewertungsraster (Seed-Daten)
-    local/                   Dexie/IndexedDB (Offline-Speicherung, Repository-Funktionen)
-    supabase/                Supabase-Client
-    auth/                    Session-/Login-Verwaltung
-    sync/                    Outbox-Sync-Manager
-    export/                  PDF- und JSON-Export
-  pages/          Astro-Seiten/Routen
+    local/        Dexie / IndexedDB, Repository
+    import/       Transfermarkt, fussball.de, TheSportsDB, Persistenz
+    sync/         Outbox-Sync nach Supabase
+    export/       PDF- und JSON-Export
+    auth/         Session / Login
+    supabase/     Client
+  pages/          Routen (Berichte, Spieler, Vereine, Import, API)
 drizzle/
-  schema.ts       Datenbankschema (Referenz für Migrationen)
+  schema.ts       Datenbankschema
 supabase/
-  migrations/     Generierte SQL-Migrationen
-  policies.sql    Row-Level-Security-Policies (manuell im SQL-Editor ausführen)
-docs/
-  PLANNING.md     Feature-Plan, Datenmodell, Meilensteine
+  setup.sql       Einmal-Setup (Tabellen + RLS)
+  migrations/     Generierte Migrationen
+  policies.sql    Row-Level-Security
 ```
 
-## Aktueller Stand
+---
 
-Bereits umgesetzt (M0 + M1 + Basis-Export, siehe `docs/PLANNING.md`):
+## Status
 
-- [x] Projekt-Setup: Astro + Tailwind + React-Islands, Vercel-Adapter, PWA
-- [x] Lokale Datenhaltung (Dexie/IndexedDB) – App funktioniert vollständig offline
-- [x] Login (Google OAuth + Magic Link) – bei konfiguriertem Supabase Pflicht-Login + Logout
-- [x] Spieler-Scouting-Formular mit MVP-Bewertungsraster, Kamera-Foto,
-      Bezugstyp (Spiel/Training/sonstige Beobachtung)
-- [x] Team-Scouting-Formular (Gegner-Analyse vs. eigenes Team), gleiche
-      Bezugstyp-Logik
-- [x] Liste & Detailansicht mit klar erkennbaren Badges
-- [x] Manueller Sync-Button + einfacher automatischer Sync bei Wiederverbindung
-- [x] PDF- und JSON-Export je Bericht
-- [x] Drizzle-Schema + generierte SQL-Migration + RLS-Policies für Supabase
+| Meilenstein | Stand |
+|-------------|--------|
+| M0/M1 – Scaffold, Offline-DB, Berichte, Auth, Export | erledigt |
+| M2 – Import (Transfermarkt, fussball.de, TheSportsDB) | weitgehend |
+| M3 – robuster Sync (Konflikte, Pull, Retry-UI) | offen |
+| M4 – Dashboards & Spielervergleich | offen |
+| M6 – UI für Custom-Bewertungsfelder | offen |
 
-### Datenimport (M2 – teilweise)
+Aktiver Entwicklungsbranch: `cursor/scouting-app-mvp-0911`
 
-- [x] Seite **Import** (`/import`): Spieler/Vereine über TheSportsDB suchen und übernehmen
-- [x] **Transfermarkt-Import** (empfohlen für Jugend): Vereins-URL → Kader mit Name, Position, Geburtsdatum (z. B. U17)
-- [x] **fussball.de-Scraper**: Mannschaften + öffentliche Kader; Namensliste als Fallback
-- [x] Optional **SportDB.dev** (`SPORTDB_API_KEY`): API-Proxy auf Transfermarkt – ohne Key nutzt die App den direkten Scrape
-- [x] fussball.de-Verein + Spiele via `api-fussball.de` (benötigt `API_FUSSBALL_TOKEN`; Dienst oft offline)
-- [x] Deduplizierung über `external_source` + `external_ref`
-- [x] Manuelle Spieler-Anlage unter **Spieler**
-- Hinweis: Viele Jugend-Kader sind auf fussball.de **nicht freigegeben**. Für Jugend besser Transfermarkt nutzen.
+---
 
-Noch offen:
+## Lizenz & Hinweise
 
-- [ ] M3: robusterer Offline-Sync (Konfliktbehandlung, Retry-UI, Pull vom Server)
-- [ ] M4: Dashboards mit Filtern & Spieler-Vergleich
-- [ ] M6: UI zum Anlegen eigener Bewertungs-/Custom-Felder
+Privates Scouting-Tool. Datenquellen (Transfermarkt, fussball.de, …) unterliegen deren Nutzungsbedingungen – Importe nur für den eigenen Scout-Workflow, höflich und sparsam anfragen.
+
+Beiträge und Feedback gerne über Issues oder Pull Requests.
