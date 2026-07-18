@@ -1,6 +1,6 @@
-# Fussball Scouting App – Plan v1
+# Fussball Scouting App – Plan v2
 
-> Stand: Juli 2026. Dieses Dokument ist die lebende Planungsgrundlage für Feature-Umfang, Datenmodell, Architektur und Tech-Stack. Es wird im Projektverlauf laufend erweitert/angepasst.
+> Stand: Juli 2026 (Abstimmungsrunde 2). Dieses Dokument ist die lebende Planungsgrundlage für Feature-Umfang, Datenmodell, Architektur und Tech-Stack. Es wird im Projektverlauf laufend erweitert/angepasst.
 
 ## 1. Rahmenbedingungen (Ausgangslage)
 
@@ -30,7 +30,7 @@
 | ORM | **Drizzle ORM** | Typsicher, leichtgewichtig, sehr gut geeignet für Vercel/Edge-Functions |
 | Auth | **Supabase Auth**: Google OAuth + E-Mail Magic Link | Google-Login ist kostenlos; s. Hinweis zu Apple unten |
 | Foto/Video-Speicher | **Supabase Storage** (im Free Tier enthalten) | Kein separater Dienst nötig; Row-Level-Security direkt integrierbar |
-| Externe Fußball-Daten-API | **football-data.org** (Hauptquelle) + **TheSportsDB** (Logos/Fotos) | football-data.org: dauerhaft kostenlos, 12 große Wettbewerbe, stabil. TheSportsDB: kostenloser Key, gut für Vereinslogos/Spielerbilder. Später optional **API-Football** (100 Requests/Tag frei) für mehr Liga-Abdeckung |
+| Externe Fußball-Daten-API | **fussball.de-Daten** (Ligen, Vereine, Mannschaften, Spielpläne, Logos) über eine **Import-Adapter-Schicht** | Deutsche Amateur- und Jugendligen (Kreis-/Bezirks-/Landes-/Verbandsliga sowie A- bis F-Junioren) werden ausschließlich über **fussball.de** (DFBnet) abgebildet – es gibt aber **keine offizielle öffentliche API**. Details und Alternativen s. Abschnitt 2a. |
 | PDF-Export | **jsPDF** (+ `jspdf-autotable`) | Läuft komplett im Browser/Client – funktioniert auch offline, kein Server-Rendering (z. B. Puppeteer) nötig |
 | JSON-Export | Nativ (eigene Serialisierung) | Kein Zusatzdienst nötig |
 | Dashboards/Charts | **Recharts** oder **Chart.js** | Kostenlos, leichtgewichtig, React-kompatibel |
@@ -43,7 +43,23 @@
 3. **Supabase Free Tier pausiert nach 7 Tagen Inaktivität.** Lösung: ein kostenloser GitHub-Actions-Cron-Job, der z. B. 1×/Woche einen Health-Check-Endpoint aufruft und damit das Projekt "wach" hält.
 4. **Supabase Storage Free Tier = nur 1 GB.** Für Fotos gut ausreichend, für **Videos** wird das schnell knapp. Empfehlung: MVP nur mit Fotos arbeiten; Videos später entweder stark komprimiert/kurz halten oder als externe Links (z. B. unlisted YouTube) im Bericht verlinken statt Rohdateien zu speichern.
 5. **Vercel Hobby-Plan ist laut Nutzungsbedingungen nur für nicht-kommerzielle, private Projekte gedacht.** Für ein privates/Testprojekt oder einen Prototyp ist das kein Problem. Falls die App später für einen Verein im kommerziellen Kontext (bezahlte Nutzung) läuft, wäre formal der Pro-Plan (ca. 20 $/Monat) nötig – das sollten wir im Hinterkopf behalten, ist aber aktuell kein Blocker.
-6. **Datenimport-APIs sind nie vollständig kostenlos *und* vollständig.** football-data.org deckt nur 12 große Wettbewerbe ab. Für Amateur-/Nachwuchsligen wird man oft manuell Spieler/Vereine anlegen müssen – das MUSS die App also ohnehin unterstützen (manuelle Erfassung als Basis, API-Import als Komfort-Feature).
+6. **Datenimport-APIs sind nie vollständig kostenlos *und* vollständig.** Insbesondere für deutsche Amateur-/Jugendligen gibt es keine offizielle API (s. Abschnitt 2a) – manuelle Erfassung MUSS also immer als verlässliche Basis funktionieren, API-Import ist "nur" ein Komfort-Feature, das die manuelle Arbeit reduziert, wo möglich.
+
+## 2a. Datenimport: Deutsche Amateur- und Jugendligen (Entscheidung)
+
+**Anforderung:** API für deutsche Amateur- und Jugendligen; ausländische Ligen erstmal out of scope, aber später ergänzbar.
+
+**Rechercheergebnis:** Der deutsche Amateur- und Jugendfußball (Kreisliga bis Landes-/Verbandsliga, sowie A- bis F-Junioren/-innen) wird zu 100 % über **fussball.de** (Frontend des DFBnet, betrieben vom DFB und seinen 21 Landesverbänden) abgebildet. **fussball.de bietet jedoch keine offizielle, öffentliche Entwickler-API** – trotz jahrelanger Nachfrage in der Community. Es gibt nur:
+
+- Offizielle **iframe-Widgets** (für einzelne Vereine/Mannschaften, aber kein programmatischer Datenzugriff)
+- Mehrere **inoffizielle, community-betriebene JSON-Schnittstellen**, die fussball.de crawlen, z. B. **api-fussball.de** (aktuell kostenlos, liefert Vereine/Mannschaften/Tabellen/Spiele inkl. Logos für alle Mannschaftsarten wie A-Junioren bis F-Junioren, Frauen, Juniorinnen)
+- Offene Scraper-Bibliotheken auf GitHub (z. B. `iste2/Fu-ball.de-REST-API`), die man selbst hosten könnte
+
+**Empfehlung für das MVP/M2:**
+- Import-Feature gegen **api-fussball.de** aufbauen (kostenlos, liefert genau die benötigten Daten: Vereine, Mannschaften/"Ligen", Spielpläne, Logos – inkl. Jugendmannschaften)
+- **Wichtiger Vorbehalt:** Dies ist ein **inoffizieller Drittanbieter-Crawler**, kein offizieller DFB-Dienst. Es gibt keine Verfügbarkeits-Garantie, die Struktur von fussball.de könnte sich ändern und den Crawler brechen, und die Nutzung bewegt sich in einer rechtlichen Grauzone (Scraping der Nutzerdaten von fussball.de). Für ein privates/nicht-kommerzielles Scouting-Tool ist das ein vertretbares Risiko, sollte aber bewusst in Kauf genommen werden.
+- **Fallback-Strategie:** Da manuelle Erfassung ohnehin immer möglich sein muss, ist der Import rein additiv – fällt die Quelle aus, funktioniert die App unverändert weiter (nur ohne Automatik beim Anlegen neuer Vereine/Spieler).
+- **Architektur:** Der Import läuft über eine generische **`ImportProvider`-Schnittstelle** (ein Adapter pro Datenquelle: `FussballDeProvider` jetzt, später z. B. `FootballDataOrgProvider` oder `ApiFootballProvider` für ausländische Ligen). So lässt sich "ausländische Ligen später hinzufügen" umsetzen, ohne den Kern der App zu verändern – es kommt einfach ein weiterer Adapter hinzu, den der Scout beim Import als Quelle auswählen kann.
 
 ## 3. Datenmodell (Skizze, bewusst erweiterbar)
 
@@ -52,8 +68,10 @@ Kernidee zur **Erweiterbarkeit** (Punkt 2/3 aus deinen Antworten): Neben festen 
 - **club** – id, name, land, liga, logo_url, external_ref (Quelle+ID der API, für Dedup), custom_fields
 - **player** – id, vorname, nachname, geburtsdatum, nationalität, position(en), starker_fuß, größe, aktueller_club_id, foto_url, external_ref, custom_fields
 - **match** – id, heim_club_id, gast_club_id, wettbewerb, datum, spielort, external_ref
-- **player_report** (Spieler-Scouting-Bericht) – id, player_id, scout_id, match_id (nullable), datum, position_beobachtet, ratings (JSON: Kategorie → Wert), stärken, schwächen, freitext_notizen, gesamtbewertung, empfehlung, tags, custom_fields, sync_status, client_uuid, updated_at
-- **team_report** (Team-/Gegner-Analyse) – id, club_id, match_id (nullable), formation, spielstil, standardsituationen, stärken, schwächen, schlüsselspieler (Referenzen zu player), custom_fields, scout_id, sync_status, client_uuid, updated_at
+- **player_report** (Spieler-Scouting-Bericht) – id, player_id, scout_id, **bezugstyp** (`spiel` | `training` | `sonstige_beobachtung`), match_id (nur bei `bezugstyp = spiel`, sonst leer), datum, position_beobachtet, ratings (JSON: Kategorie → Wert), stärken, schwächen, freitext_notizen, gesamtbewertung, empfehlung, tags, custom_fields, sync_status, client_uuid, updated_at
+- **team_report** (Team-/Gegner-Analyse **oder** Analyse des eigenen/beobachteten Teams) – id, club_id, **berichtsart** (`gegner_analyse` | `eigenes_team`), **bezugstyp** (`spiel` | `training` | `sonstige_beobachtung`), match_id (nur bei `bezugstyp = spiel`), formation, spielstil, standardsituationen, stärken, schwächen, schlüsselspieler (Referenzen zu player), custom_fields, scout_id, sync_status, client_uuid, updated_at
+
+> **Klare Trennung/Erkennbarkeit (wichtig):** `bezugstyp` (Spiel vs. Training vs. sonstige Beobachtung) und bei Team-Berichten zusätzlich `berichtsart` (Gegner-Analyse vs. eigenes Team) sind Pflichtfelder. In Listen- und Detailansichten wird das immer als deutlich sichtbares Badge angezeigt (z. B. "⚽ Spiel: FC A vs. FC B, 12.03.2026" oder "🏋️ Training – freie Beobachtung", bzw. "🎯 Gegner-Analyse" vs. "🏠 Eigenes Team"), damit auf einen Blick klar ist, worauf sich ein Bericht bezieht.
 - **media** – id, report_typ (player_report/team_report), report_id, typ (foto/video/video_link), url oder lokale_blob_ref, sync_status
 - **attribute_definition** – id, gilt_für (player/team), name, typ (skala/text/auswahl…), skala_min, skala_max, ist_custom
 - **scout** (User) – id, name, email, auth_provider
@@ -78,20 +96,30 @@ Die Felder `sync_status` + `client_uuid` + `updated_at` sind zentral für den Of
 - (Später) Rollen: Scout / Trainer-Ansicht / Admin
 
 ### Stammdaten
-- Manuelle Anlage von Vereinen, Spielern, Spielen
-- Import von Basisdaten über football-data.org / TheSportsDB
+- Manuelle Anlage von Vereinen, Spielern, Spielen (immer möglich, unabhängig vom Import)
+- Import von Basisdaten für deutsche Amateur- und Jugendligen über fussball.de-Daten (s. Abschnitt 2a) via Import-Adapter-Architektur
 - Deduplizierung von Spielern/Vereinen beim Import (Abgleich über externe IDs + Namens-/Geburtsdatum-Fuzzy-Match)
+- Architektur offen für weitere Adapter (z. B. ausländische Ligen), ohne Kernlogik anzufassen
 
 ### Spieler-Scouting
 - Erfassungsformular mit Basis-Set an Feldern (siehe Datenmodell) + frei erweiterbaren Custom-Feldern
+- **Bezugstyp pro Bericht:** Spiel (verknüpft mit `match`) oder Training/sonstige freie Beobachtung (ohne Spielbezug) – beides muss möglich und in der UI klar erkennbar/unterscheidbar sein (Badges, Filter)
 - Foto-Aufnahme direkt aus der App (Kamera-Zugriff)
 - Verlaufsansicht: mehrere Berichte pro Spieler über Zeit
 - Spieler-Vergleich (Side-by-Side, mehrere Spieler)
+- **Bewertungsraster MVP** (Startpunkt, erweiterbar über `attribute_definitions`, s. u.):
+  - **Technik** (1–10): Ballannahme/-kontrolle, Passspiel, Torabschluss, Dribbling
+  - **Taktik** (1–10): Spielübersicht, Stellungsspiel, Zweikampfverhalten
+  - **Athletik** (1–10): Schnelligkeit, Sprungkraft/Explosivität, Ausdauer, Körperlichkeit/Zweikampfstärke
+  - **Mentalität** (1–10): Einstellung/Einsatz, Führungsqualität, Verhalten in Drucksituationen
+  - **Gesamtbewertung** (1–10, manuell vom Scout vergeben – nicht automatisch aus den Einzelwerten berechnet, da der Scout einen Gesamteindruck oft anders gewichten möchte)
+  - Freitextfeld für Stärken, Schwächen und allgemeine Notizen
+  - Empfehlung (z. B. "unbedingt beobachten", "im Blick behalten", "kein Potenzial")
 
 ### Team-/Gegner-Scouting
 - Erfassungsformular für Formation, Spielstil, Standardsituationen, Stärken/Schwächen
-- Verknüpfung mit Spielen/Vereinen
-- Getrennte Sicht: Gegner-Analyse vs. Analyse des eigenen/beobachteten Teams
+- Verknüpfung mit Spielen/Vereinen (oder Training/freie Beobachtung – analog zum Spieler-Bericht)
+- **Klare Trennung per `berichtsart`:** Gegner-Analyse vs. Analyse des eigenen/beobachteten Teams – beides ist möglich, wird aber in Formular, Liste und Export immer deutlich als solches gekennzeichnet
 
 ### Offline & Sync
 - Vollständige Nutzung ohne Internetverbindung (Formulare, Fotos, Ansicht bereits erfasster Daten)
@@ -117,18 +145,22 @@ Die Felder `sync_status` + `client_uuid` + `updated_at` sind zentral für den Of
 - Projekt-Setup: Astro + Tailwind + React-Islands, Vercel-Deployment, Supabase-Projekt
 - Login (Google + Magic Link)
 - Grunddatenmodell: Vereine, Spieler, Spiele (manuelle Anlage)
-- Spieler-Scouting-Formular mit Basisfeldern + Kamera-Foto
+- Spieler-Scouting-Formular mit MVP-Bewertungsraster (Technik/Taktik/Athletik/Mentalität + Gesamtbewertung + Freitext) + Kamera-Foto
+- **Bezugstyp** (Spiel vs. Training/freie Beobachtung) als Pflichtfeld inkl. klar erkennbarer Kennzeichnung in Liste/Detail
 - Lokale Speicherung (Dexie/IndexedDB) + PWA-Grundgerüst (offline installierbar, App-Shell cachebar)
 - Einfacher, manuell ausgelöster Sync ("Jetzt synchronisieren")
 - Liste & Detailansicht eigener Berichte
 
 **M1 – Team-/Gegner-Scouting**
 - Team-Analyse-Formular (Formation, Spielstil, Stärken/Schwächen)
+- **Berichtsart** (Gegner-Analyse vs. eigenes/beobachtetes Team) + Bezugstyp (Spiel vs. Training/frei) als Pflichtfelder, klar sichtbar gekennzeichnet
 - Verknüpfung mit Spielen/Vereinen
 
-**M2 – Datenimport & Dedup**
-- Anbindung football-data.org (Ligen, Vereine, Spiele) + TheSportsDB (Logos/Fotos)
-- Dedup-Logik beim Import (Abgleich gegen bestehende Datensätze)
+**M2 – Datenimport (deutsche Amateur-/Jugendligen) & Dedup**
+- Import-Adapter-Architektur (`ImportProvider`-Interface, s. Abschnitt 2a)
+- Erster Adapter: **fussball.de-Daten** (via api-fussball.de oder eigenem Scraper) für Vereine, Mannschaften/Ligen (Kreisliga bis Landes-/Verbandsliga), Spielpläne, Logos – inkl. Jugendmannschaften (A- bis F-Junioren/-innen)
+- Dedup-Logik beim Import (Abgleich gegen bestehende Datensätze über externe ID + Namens-/Ort-Fuzzy-Match)
+- Bewusst **kein** Adapter für ausländische Ligen in M2 (Backlog, s. u.) – Architektur lässt das aber zu
 
 **M3 – Robuster Offline-Sync**
 - Automatischer Hintergrund-Sync bei Wiederverbindung (statt nur manuell)
@@ -149,14 +181,21 @@ Die Felder `sync_status` + `client_uuid` + `updated_at` sind zentral für den Of
 
 **Später (Backlog, nicht Teil der ersten Iterationen)**
 - Weitere Rollen (Trainer-Ansicht, Admin)
-- Erweiterung auf mehr Ligen (z. B. API-Football)
+- **Ausländische Ligen als weiterer Import-Adapter** (z. B. football-data.org oder API-Football), sobald benötigt – rein additiv dank Adapter-Architektur aus M2
 - Video-Handling (Kompression/externe Hosting-Strategie)
 - Ggf. Wechsel zu RxDB/PowerSync, falls Sync-Anforderungen wachsen
 - Apple Sign-In (sobald Budget vorhanden)
 
-## 7. Offene Punkte zur Abstimmung
+## 7. Entscheidungen aus Abstimmungsrunde 2
 
-- Passt die Reihenfolge der Meilensteine (z. B. Team-Scouting vor Datenimport)?
-- Welche konkreten Basis-Bewertungskategorien wollen wir für Spieler im MVP festlegen (z. B. Technik, Taktik, Athletik, Mentalität, jeweils 1–10)?
-- Sollen Spieler-Berichte an ein konkretes Spiel gebunden sein müssen, oder auch "freie" Beobachtungen (z. B. im Training) möglich sein?
-- Reicht football-data.org's Abdeckung (12 Top-Wettbewerbe) für eure Zielligen, oder brauchen wir von Anfang an API-Football/manuelle Erfassung stärker im Fokus?
+- ✅ Reihenfolge der Meilensteine bestätigt.
+- ✅ MVP-Bewertungskategorien: Technik, Taktik, Athletik, Mentalität (je 1–10) + manuelle Gesamtbewertung + Freitext (s. Abschnitt 5) – erweiterbar über `attribute_definitions` (M6).
+- ✅ Sowohl spielgebundene als auch freie Beobachtungen (Training/sonstige) müssen möglich sein – als `bezugstyp`-Pflichtfeld modelliert, immer klar sichtbar gekennzeichnet.
+- ✅ Sowohl Gegner-Analyse als auch Analyse des eigenen/beobachteten Teams müssen möglich sein – als `berichtsart`-Pflichtfeld modelliert, immer klar sichtbar gekennzeichnet.
+- ✅ Datenimport-Quelle für M2: **fussball.de-Daten** (deutsche Amateur- & Jugendligen) statt football-data.org/TheSportsDB, da diese ausschließlich internationale Top-Ligen abdecken. Kein offizielles API vorhanden → Nutzung eines inoffiziellen Community-Crawlers (z. B. api-fussball.de) mit entsprechendem Vorbehalt (s. Abschnitt 2a). Ausländische Ligen bleiben vorerst out of scope, werden aber über die Adapter-Architektur später ergänzbar sein.
+
+## 8. Offene Punkte zur weiteren Abstimmung
+
+- Sollen wir den Import direkt auf ganz Deutschland auslegen, oder zunächst auf bestimmte Landes-/Bezirksverbände (z. B. die Region, in der eure Scouts aktiv sind) eingrenzen, um Aufwand/Datenmenge zu reduzieren?
+- Soll die Gesamtbewertung eine reine Zahl sein, oder zusätzlich mit einer kurzen Kategorisierung versehen werden (z. B. Ampel-System "sofort handeln / beobachten / kein Bedarf")?
+- Gibt es bereits einen bevorzugten Namen/Domain für die App (relevant für Vercel-Projektnamen, Supabase-Projekt, ggf. PWA-App-Namen/Icon)?
