@@ -52,6 +52,8 @@ alter table public.attribute_definitions enable row level security;
 -- 3) scouts
 create policy "scouts_select_all_authenticated" on public.scouts
   for select to authenticated using (true);
+create policy "scouts_insert_own" on public.scouts
+  for insert to authenticated with check (id = auth.uid());
 create policy "scouts_update_own" on public.scouts
   for update to authenticated using (id = auth.uid());
 

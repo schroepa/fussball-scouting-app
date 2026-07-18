@@ -1,13 +1,23 @@
 ---
 import "../styles/global.css";
 import SyncStatusBar from "../components/SyncStatusBar";
+import UserMenu from "../components/UserMenu";
+import AuthGate from "../components/AuthGate";
 
 interface Props {
   title?: string;
   activeNav?: "home" | "reports" | "players" | "clubs";
+  /** Login-/Callback-Seiten: false. Alle anderen Seiten: true (Default). */
+  requireAuth?: boolean;
+  showNav?: boolean;
 }
 
-const { title = "Fussball Scouting", activeNav } = Astro.props;
+const {
+  title = "Fussball Scouting",
+  activeNav,
+  requireAuth = true,
+  showNav = true,
+} = Astro.props;
 
 const navItems = [
   { key: "home", href: "/", label: "Start", icon: "🏠" },
@@ -30,32 +40,39 @@ const navItems = [
     <meta name="generator" content={Astro.generator} />
     <title>{title} · Fussball Scouting</title>
   </head>
-  <body class="pb-20">
-    <header class="sticky top-0 z-10 bg-slate-900 text-white px-4 py-3 flex items-center justify-between shadow">
-      <a href="/" class="font-semibold text-lg flex items-center gap-2">
+  <body class={showNav ? "pb-20" : ""}>
+    <AuthGate client:load requireAuth={requireAuth} />
+
+    <header class="sticky top-0 z-10 bg-slate-900 text-white px-4 py-3 flex items-center justify-between gap-2 shadow">
+      <a href="/" class="font-semibold text-lg flex items-center gap-2 shrink-0">
         ⚽ <span>Fussball Scouting</span>
       </a>
-      <SyncStatusBar client:load />
+      <div class="flex items-center gap-2 min-w-0">
+        <SyncStatusBar client:load />
+        <UserMenu client:load />
+      </div>
     </header>
 
     <main class="max-w-2xl mx-auto px-4 py-4">
       <slot />
     </main>
 
-    <nav class="fixed bottom-0 inset-x-0 z-10 bg-white border-t border-slate-200 flex justify-around py-1 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
-      {navItems.map((item) => (
-        <a
-          href={item.href}
-          class:list={[
-            "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs font-medium",
-            activeNav === item.key ? "text-emerald-600" : "text-slate-500",
-          ]}
-        >
-          <span class="text-xl leading-none">{item.icon}</span>
-          {item.label}
-        </a>
-      ))}
-    </nav>
+    {showNav && (
+      <nav class="fixed bottom-0 inset-x-0 z-10 bg-white border-t border-slate-200 flex justify-around py-1 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+              activeNav === item.key ? "text-emerald-600" : "text-slate-500",
+            ]}
+          >
+            <span class="text-xl leading-none">{item.icon}</span>
+            {item.label}
+          </a>
+        ))}
+      </nav>
+    )}
 
     <script>
       import { registerSW } from "virtual:pwa-register";

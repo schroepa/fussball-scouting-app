@@ -1,30 +1,57 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { isSupabaseConfigured } from "../lib/supabase/client";
-import { signInWithGoogle, signInWithMagicLink } from "../lib/auth/session";
+import {
+  getCurrentSession,
+  signInWithGoogle,
+  signInWithMagicLink,
+} from "../lib/auth/session";
+
+function getNextPath(): string {
+  if (typeof window === "undefined") return "/";
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (next && next.startsWith("/") && !next.startsWith("//")) return next;
+  return "/";
+}
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setChecking(false);
+      return;
+    }
+    getCurrentSession().then((session) => {
+      if (session.isAuthenticated) {
+        window.location.replace(getNextPath());
+        return;
+      }
+      setChecking(false);
+    });
+  }, []);
 
   if (!isSupabaseConfigured) {
     return (
       <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-800 text-sm space-y-2">
         <p className="font-semibold">Supabase ist noch nicht konfiguriert.</p>
         <p>
-          Die App funktioniert bereits vollständig lokal (Erfassung &amp; Offline-Nutzung).
-          Für Login und Synchronisation über mehrere Geräte hinweg trage
+          Trage{" "}
           <code className="mx-1 rounded bg-amber-100 px-1">PUBLIC_SUPABASE_URL</code>
-          und
+          und{" "}
           <code className="mx-1 rounded bg-amber-100 px-1">PUBLIC_SUPABASE_ANON_KEY</code>
-          in den Umgebungsvariablen ein (siehe README.md).
+          in der lokalen <code className="mx-1 rounded bg-amber-100 px-1">.env</code> ein
+          (siehe README.md), dann Dev-Server neu starten.
         </p>
-        <a href="/" className="inline-block underline font-medium">
-          Trotzdem lokal weiterarbeiten →
-        </a>
       </div>
     );
+  }
+
+  if (checking) {
+    return <p className="text-slate-500 text-sm text-center">Prüfe Anmeldung…</p>;
   }
 
   const handleGoogle = async () => {

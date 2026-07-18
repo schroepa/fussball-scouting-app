@@ -43,28 +43,22 @@ sind deaktiviert.
 ## Supabase einrichten (für Login & Synchronisation)
 
 1. Kostenloses Projekt auf [supabase.com](https://supabase.com) anlegen.
-2. Unter **Authentication → Providers**: Google-OAuth aktivieren (Client-ID/
-   Secret aus der [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-   eintragen) und/oder E-Mail-OTP (Magic Link) aktivieren (meist standardmäßig an).
-3. Tabellen anlegen: entweder per Drizzle-Migration oder direkt im Supabase
-   SQL-Editor die Datei
-   [`supabase/migrations/0000_daily_hardball.sql`](supabase/migrations/0000_daily_hardball.sql)
-   ausführen.
-   - Alternativ per CLI: `SUPABASE_DB_URL=<connection-string> npm run db:push`
-     (Connection-String: Project Settings → Database → Connection string).
-4. Danach **einmalig** [`supabase/policies.sql`](supabase/policies.sql) im
-   SQL-Editor ausführen (Row-Level-Security-Policies + Trigger, der bei neuer
-   Anmeldung automatisch einen `scouts`-Eintrag anlegt).
-5. Storage-Bucket `report-media` anlegen (Storage → New bucket, "Public"
-   deaktiviert, Zugriff nur für eingeloggte Nutzer) – wird ab M2/M3 für den
-   Foto-Upload beim Sync verwendet.
-6. `.env` aus `.env.example` erstellen und `PUBLIC_SUPABASE_URL` /
-   `PUBLIC_SUPABASE_ANON_KEY` aus Project Settings → API eintragen.
-7. Damit das kostenlose Supabase-Projekt nicht nach 7 Tagen Inaktivität
-   pausiert wird, empfiehlt sich ein wöchentlicher GitHub-Actions-Cronjob,
-   der eine beliebige Tabelle abfragt (siehe `docs/PLANNING.md`, Abschnitt 2).
+2. Unter **Authentication → Sign In / Providers**: Google-OAuth aktivieren
+   (Client-ID/Secret aus der [Google Cloud Console](https://console.cloud.google.com/auth/clients)
+   eintragen). Unter **URL Configuration**: Site URL z. B. `http://localhost:4321`,
+   Redirect URL `http://localhost:4321/auth/callback`. In Google Cloud muss als
+   Weiterleitungs-URI die Supabase-Callback-URL stehen:
+   `https://<project-ref>.supabase.co/auth/v1/callback`.
+3. **Tabellen + Policies einmalig anlegen:** Im Supabase-Dashboard →
+   **SQL Editor** den kompletten Inhalt von
+   [`supabase/setup.sql`](supabase/setup.sql) einfügen und **Run** klicken.
+   (Das erzeugt alle Tabellen, den Auth-Trigger und die Row-Level-Security.)
+4. `.env` aus `.env.example` erstellen und `PUBLIC_SUPABASE_URL` /
+   `PUBLIC_SUPABASE_ANON_KEY` eintragen (Publishable Key reicht).
+5. Optional später: Storage-Bucket `report-media` für Foto-Upload beim Sync.
 
-Ohne diese Schritte läuft die App weiterhin im Lokal-Modus (siehe oben).
+Sobald Supabase konfiguriert ist, erfordert die App einen Login (Google oder
+Magic Link). Ohne Konfiguration bleibt der reine Lokal-Modus möglich.
 
 ## Datenbankschema ändern
 
@@ -124,7 +118,7 @@ Bereits umgesetzt (M0 + M1 + Basis-Export, siehe `docs/PLANNING.md`):
 
 - [x] Projekt-Setup: Astro + Tailwind + React-Islands, Vercel-Adapter, PWA
 - [x] Lokale Datenhaltung (Dexie/IndexedDB) – App funktioniert vollständig offline
-- [x] Login-UI (Google OAuth + Magic Link) – aktiv, sobald Supabase konfiguriert ist
+- [x] Login (Google OAuth + Magic Link) – bei konfiguriertem Supabase Pflicht-Login + Logout
 - [x] Spieler-Scouting-Formular mit MVP-Bewertungsraster, Kamera-Foto,
       Bezugstyp (Spiel/Training/sonstige Beobachtung)
 - [x] Team-Scouting-Formular (Gegner-Analyse vs. eigenes Team), gleiche
