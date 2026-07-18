@@ -6,7 +6,7 @@ import AuthGate from "../components/AuthGate";
 
 interface Props {
   title?: string;
-  activeNav?: "home" | "reports" | "players" | "clubs";
+  activeNav?: "home" | "reports" | "players" | "clubs" | "import";
   /** Login-/Callback-Seiten: false. Alle anderen Seiten: true (Default). */
   requireAuth?: boolean;
   showNav?: boolean;
@@ -23,7 +23,7 @@ const navItems = [
   { key: "home", href: "/", label: "Start", icon: "🏠" },
   { key: "reports", href: "/reports", label: "Berichte", icon: "📋" },
   { key: "players", href: "/players", label: "Spieler", icon: "🧍" },
-  { key: "clubs", href: "/clubs", label: "Vereine", icon: "🏟️" },
+  { key: "import", href: "/import", label: "Import", icon: "⬇" },
 ] as const;
 ---
 

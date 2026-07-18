@@ -33,6 +33,54 @@ export async function createClub(
   return club;
 }
 
+/** Dedup: gleicher Verein (Quelle+externe ID) wird nicht erneut angelegt. */
+export async function upsertClubByExternalRef(
+  input: Omit<Club, "id" | "syncStatus" | "updatedAt" | "createdAt">
+): Promise<{ club: Club; created: boolean }> {
+  if (input.externalSource && input.externalRef) {
+    const existing = await db.clubs
+      .filter(
+        (c) =>
+          c.externalSource === input.externalSource &&
+          c.externalRef === input.externalRef
+      )
+      .first();
+    if (existing) {
+      const updated: Club = {
+        ...existing,
+        ...input,
+        id: existing.id,
+        syncStatus: "pending",
+        updatedAt: nowIso(),
+        createdAt: existing.createdAt,
+      };
+      await db.clubs.put(updated);
+      return { club: updated, created: false };
+    }
+  }
+
+  // Fallback: Namens-Match ohne externe ID (manuell angelegte Vereine).
+  const byName = await db.clubs
+    .filter((c) => c.name.toLowerCase() === input.name.toLowerCase())
+    .first();
+  if (byName) {
+    const updated: Club = {
+      ...byName,
+      ...input,
+      id: byName.id,
+      externalSource: input.externalSource ?? byName.externalSource,
+      externalRef: input.externalRef ?? byName.externalRef,
+      syncStatus: "pending",
+      updatedAt: nowIso(),
+      createdAt: byName.createdAt,
+    };
+    await db.clubs.put(updated);
+    return { club: updated, created: false };
+  }
+
+  return { club: await createClub(input), created: true };
+}
+
 export async function listClubs(): Promise<Club[]> {
   await ensureSeeded();
   return db.clubs.orderBy("name").toArray();
@@ -57,6 +105,35 @@ export async function createPlayer(
   return player;
 }
 
+/** Dedup: gleicher Spieler (Quelle+externe ID) wird aktualisiert statt doppelt angelegt. */
+export async function upsertPlayerByExternalRef(
+  input: Omit<Player, "id" | "syncStatus" | "updatedAt" | "createdAt">
+): Promise<{ player: Player; created: boolean }> {
+  if (input.externalSource && input.externalRef) {
+    const existing = await db.players
+      .filter(
+        (p) =>
+          p.externalSource === input.externalSource &&
+          p.externalRef === input.externalRef
+      )
+      .first();
+    if (existing) {
+      const updated: Player = {
+        ...existing,
+        ...input,
+        id: existing.id,
+        syncStatus: "pending",
+        updatedAt: nowIso(),
+        createdAt: existing.createdAt,
+      };
+      await db.players.put(updated);
+      return { player: updated, created: false };
+    }
+  }
+
+  return { player: await createPlayer(input), created: true };
+}
+
 export async function listPlayers(): Promise<Player[]> {
   await ensureSeeded();
   return db.players.orderBy("nachname").toArray();
@@ -79,6 +156,34 @@ export async function createMatch(
   };
   await db.matches.add(match);
   return match;
+}
+
+export async function upsertMatchByExternalRef(
+  input: Omit<Match, "id" | "syncStatus" | "updatedAt" | "createdAt">
+): Promise<{ match: Match; created: boolean }> {
+  if (input.externalSource && input.externalRef) {
+    const existing = await db.matches
+      .filter(
+        (m) =>
+          m.externalSource === input.externalSource &&
+          m.externalRef === input.externalRef
+      )
+      .first();
+    if (existing) {
+      const updated: Match = {
+        ...existing,
+        ...input,
+        id: existing.id,
+        syncStatus: "pending",
+        updatedAt: nowIso(),
+        createdAt: existing.createdAt,
+      };
+      await db.matches.put(updated);
+      return { match: updated, created: false };
+    }
+  }
+
+  return { match: await createMatch(input), created: true };
 }
 
 export async function listMatches(): Promise<Match[]> {

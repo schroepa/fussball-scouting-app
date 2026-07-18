@@ -128,9 +128,16 @@ Bereits umgesetzt (M0 + M1 + Basis-Export, siehe `docs/PLANNING.md`):
 - [x] PDF- und JSON-Export je Bericht
 - [x] Drizzle-Schema + generierte SQL-Migration + RLS-Policies für Supabase
 
-Noch offen (siehe Meilensteine in `docs/PLANNING.md`):
+### Datenimport (M2 – teilweise)
 
-- [ ] M2: Datenimport deutscher Amateur-/Jugendligen (fussball.de-Daten) inkl. Dedup
+- [x] Seite **Import** (`/import`): Spieler/Vereine über TheSportsDB suchen und übernehmen
+- [x] fussball.de-Verein + Spiele via `api-fussball.de` (benötigt `API_FUSSBALL_TOKEN`)
+- [x] Deduplizierung über `external_source` + `external_ref`
+- [x] Manuelle Spieler-Anlage unter **Spieler**
+- Hinweis: fussball.de liefert **keine Spieler-Kader**. Amateur-/Jugendspieler ohne TheSportsDB-Eintrag weiterhin manuell anlegen; Verein/Spiele können trotzdem importiert werden.
+
+Noch offen:
+
 - [ ] M3: robusterer Offline-Sync (Konfliktbehandlung, Retry-UI, Pull vom Server)
 - [ ] M4: Dashboards mit Filtern & Spieler-Vergleich
 - [ ] M6: UI zum Anlegen eigener Bewertungs-/Custom-Felder
