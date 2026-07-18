@@ -6,12 +6,31 @@ import type {
 } from "../lib/import/types";
 import { persistImportResult } from "../lib/import/persist";
 
-type Tab = "spieler" | "fussballde";
+type Tab = "spieler" | "fussballde" | "scraper";
+
+interface ScrapedTeam {
+  teamId: string;
+  name: string;
+  category?: string;
+  season?: string;
+}
+
+type ScrapeResult = ImportSearchResult & {
+  teams?: ScrapedTeam[];
+  seasonUsed?: string;
+  notice?: string;
+  error?: string;
+};
 
 export default function ImportPanel() {
-  const [tab, setTab] = useState<Tab>("spieler");
+  const [tab, setTab] = useState<Tab>("scraper");
   const [query, setQuery] = useState("");
   const [fussballUrl, setFussballUrl] = useState("");
+  const [scrapeUrl, setScrapeUrl] = useState("");
+  const [season, setSeason] = useState("2526");
+  const [teams, setTeams] = useState<ScrapedTeam[]>([]);
+  const [clubContext, setClubContext] = useState<ImportedClub | null>(null);
+  const [pasteNames, setPasteNames] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImportSearchResult | null>(null);
@@ -30,7 +49,9 @@ export default function ImportPanel() {
       if (!res.ok) throw new Error(data.error || "Suche fehlgeschlagen.");
       setResult(data);
       if (data.players.length === 0 && data.clubs.length === 0) {
-        setStatus("Keine Treffer. Für Amateur-/Jugendspieler bitte manuell anlegen.");
+        setStatus(
+          "Keine Treffer. Für Amateur-/Jugendspieler bitte Scraper oder manuell nutzen."
+        );
       }
     } catch (err) {
       setError((err as Error).message);
@@ -54,8 +75,116 @@ export default function ImportPanel() {
       if (!res.ok) throw new Error(data.error || "Import fehlgeschlagen.");
       setResult(data);
       setStatus(
-        `${data.clubs.length} Verein(e), ${data.matches.length} Spiel(e) gefunden. Spieler-Kader liefert fussball.de nicht – Spieler bitte suchen oder manuell anlegen.`
+        `${data.clubs.length} Verein(e), ${data.matches.length} Spiel(e) gefunden. Für Spieler-Kader bitte den Tab „Jugend/Kader“ nutzen.`
       );
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runScrape = async (opts?: {
+    teamId?: string;
+    importAllSquads?: boolean;
+  }) => {
+    setLoading(true);
+    setError(null);
+    setStatus(null);
+    if (!opts?.teamId) setResult(null);
+    try {
+      const res = await fetch("/api/import/fussballde-scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          urlOrId: scrapeUrl.trim(),
+          mode: opts?.teamId ? "squad" : "auto",
+          teamId: opts?.teamId,
+          season,
+          importAllSquads: opts?.importAllSquads ?? false,
+        }),
+      });
+      const data = (await res.json()) as ScrapeResult;
+      if (!res.ok) throw new Error(data.error || "Scrape fehlgeschlagen.");
+
+      if (data.teams?.length) setTeams(data.teams);
+      if (data.clubs[0]) setClubContext(data.clubs[0]);
+      setResult({
+        clubs: data.clubs,
+        players: data.players,
+        matches: data.matches,
+      });
+
+      const parts: string[] = [];
+      if (data.notice) parts.push(data.notice);
+      if (data.seasonUsed) parts.push(`Saison: ${data.seasonUsed}`);
+      if (data.players.length) {
+        parts.push(`${data.players.length} Spieler gefunden.`);
+      }
+      setStatus(parts.join(" ") || null);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const importPastedNames = async () => {
+    if (!pasteNames.trim()) return;
+    setLoading(true);
+    setError(null);
+    setStatus(null);
+    try {
+      const club =
+        clubContext ??
+        ({
+          externalSource: "manual",
+          externalRef: `paste:${Date.now()}`,
+          name: "Manueller Import",
+          land: "Deutschland",
+        } satisfies ImportedClub);
+
+      const players: ImportedPlayer[] = pasteNames
+        .split(/\n+/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line, idx) => {
+          let vorname = "";
+          let nachname = line;
+          if (line.includes(",")) {
+            const [nach, ...rest] = line.split(",");
+            nachname = (nach ?? "").trim();
+            vorname = rest.join(",").trim();
+          } else {
+            const parts = line.split(/\s+/);
+            if (parts.length >= 2) {
+              vorname = parts.slice(0, -1).join(" ");
+              nachname = parts[parts.length - 1] ?? line;
+            }
+          }
+          return {
+            externalSource: "manual",
+            externalRef: `paste:${club.externalRef}:${idx}:${nachname}:${vorname}`.toLowerCase(),
+            vorname: vorname || "—",
+            nachname,
+            positionen: [],
+            clubExternalRef: club.externalRef,
+            clubName: club.name,
+            nationalitaet: "Deutschland",
+          };
+        });
+
+      const payload: ImportSearchResult = {
+        clubs: clubContext ? [clubContext] : [club],
+        players,
+        matches: [],
+      };
+      const saved = await persistImportResult(payload);
+      setResult(payload);
+      setStatus(
+        `${saved.playersCreated} Spieler neu / ${saved.playersUpdated} aktualisiert aus Namensliste übernommen.`
+      );
+      setPasteNames("");
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -72,8 +201,7 @@ export default function ImportPanel() {
       setStatus(
         `Importiert: ${saved.playersCreated} Spieler neu / ${saved.playersUpdated} aktualisiert, ` +
           `${saved.clubsCreated} Vereine neu / ${saved.clubsUpdated} aktualisiert, ` +
-          `${saved.matchesCreated} Spiele neu / ${saved.matchesUpdated} aktualisiert. ` +
-          `Beim Bewerten werden Stammdaten + Scout-Noten per Sync nach Supabase geschrieben.`
+          `${saved.matchesCreated} Spiele neu / ${saved.matchesUpdated} aktualisiert.`
       );
     } catch (err) {
       setError((err as Error).message);
@@ -130,26 +258,29 @@ export default function ImportPanel() {
         <p className="font-medium text-slate-800">So funktioniert der Import</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>
-            <strong>Spieler/Vereine suchen</strong> (TheSportsDB): bekannte Spieler
-            mit Stammdaten (Geburt, Position, Foto, Verein).
+            <strong>Jugend/Kader</strong>: leichter fussball.de-Scraper –
+            Mannschaften + öffentliche Kader (kein API-Token nötig).
           </li>
           <li>
-            <strong>fussball.de-Verein</strong>: Verein + Spiele aus deutschen
-            Amateur-/Jugendligen. Kader-Listen liefert die API nicht.
+            Jugend-Kader sind oft <em>nicht freigegeben</em>. Dann Namensliste
+            einfügen (eine Zeile pro Spieler).
           </li>
           <li>
-            Beim Speichern eines Scouting-Berichts bleiben API-Stammdaten + deine
-            Bewertungen zusammen in der lokalen DB und werden per Sync nach
-            Supabase geschrieben.
+            <strong>Spieler suchen</strong> (TheSportsDB): bekannte Profis.
+          </li>
+          <li>
+            <strong>fussball.de-API</strong>: Verein + Spiele (braucht Token;
+            derzeit oft offline).
           </li>
         </ul>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {(
           [
-            { key: "spieler", label: "Spieler/Verein suchen" },
-            { key: "fussballde", label: "fussball.de-Verein" },
+            { key: "scraper", label: "Jugend/Kader" },
+            { key: "spieler", label: "Spieler suchen" },
+            { key: "fussballde", label: "fussball.de-API" },
           ] as const
         ).map((opt) => (
           <button
@@ -172,7 +303,7 @@ export default function ImportPanel() {
         ))}
       </div>
 
-      {tab === "spieler" ? (
+      {tab === "spieler" && (
         <div className="flex gap-2">
           <input
             type="text"
@@ -191,7 +322,9 @@ export default function ImportPanel() {
             Suchen
           </button>
         </div>
-      ) : (
+      )}
+
+      {tab === "fussballde" && (
         <div className="space-y-2">
           <input
             type="text"
@@ -201,10 +334,8 @@ export default function ImportPanel() {
             className="w-full rounded-lg border border-slate-300 px-3 py-2"
           />
           <p className="text-xs text-slate-500">
-            URL von der Vereinsseite kopieren (enthält{" "}
-            <code className="bg-slate-100 px-1">/-/id/…</code>). Benötigt{" "}
-            <code className="bg-slate-100 px-1">API_FUSSBALL_TOKEN</code> in der{" "}
-            <code className="bg-slate-100 px-1">.env</code>.
+            Benötigt <code className="bg-slate-100 px-1">API_FUSSBALL_TOKEN</code>{" "}
+            in der <code className="bg-slate-100 px-1">.env</code>.
           </p>
           <button
             type="button"
@@ -214,6 +345,110 @@ export default function ImportPanel() {
           >
             Verein von fussball.de laden
           </button>
+        </div>
+      )}
+
+      {tab === "scraper" && (
+        <div className="space-y-3">
+          <input
+            type="text"
+            placeholder="Vereins- oder Mannschafts-URL von fussball.de"
+            value={scrapeUrl}
+            onChange={(e) => setScrapeUrl(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="text-sm text-slate-600">
+              Saison{" "}
+              <select
+                value={season}
+                onChange={(e) => setSeason(e.target.value)}
+                className="ml-1 rounded border border-slate-300 px-2 py-1"
+              >
+                <option value="2627">2026/27</option>
+                <option value="2526">2025/26</option>
+                <option value="2425">2024/25</option>
+                <option value="2324">2023/24</option>
+                <option value="2223">2022/23</option>
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => runScrape()}
+              disabled={loading || !scrapeUrl.trim()}
+              className="rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm font-medium disabled:opacity-50"
+            >
+              Laden
+            </button>
+            <button
+              type="button"
+              onClick={() => runScrape({ importAllSquads: true })}
+              disabled={loading || !scrapeUrl.trim()}
+              className="rounded-lg bg-slate-800 text-white px-4 py-2 text-sm font-medium disabled:opacity-50"
+            >
+              Alle Kader laden
+            </button>
+          </div>
+          <p className="text-xs text-slate-500">
+            Beispiel: Vereinsseite kopieren (
+            <code className="bg-slate-100 px-1">/verein/…/-/id/…</code>) oder
+            direkt eine Mannschaft (
+            <code className="bg-slate-100 px-1">team-id/…</code>). Der Scraper
+            ist bewusst langsam/höflich.
+          </p>
+
+          {teams.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="font-semibold text-slate-800 text-sm">
+                Mannschaften ({teams.length})
+              </h3>
+              <ul className="space-y-1 max-h-56 overflow-auto">
+                {teams.map((t) => (
+                  <li
+                    key={t.teamId}
+                    className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  >
+                    <span className="truncate">{t.name}</span>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => runScrape({ teamId: t.teamId })}
+                      className="shrink-0 text-emerald-700 font-medium underline disabled:opacity-50"
+                    >
+                      Kader
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="rounded-xl border border-dashed border-slate-300 p-3 space-y-2">
+            <p className="text-sm font-medium text-slate-800">
+              Namensliste (Fallback für Jugend)
+            </p>
+            <p className="text-xs text-slate-500">
+              Eine Zeile pro Spieler – Format{" "}
+              <code className="bg-slate-100 px-1">Nachname, Vorname</code> oder{" "}
+              <code className="bg-slate-100 px-1">Vorname Nachname</code>.
+              {clubContext ? ` Zugeordnet zu: ${clubContext.name}.` : ""}
+            </p>
+            <textarea
+              value={pasteNames}
+              onChange={(e) => setPasteNames(e.target.value)}
+              rows={4}
+              placeholder={"Müller, Max\nSchmidt, Lea"}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+            <button
+              type="button"
+              onClick={importPastedNames}
+              disabled={loading || !pasteNames.trim()}
+              className="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-medium disabled:opacity-50"
+            >
+              Namensliste übernehmen
+            </button>
+          </div>
         </div>
       )}
 
