@@ -19,7 +19,7 @@ export default function PlayerReportDetail({ reportId }: Props) {
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
 
   useEffect(() => {
-    (async () => {
+    const load = async () => {
       const r = await getPlayerReport(reportId);
       if (!r) {
         setReport(null);
@@ -43,7 +43,11 @@ export default function PlayerReportDetail({ reportId }: Props) {
         }
       }
       setPhotoUrls(urls);
-    })();
+    };
+
+    load();
+    window.addEventListener("scouting:synced", load);
+    return () => window.removeEventListener("scouting:synced", load);
   }, [reportId]);
 
   if (report === undefined) return <p className="text-slate-500 text-sm">Lade…</p>;

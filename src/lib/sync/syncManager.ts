@@ -1,4 +1,5 @@
 import { getSupabaseClient, isSupabaseConfigured } from "../supabase/client";
+import { getCurrentSession } from "../auth/session";
 import { db } from "../local/db";
 import type { Club, Match, Player, PlayerReport, TeamReport } from "../types";
 
@@ -40,13 +41,51 @@ export async function pushPendingChanges(): Promise<SyncResult> {
     return { ok: false, synced: 0, failed: 0, message: "Kein Supabase-Client." };
   }
 
+  const session = await getCurrentSession();
+  if (!session.isAuthenticated) {
+    return {
+      ok: false,
+      synced: 0,
+      failed: 0,
+      message: "Bitte zuerst anmelden, bevor synchronisiert wird.",
+    };
+  }
+
+  // Scout muss in public.scouts existieren (FK + RLS für Berichte).
+  const { error: scoutError } = await supabase.from("scouts").upsert(
+    {
+      id: session.scout.id,
+      name: session.scout.name,
+      email: session.scout.email,
+      auth_provider: session.scout.authProvider ?? "google",
+    },
+    { onConflict: "id" }
+  );
+  if (scoutError) {
+    return {
+      ok: false,
+      synced: 0,
+      failed: 0,
+      message: `Scout konnte nicht synchronisiert werden: ${scoutError.message}`,
+    };
+  }
+
+  // Berichte, die vor dem Login mit lokaler Scout-ID angelegt wurden,
+  // auf den eingeloggten User umbiegen – sonst scheitern FK/RLS.
+  await reassignPendingReportsToScout(session.scout.id);
+
   let synced = 0;
   let failed = 0;
+  const errors: string[] = [];
 
-  synced += await syncTable<Club>(
-    db.clubs,
-    "clubs",
-    (c) => ({
+  const track = (result: { synced: number; failed: number; error?: string }) => {
+    synced += result.synced;
+    failed += result.failed;
+    if (result.error) errors.push(result.error);
+  };
+
+  track(
+    await syncTable<Club>(db.clubs, "clubs", (c) => ({
       id: c.id,
       name: c.name,
       land: c.land,
@@ -57,14 +96,11 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       custom_fields: c.customFields ?? {},
       updated_at: c.updatedAt,
       created_at: c.createdAt,
-    }),
-    (n) => (failed += n)
+    }))
   );
 
-  synced += await syncTable<Player>(
-    db.players,
-    "players",
-    (p) => ({
+  track(
+    await syncTable<Player>(db.players, "players", (p) => ({
       id: p.id,
       vorname: p.vorname,
       nachname: p.nachname,
@@ -80,14 +116,11 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       custom_fields: p.customFields ?? {},
       updated_at: p.updatedAt,
       created_at: p.createdAt,
-    }),
-    (n) => (failed += n)
+    }))
   );
 
-  synced += await syncTable<Match>(
-    db.matches,
-    "matches",
-    (m) => ({
+  track(
+    await syncTable<Match>(db.matches, "matches", (m) => ({
       id: m.id,
       heim_club_id: m.heimClubId ?? null,
       heim_club_name: m.heimClubName,
@@ -100,14 +133,11 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       external_ref: m.externalRef ?? null,
       updated_at: m.updatedAt,
       created_at: m.createdAt,
-    }),
-    (n) => (failed += n)
+    }))
   );
 
-  synced += await syncTable<PlayerReport>(
-    db.playerReports,
-    "player_reports",
-    (r) => ({
+  track(
+    await syncTable<PlayerReport>(db.playerReports, "player_reports", (r) => ({
       id: r.id,
       player_id: r.playerId,
       scout_id: r.scoutId,
@@ -125,14 +155,11 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       custom_fields: r.customFields ?? {},
       updated_at: r.updatedAt,
       created_at: r.createdAt,
-    }),
-    (n) => (failed += n)
+    }))
   );
 
-  synced += await syncTable<TeamReport>(
-    db.teamReports,
-    "team_reports",
-    (r) => ({
+  track(
+    await syncTable<TeamReport>(db.teamReports, "team_reports", (r) => ({
       id: r.id,
       club_id: r.clubId,
       scout_id: r.scoutId,
@@ -149,46 +176,108 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       custom_fields: r.customFields ?? {},
       updated_at: r.updatedAt,
       created_at: r.createdAt,
-    }),
-    (n) => (failed += n)
+    }))
   );
 
+  if (failed === 0) {
+    return {
+      ok: true,
+      synced,
+      failed,
+      message:
+        synced === 0
+          ? "Alles bereits synchronisiert."
+          : `${synced} Datensätze erfolgreich synchronisiert.`,
+    };
+  }
+
   return {
-    ok: failed === 0,
+    ok: false,
     synced,
     failed,
-    message:
-      failed === 0
-        ? `${synced} Datensätze erfolgreich synchronisiert.`
-        : `${synced} synchronisiert, ${failed} fehlgeschlagen. Wird beim nächsten Versuch erneut geprüft.`,
+    message: `${synced} synchronisiert, ${failed} fehlgeschlagen${
+      errors[0] ? `: ${errors[0]}` : "."
+    }`,
   };
 }
 
+async function reassignPendingReportsToScout(scoutId: string): Promise<void> {
+  const [pendingPlayers, errorPlayers, pendingTeams, errorTeams] =
+    await Promise.all([
+      db.playerReports.where("syncStatus").equals("pending").toArray(),
+      db.playerReports.where("syncStatus").equals("error").toArray(),
+      db.teamReports.where("syncStatus").equals("pending").toArray(),
+      db.teamReports.where("syncStatus").equals("error").toArray(),
+    ]);
+
+  const playerReports = [...pendingPlayers, ...errorPlayers];
+  const teamReports = [...pendingTeams, ...errorTeams];
+
+  await Promise.all([
+    ...playerReports
+      .filter((r) => r.scoutId !== scoutId)
+      .map((r) =>
+        db.playerReports.update(r.id, {
+          scoutId,
+          syncStatus: "pending",
+          updatedAt: new Date().toISOString(),
+        })
+      ),
+    ...teamReports
+      .filter((r) => r.scoutId !== scoutId)
+      .map((r) =>
+        db.teamReports.update(r.id, {
+          scoutId,
+          syncStatus: "pending",
+          updatedAt: new Date().toISOString(),
+        })
+      ),
+  ]);
+}
+
 async function syncTable<T extends { id: string; syncStatus: string }>(
-  table: { where(field: string): { equals(v: string): { toArray(): Promise<T[]> } }; update(id: string, changes: Partial<T>): Promise<number> },
+  table: {
+    where(field: string): { equals(v: string): { toArray(): Promise<T[]> } };
+    update(id: string, changes: Partial<T>): Promise<number>;
+  },
   tableName: string,
-  toRemote: (row: T) => Record<string, unknown>,
-  onFailed: (count: number) => void
-): Promise<number> {
+  toRemote: (row: T) => Record<string, unknown>
+): Promise<{ synced: number; failed: number; error?: string }> {
   const supabase = getSupabaseClient();
-  if (!supabase) return 0;
+  if (!supabase) return { synced: 0, failed: 0 };
 
-  const pending = await table.where("syncStatus").equals("pending").toArray();
-  if (pending.length === 0) return 0;
+  const pending = (
+    await Promise.all([
+      table.where("syncStatus").equals("pending").toArray(),
+      table.where("syncStatus").equals("error").toArray(),
+    ])
+  ).flat();
+  if (pending.length === 0) return { synced: 0, failed: 0 };
 
-  const { error } = await supabase
-    .from(tableName)
-    .upsert(pending.map(toRemote), { onConflict: "id" });
+  // Einzel-Upserts: ein fehlerhafter Datensatz blockiert nicht die anderen.
+  let synced = 0;
+  let failed = 0;
+  let firstError: string | undefined;
 
-  if (error) {
-    onFailed(pending.length);
-    return 0;
+  for (const row of pending) {
+    const { error } = await supabase
+      .from(tableName)
+      .upsert(toRemote(row), { onConflict: "id" });
+
+    if (error) {
+      failed += 1;
+      if (!firstError) {
+        firstError = `${tableName}: ${error.message}`;
+      }
+      await table.update(row.id, { syncStatus: "error" } as Partial<T>);
+      continue;
+    }
+
+    await table.update(row.id, { syncStatus: "synced" } as Partial<T>);
+    synced += 1;
   }
 
-  await Promise.all(
-    pending.map((row) => table.update(row.id, { syncStatus: "synced" } as Partial<T>))
-  );
-  return pending.length;
+  return { synced, failed, error: firstError };
 }
 
 let autoSyncRegistered = false;

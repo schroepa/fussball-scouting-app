@@ -33,6 +33,12 @@ export default function SyncStatusBar() {
     };
   }, [refreshPending]);
 
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => setMessage(null), 6000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
+
   const handleSync = async () => {
     setSyncing(true);
     setMessage(null);
@@ -40,10 +46,14 @@ export default function SyncStatusBar() {
     setMessage(result.message);
     await refreshPending();
     setSyncing(false);
+    // Detailseite neu laden, damit Badges (pending/synced) aktualisiert werden
+    if (result.ok && result.synced > 0) {
+      window.dispatchEvent(new Event("scouting:synced"));
+    }
   };
 
   return (
-    <div className="flex items-center gap-2 text-xs text-slate-200">
+    <div className="relative flex items-center gap-2 text-xs text-slate-200">
       <span
         className={`inline-flex items-center gap-1 ${online ? "text-emerald-400" : "text-amber-400"}`}
         title={online ? "Online" : "Offline"}
@@ -68,15 +78,21 @@ export default function SyncStatusBar() {
           {syncing ? "Synchronisiere…" : "Sync"}
         </button>
       ) : (
-        <span className="text-slate-400" title="Supabase ist nicht konfiguriert – siehe README.md">
+        <span
+          className="text-slate-400"
+          title="Supabase ist nicht konfiguriert – siehe README.md"
+        >
           Lokal
         </span>
       )}
 
       {message && (
-        <span className="sr-only" role="status" aria-live="polite">
+        <div
+          role="status"
+          className="absolute top-full right-0 mt-2 z-50 w-64 rounded-lg bg-slate-800 text-slate-100 px-3 py-2 shadow-lg text-[11px] leading-snug"
+        >
           {message}
-        </span>
+        </div>
       )}
     </div>
   );

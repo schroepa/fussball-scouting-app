@@ -47,9 +47,9 @@ export function BerichtsartBadge({ berichtsart }: { berichtsart: Berichtsart }) 
 
 export function SyncStatusBadge({ status }: { status: SyncStatus }) {
   const map: Record<SyncStatus, { label: string; className: string }> = {
-    pending: { label: "Wird synchronisiert", className: "bg-amber-100 text-amber-700" },
+    pending: { label: "Noch nicht synchronisiert", className: "bg-amber-100 text-amber-700" },
     synced: { label: "Synchronisiert", className: "bg-emerald-100 text-emerald-700" },
-    error: { label: "Fehler", className: "bg-red-100 text-red-700" },
+    error: { label: "Sync-Fehler – erneut tippen", className: "bg-red-100 text-red-700" },
   };
   const { label, className } = map[status];
   return (

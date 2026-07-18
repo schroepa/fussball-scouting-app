@@ -172,13 +172,17 @@ export async function getTeamReport(
 }
 
 export async function countPending(): Promise<number> {
-  const [clubs, players, matches, playerReports, teamReports] =
-    await Promise.all([
-      db.clubs.where("syncStatus").equals("pending").count(),
-      db.players.where("syncStatus").equals("pending").count(),
-      db.matches.where("syncStatus").equals("pending").count(),
-      db.playerReports.where("syncStatus").equals("pending").count(),
-      db.teamReports.where("syncStatus").equals("pending").count(),
-    ]);
-  return clubs + players + matches + playerReports + teamReports;
+  const counts = await Promise.all([
+    db.clubs.where("syncStatus").equals("pending").count(),
+    db.clubs.where("syncStatus").equals("error").count(),
+    db.players.where("syncStatus").equals("pending").count(),
+    db.players.where("syncStatus").equals("error").count(),
+    db.matches.where("syncStatus").equals("pending").count(),
+    db.matches.where("syncStatus").equals("error").count(),
+    db.playerReports.where("syncStatus").equals("pending").count(),
+    db.playerReports.where("syncStatus").equals("error").count(),
+    db.teamReports.where("syncStatus").equals("pending").count(),
+    db.teamReports.where("syncStatus").equals("error").count(),
+  ]);
+  return counts.reduce((sum, n) => sum + n, 0);
 }
