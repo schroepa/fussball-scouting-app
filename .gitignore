@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# lokale MCP-Secrets (License Key) – Template: .cursor/mcp.json.example
+.cursor/mcp.json
+
 # macOS-specific files
 .DS_Store
 
