@@ -8,6 +8,17 @@ astro dev --background
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
 
+## Shadcn Studio Pro (MCP + CLI)
+
+Pro-Account nutzen für Blocks/Themes/MCP:
+
+1. In `.env` setzen (nie committen): `EMAIL`, `LICENSE_KEY`  
+   Die E-Mail muss die **Shadcn-Studio-Account-Mail** sein (aktuell: iCloud, nicht Gmail).
+2. MCP lokal: Onboarding unter https://shadcnstudio.com/mcp/onboarding → **Cursor** wählen  
+   oder `.cursor/mcp.json.example` nach `.cursor/mcp.json` kopieren und Key/E-Mail eintragen.
+3. Cursor danach neu starten. Befehle: `/cui`, `/iui`, `/rui`, `/ftc`.
+4. CLI-Registries stehen in `components.json` (`@ss-blocks`, `@ss-components`, `@ss-themes`).
+
 ## Documentation
 
 Full documentation: https://docs.astro.build
