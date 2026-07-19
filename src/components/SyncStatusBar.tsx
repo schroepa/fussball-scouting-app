@@ -53,9 +53,9 @@ export default function SyncStatusBar() {
   };
 
   return (
-    <div className="relative flex items-center gap-2 text-xs text-slate-200">
+    <div className="relative flex items-center gap-2 text-xs text-primary-foreground/85">
       <span
-        className={`inline-flex items-center gap-1 ${online ? "text-emerald-400" : "text-amber-400"}`}
+        className={`inline-flex items-center gap-1 ${online ? "text-accent" : "text-amber-300"}`}
         title={online ? "Online" : "Offline"}
       >
         <span className="text-[10px]">●</span>
