@@ -1,10 +1,12 @@
 @import "tailwindcss";
-@import "tw-animate-css/dist/tw-animate.css";
-@import "shadcn/tailwind.css";
 
 /*
- * Fusca-Theme (shadcn studio) – 1:1 CSS-Variablen aus dem Studio-Export.
+ * Fusca-Theme (shadcn studio) – CSS-Variablen aus dem Studio-Export.
  * Fonts werden in Layout.astro per Google Fonts geladen.
+ *
+ * Hinweis: tw-animate-css / shadcn/tailwind.css bewusst nicht importiert –
+ * die Theme-Farben funktionieren ohne; die Pakete sind optional für spätere
+ * shadcn-Komponenten (`npm i tw-animate-css shadcn`).
  */
 
 @custom-variant dark (&:is(.dark *));
