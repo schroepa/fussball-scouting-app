@@ -32,6 +32,11 @@ export default function PlayersList() {
 
   useEffect(() => {
     reload();
+    const onSynced = () => {
+      void reload();
+    };
+    window.addEventListener("scouting:synced", onSynced);
+    return () => window.removeEventListener("scouting:synced", onSynced);
   }, []);
 
   const clubById = useMemo(() => new Map(clubs.map((c) => [c.id, c])), [clubs]);

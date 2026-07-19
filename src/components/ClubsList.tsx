@@ -16,7 +16,12 @@ export default function ClubsList() {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    listClubs().then(setClubs);
+    const load = () => {
+      void listClubs().then(setClubs);
+    };
+    load();
+    window.addEventListener("scouting:synced", load);
+    return () => window.removeEventListener("scouting:synced", load);
   }, []);
 
   const filtered = clubs.filter((c) =>

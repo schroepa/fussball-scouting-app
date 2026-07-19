@@ -1,27 +1,75 @@
 import { getSupabaseClient, isSupabaseConfigured } from "../supabase/client";
 import { getCurrentSession } from "../auth/session";
 import { db } from "../local/db";
-import type { Club, Match, Player, PlayerReport, TeamReport } from "../types";
+import type {
+  Bezugstyp,
+  Berichtsart,
+  Club,
+  Empfehlung,
+  Match,
+  Player,
+  PlayerReport,
+  SyncStatus,
+  TeamReport,
+} from "../types";
 
 export interface SyncResult {
   ok: boolean;
   synced: number;
+  pulled: number;
   failed: number;
   message: string;
 }
 
+type LocalRow = { id: string; syncStatus: SyncStatus; updatedAt: string };
+
 /**
- * Outbox-Sync: schiebt alle lokal als "pending" markierten Datensätze zur
- * zentralen Supabase-Datenbank. Konfliktauflösung: Last-Write-Wins über
- * `updated_at` (serverseitig als Upsert-Constraint abgebildet).
- *
- * Siehe docs/PLANNING.md, Abschnitt 4, für das Gesamtkonzept.
+ * Volle Sync-Runde: lokale Pending-Änderungen pushen, dann Remote in Dexie
+ * ziehen. Ohne Pull bleiben Geräte mit getrennten IndexedDBs isoliert.
+ */
+export async function syncAll(): Promise<SyncResult> {
+  const push = await pushPendingChanges();
+  if (!push.ok && push.message.includes("nicht konfiguriert")) {
+    return { ...push, pulled: 0 };
+  }
+  if (!push.ok && push.message.includes("anmelden")) {
+    return { ...push, pulled: 0 };
+  }
+  if (!push.ok && push.message.includes("Keine Internetverbindung")) {
+    return { ...push, pulled: 0 };
+  }
+
+  const pull = await pullRemoteChanges();
+  const synced = push.synced;
+  const pulled = pull.pulled;
+  const failed = push.failed + pull.failed;
+  const ok = push.ok && pull.ok;
+
+  let message: string;
+  if (!ok) {
+    message = [push.message, pull.message].filter(Boolean).join(" · ");
+  } else if (synced === 0 && pulled === 0) {
+    message = "Alles aktuell – nichts zu synchronisieren.";
+  } else {
+    const parts: string[] = [];
+    if (synced > 0) parts.push(`${synced} hochgeladen`);
+    if (pulled > 0) parts.push(`${pulled} heruntergeladen`);
+    message = parts.join(", ") + ".";
+  }
+
+  return { ok, synced, pulled, failed, message };
+}
+
+/**
+ * Outbox-Sync: schiebt alle lokal als "pending"/"error" markierten Datensätze
+ * zur zentralen Supabase-Datenbank (Last-Write-Wins via Upsert auf `id`).
  */
 export async function pushPendingChanges(): Promise<SyncResult> {
   if (!isSupabaseConfigured) {
     return {
       ok: false,
       synced: 0,
+      pulled: 0,
       failed: 0,
       message:
         "Supabase ist nicht konfiguriert – Berichte werden nur lokal gespeichert.",
@@ -31,6 +79,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
     return {
       ok: false,
       synced: 0,
+      pulled: 0,
       failed: 0,
       message: "Keine Internetverbindung – Sync wird übersprungen.",
     };
@@ -38,7 +87,13 @@ export async function pushPendingChanges(): Promise<SyncResult> {
 
   const supabase = getSupabaseClient();
   if (!supabase) {
-    return { ok: false, synced: 0, failed: 0, message: "Kein Supabase-Client." };
+    return {
+      ok: false,
+      synced: 0,
+      pulled: 0,
+      failed: 0,
+      message: "Kein Supabase-Client.",
+    };
   }
 
   const session = await getCurrentSession();
@@ -46,12 +101,12 @@ export async function pushPendingChanges(): Promise<SyncResult> {
     return {
       ok: false,
       synced: 0,
+      pulled: 0,
       failed: 0,
       message: "Bitte zuerst anmelden, bevor synchronisiert wird.",
     };
   }
 
-  // Scout muss in public.scouts existieren (FK + RLS für Berichte).
   const { error: scoutError } = await supabase.from("scouts").upsert(
     {
       id: session.scout.id,
@@ -65,13 +120,12 @@ export async function pushPendingChanges(): Promise<SyncResult> {
     return {
       ok: false,
       synced: 0,
+      pulled: 0,
       failed: 0,
       message: `Scout konnte nicht synchronisiert werden: ${scoutError.message}`,
     };
   }
 
-  // Berichte, die vor dem Login mit lokaler Scout-ID angelegt wurden,
-  // auf den eingeloggten User umbiegen – sonst scheitern FK/RLS.
   await reassignPendingReportsToScout(session.scout.id);
 
   let synced = 0;
@@ -183,22 +237,224 @@ export async function pushPendingChanges(): Promise<SyncResult> {
     return {
       ok: true,
       synced,
+      pulled: 0,
       failed,
       message:
         synced === 0
-          ? "Alles bereits synchronisiert."
-          : `${synced} Datensätze erfolgreich synchronisiert.`,
+          ? "Keine lokalen Änderungen zum Hochladen."
+          : `${synced} Datensätze hochgeladen.`,
     };
   }
 
   return {
     ok: false,
     synced,
+    pulled: 0,
     failed,
-    message: `${synced} synchronisiert, ${failed} fehlgeschlagen${
+    message: `${synced} hochgeladen, ${failed} fehlgeschlagen${
       errors[0] ? `: ${errors[0]}` : "."
     }`,
   };
+}
+
+/** Lädt Stammdaten und Berichte von Supabase in die lokale Dexie-DB. */
+export async function pullRemoteChanges(): Promise<SyncResult> {
+  if (!isSupabaseConfigured) {
+    return {
+      ok: false,
+      synced: 0,
+      pulled: 0,
+      failed: 0,
+      message: "Supabase ist nicht konfiguriert.",
+    };
+  }
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    return {
+      ok: false,
+      synced: 0,
+      pulled: 0,
+      failed: 0,
+      message: "Keine Internetverbindung – Pull übersprungen.",
+    };
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return {
+      ok: false,
+      synced: 0,
+      pulled: 0,
+      failed: 0,
+      message: "Kein Supabase-Client.",
+    };
+  }
+
+  const session = await getCurrentSession();
+  if (!session.isAuthenticated) {
+    return {
+      ok: false,
+      synced: 0,
+      pulled: 0,
+      failed: 0,
+      message: "Bitte zuerst anmelden.",
+    };
+  }
+
+  let pulled = 0;
+  let failed = 0;
+  const errors: string[] = [];
+
+  const track = (result: { pulled: number; failed: number; error?: string }) => {
+    pulled += result.pulled;
+    failed += result.failed;
+    if (result.error) errors.push(result.error);
+  };
+
+  track(
+    await pullTable<Club>("clubs", db.clubs, (row) => ({
+      id: String(row.id),
+      name: String(row.name ?? ""),
+      land: String(row.land ?? "Deutschland"),
+      liga: (row.liga as string | null) ?? undefined,
+      logoUrl: (row.logo_url as string | null) ?? undefined,
+      externalSource: (row.external_source as string | null) ?? undefined,
+      externalRef: (row.external_ref as string | null) ?? undefined,
+      customFields:
+        (row.custom_fields as Record<string, unknown> | null) ?? undefined,
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  track(
+    await pullTable<Player>("players", db.players, (row) => ({
+      id: String(row.id),
+      vorname: String(row.vorname ?? ""),
+      nachname: String(row.nachname ?? ""),
+      geburtsdatum: (row.geburtsdatum as string | null) ?? undefined,
+      nationalitaet: (row.nationalitaet as string | null) ?? undefined,
+      positionen: Array.isArray(row.positionen)
+        ? (row.positionen as string[])
+        : [],
+      starkerFuss:
+        (row.starker_fuss as Player["starkerFuss"] | null) ?? undefined,
+      groesseCm: (row.groesse_cm as number | null) ?? undefined,
+      aktuellerClubId: (row.aktueller_club_id as string | null) ?? undefined,
+      fotoUrl: (row.foto_url as string | null) ?? undefined,
+      externalSource: (row.external_source as string | null) ?? undefined,
+      externalRef: (row.external_ref as string | null) ?? undefined,
+      customFields:
+        (row.custom_fields as Record<string, unknown> | null) ?? undefined,
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  track(
+    await pullTable<Match>("matches", db.matches, (row) => ({
+      id: String(row.id),
+      heimClubId: (row.heim_club_id as string | null) ?? undefined,
+      heimClubName: String(row.heim_club_name ?? ""),
+      gastClubId: (row.gast_club_id as string | null) ?? undefined,
+      gastClubName: String(row.gast_club_name ?? ""),
+      wettbewerb: (row.wettbewerb as string | null) ?? undefined,
+      datum: iso(row.datum) ?? new Date().toISOString(),
+      spielort: (row.spielort as string | null) ?? undefined,
+      externalSource: (row.external_source as string | null) ?? undefined,
+      externalRef: (row.external_ref as string | null) ?? undefined,
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  track(
+    await pullTable<PlayerReport>("player_reports", db.playerReports, (row) => ({
+      id: String(row.id),
+      playerId: String(row.player_id),
+      scoutId: String(row.scout_id),
+      bezugstyp: row.bezugstyp as Bezugstyp,
+      matchId: (row.match_id as string | null) ?? undefined,
+      datum: iso(row.datum) ?? new Date().toISOString(),
+      positionBeobachtet:
+        (row.position_beobachtet as string | null) ?? undefined,
+      ratings: Array.isArray(row.ratings) ? row.ratings : [],
+      gesamtbewertung: (row.gesamtbewertung as number | null) ?? undefined,
+      staerken: (row.staerken as string | null) ?? undefined,
+      schwaechen: (row.schwaechen as string | null) ?? undefined,
+      freitextNotizen: (row.freitext_notizen as string | null) ?? undefined,
+      empfehlung: (row.empfehlung as Empfehlung | null) ?? undefined,
+      tags: Array.isArray(row.tags) ? (row.tags as string[]) : [],
+      media: [],
+      customFields:
+        (row.custom_fields as Record<string, unknown> | null) ?? undefined,
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  track(
+    await pullTable<TeamReport>("team_reports", db.teamReports, (row) => ({
+      id: String(row.id),
+      clubId: String(row.club_id),
+      scoutId: String(row.scout_id),
+      berichtsart: row.berichtsart as Berichtsart,
+      bezugstyp: row.bezugstyp as Bezugstyp,
+      matchId: (row.match_id as string | null) ?? undefined,
+      datum: iso(row.datum) ?? new Date().toISOString(),
+      formation: (row.formation as string | null) ?? undefined,
+      spielstil: (row.spielstil as string | null) ?? undefined,
+      standardsituationen:
+        (row.standardsituationen as string | null) ?? undefined,
+      staerken: (row.staerken as string | null) ?? undefined,
+      schwaechen: (row.schwaechen as string | null) ?? undefined,
+      schluesselspielerIds: Array.isArray(row.schluesselspieler_ids)
+        ? (row.schluesselspieler_ids as string[])
+        : [],
+      media: [],
+      customFields:
+        (row.custom_fields as Record<string, unknown> | null) ?? undefined,
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  if (failed === 0) {
+    return {
+      ok: true,
+      synced: 0,
+      pulled,
+      failed,
+      message:
+        pulled === 0
+          ? "Keine neuen Daten vom Server."
+          : `${pulled} Datensätze heruntergeladen.`,
+    };
+  }
+
+  return {
+    ok: false,
+    synced: 0,
+    pulled,
+    failed,
+    message: `Pull: ${pulled} ok, ${failed} Fehler${
+      errors[0] ? `: ${errors[0]}` : "."
+    }`,
+  };
+}
+
+function iso(value: unknown): string | undefined {
+  if (value == null) return undefined;
+  if (typeof value === "string") return value;
+  try {
+    return new Date(value as string | number | Date).toISOString();
+  } catch {
+    return undefined;
+  }
 }
 
 async function reassignPendingReportsToScout(scoutId: string): Promise<void> {
@@ -254,7 +510,6 @@ async function syncTable<T extends { id: string; syncStatus: string }>(
   ).flat();
   if (pending.length === 0) return { synced: 0, failed: 0 };
 
-  // Einzel-Upserts: ein fehlerhafter Datensatz blockiert nicht die anderen.
   let synced = 0;
   let failed = 0;
   let firstError: string | undefined;
@@ -280,14 +535,111 @@ async function syncTable<T extends { id: string; syncStatus: string }>(
   return { synced, failed, error: firstError };
 }
 
+async function pullTable<T extends LocalRow>(
+  tableName: string,
+  table: {
+    get(id: string): Promise<T | undefined>;
+    put(row: T): Promise<string>;
+  },
+  fromRemote: (row: Record<string, unknown>) => T
+): Promise<{ pulled: number; failed: number; error?: string }> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { pulled: 0, failed: 0 };
+
+  const pageSize = 1000;
+  let from = 0;
+  let pulled = 0;
+  let failed = 0;
+  let firstError: string | undefined;
+
+  for (;;) {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select("*")
+      .order("updated_at", { ascending: true })
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      return {
+        pulled,
+        failed: failed + 1,
+        error: `${tableName}: ${error.message}`,
+      };
+    }
+
+    const rows = (data ?? []) as Record<string, unknown>[];
+    if (rows.length === 0) break;
+
+    for (const remote of rows) {
+      try {
+        const mapped = fromRemote(remote);
+        const local = await table.get(mapped.id);
+
+        // Lokale unveröffentlichte Änderungen nicht überschreiben.
+        if (local && (local.syncStatus === "pending" || local.syncStatus === "error")) {
+          continue;
+        }
+
+        if (
+          local &&
+          new Date(local.updatedAt).getTime() > new Date(mapped.updatedAt).getTime()
+        ) {
+          continue;
+        }
+
+        // Lokale Media-Refs bei Berichten behalten, falls vorhanden.
+        if (local && "media" in local && "media" in mapped) {
+          const localMedia = (local as { media?: unknown }).media;
+          if (Array.isArray(localMedia) && localMedia.length > 0) {
+            (mapped as { media: unknown }).media = localMedia;
+          }
+        }
+
+        if (!local || JSON.stringify(stripSyncCompare(local)) !== JSON.stringify(stripSyncCompare(mapped))) {
+          await table.put(mapped);
+          pulled += 1;
+        }
+      } catch (err) {
+        failed += 1;
+        if (!firstError) {
+          firstError = `${tableName}: ${(err as Error).message}`;
+        }
+      }
+    }
+
+    if (rows.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return { pulled, failed, error: firstError };
+}
+
+function stripSyncCompare(row: LocalRow): unknown {
+  const { syncStatus: _s, ...rest } = row;
+  return rest;
+}
+
 let autoSyncRegistered = false;
 
-/** Registriert automatisches Nach-Sync bei Wiederverbindung (M0: einfache Variante). */
+/** Auto-Sync bei Wiederverbindung + einmalig beim Start. */
 export function registerAutoSync(onResult?: (r: SyncResult) => void): void {
   if (autoSyncRegistered || typeof window === "undefined") return;
   autoSyncRegistered = true;
-  window.addEventListener("online", async () => {
-    const result = await pushPendingChanges();
+
+  const run = async () => {
+    const result = await syncAll();
     onResult?.(result);
+    if (result.ok && (result.synced > 0 || result.pulled > 0)) {
+      window.dispatchEvent(new Event("scouting:synced"));
+    }
+  };
+
+  window.addEventListener("online", () => {
+    void run();
   });
+
+  // Initialer Pull, sobald die App online und eingeloggt ist.
+  if (navigator.onLine) {
+    void run();
+  }
 }

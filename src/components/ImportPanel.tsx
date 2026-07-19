@@ -5,6 +5,7 @@ import type {
   ImportSearchResult,
 } from "../lib/import/types";
 import { persistImportResult } from "../lib/import/persist";
+import { syncAll } from "../lib/sync/syncManager";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,6 +43,20 @@ type ScrapeResult = ImportSearchResult & {
   error?: string;
   via?: string;
 };
+
+/** Nach lokalem Import: wenn möglich sofort pushen, damit andere Geräte pullen können. */
+async function syncAfterImport(): Promise<string | null> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) return null;
+  try {
+    const result = await syncAll();
+    if (result.ok && (result.synced > 0 || result.pulled > 0)) {
+      window.dispatchEvent(new Event("scouting:synced"));
+    }
+    return result.ok ? null : result.message;
+  } catch {
+    return null;
+  }
+}
 
 export default function ImportPanel() {
   const [tab, setTab] = useState<Tab>("transfermarkt");
@@ -264,8 +279,10 @@ export default function ImportPanel() {
       };
       const saved = await persistImportResult(payload);
       setResult(payload);
+      const syncHint = await syncAfterImport();
       setStatus(
-        `${saved.playersCreated} Spieler neu / ${saved.playersUpdated} aktualisiert aus Namensliste übernommen.`
+        `${saved.playersCreated} Spieler neu / ${saved.playersUpdated} aktualisiert aus Namensliste übernommen.` +
+          (syncHint ? ` Sync: ${syncHint}` : " – Sync gestartet.")
       );
       setPasteNames("");
     } catch (err) {
@@ -281,10 +298,12 @@ export default function ImportPanel() {
     setError(null);
     try {
       const saved = await persistImportResult(result);
+      const syncHint = await syncAfterImport();
       setStatus(
         `Importiert: ${saved.playersCreated} Spieler neu / ${saved.playersUpdated} aktualisiert, ` +
           `${saved.clubsCreated} Vereine neu / ${saved.clubsUpdated} aktualisiert, ` +
-          `${saved.matchesCreated} Spiele neu / ${saved.matchesUpdated} aktualisiert.`
+          `${saved.matchesCreated} Spiele neu / ${saved.matchesUpdated} aktualisiert.` +
+          (syncHint ? ` Sync: ${syncHint}` : " – zum Server synchronisiert.")
       );
     } catch (err) {
       setError((err as Error).message);
@@ -302,9 +321,10 @@ export default function ImportPanel() {
         players: [player],
         matches: [],
       });
+      await syncAfterImport();
       setStatus(
         saved.playersCreated
-          ? `${player.vorname} ${player.nachname} wurde übernommen.`
+          ? `${player.vorname} ${player.nachname} wurde übernommen und synchronisiert.`
           : `${player.vorname} ${player.nachname} war schon vorhanden und wurde aktualisiert.`
       );
     } catch (err) {
@@ -323,9 +343,10 @@ export default function ImportPanel() {
         players: [],
         matches: [],
       });
+      await syncAfterImport();
       setStatus(
         saved.clubsCreated
-          ? `${club.name} wurde übernommen.`
+          ? `${club.name} wurde übernommen und synchronisiert.`
           : `${club.name} war schon vorhanden und wurde aktualisiert.`
       );
     } catch (err) {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { countPending } from "../lib/local/repository";
-import { pushPendingChanges, registerAutoSync } from "../lib/sync/syncManager";
+import { registerAutoSync, syncAll } from "../lib/sync/syncManager";
 import { isSupabaseConfigured } from "../lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -49,11 +49,15 @@ export default function SyncStatusBar({
   const handleSync = async () => {
     setSyncing(true);
     setMessage(null);
-    const result = await pushPendingChanges();
+    const result = await syncAll();
     setMessage(result.message);
     await refreshPending();
     setSyncing(false);
-    if (result.ok && result.synced > 0) {
+    if (result.ok && (result.synced > 0 || result.pulled > 0)) {
+      window.dispatchEvent(new Event("scouting:synced"));
+    } else if (result.ok) {
+      // Auch bei „alles aktuell“ Listen refreshen (Pull kann 0 zählen,
+      // wenn Daten schon lokal waren – nach erstem Pull aber neu).
       window.dispatchEvent(new Event("scouting:synced"));
     }
   };
@@ -83,7 +87,7 @@ export default function SyncStatusBar({
       </span>
 
       {pending !== null && pending > 0 && (
-        <span className="rounded-full bg-amber-500/90 text-slate-900 px-2 py-0.5 font-semibold">
+        <span className="rounded-full bg-amber-500/90 text-foreground px-2 py-0.5 font-semibold">
           {pending} ausstehend
         </span>
       )}

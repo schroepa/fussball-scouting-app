@@ -41,7 +41,7 @@ export default function ReportList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
+    const load = async () => {
       const [pr, tr, pl, cl, ma] = await Promise.all([
         listPlayerReports(),
         listTeamReports(),
@@ -55,7 +55,10 @@ export default function ReportList() {
       setClubs(cl);
       setMatches(ma);
       setLoading(false);
-    })();
+    };
+    void load();
+    window.addEventListener("scouting:synced", load);
+    return () => window.removeEventListener("scouting:synced", load);
   }, []);
 
   const playerById = useMemo(
