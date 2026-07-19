@@ -4,6 +4,21 @@ import PlayersList from "../../components/PlayersList";
 ---
 
 <Layout title="Spieler" activeNav="players">
-  <h1 class="text-2xl font-bold text-slate-900 mb-4">Spieler</h1>
-  <PlayersList client:load />
+  <div class="space-y-4 md:space-y-6">
+    <div class="md:hidden">
+      <h1 class="text-2xl font-bold tracking-tight text-card-foreground">
+        Spieler
+      </h1>
+    </div>
+
+    <div class="hidden md:block rounded-xl border border-border bg-card px-5 py-4">
+      <p class="text-sm text-muted-foreground">
+        Stammdaten pflegen und Spieler für neue Berichte vorbereiten.
+      </p>
+    </div>
+
+    <div class="md:rounded-xl md:border md:border-border md:bg-card md:p-6">
+      <PlayersList client:load />
+    </div>
+  </div>
 </Layout>

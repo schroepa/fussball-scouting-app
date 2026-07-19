@@ -4,22 +4,34 @@ import ReportList from "../../components/ReportList";
 ---
 
 <Layout title="Berichte" activeNav="reports">
-  <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-bold text-slate-900">Berichte</h1>
-    <div class="flex gap-2">
-      <a
-        href="/reports/new-player"
-        class="rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm font-medium"
-      >
-        + Spieler
-      </a>
-      <a
-        href="/reports/new-team"
-        class="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm font-medium"
-      >
-        + Team
-      </a>
+  <div class="space-y-4 md:space-y-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:hidden">
+      <h1 class="text-2xl font-bold tracking-tight text-card-foreground">
+        Berichte
+      </h1>
+      <div class="flex gap-2">
+        <a
+          href="/reports/new-player"
+          class="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
+        >
+          + Spieler
+        </a>
+        <a
+          href="/reports/new-team"
+          class="inline-flex h-9 items-center rounded-lg border border-border bg-card px-3 text-sm font-medium"
+        >
+          + Team
+        </a>
+      </div>
     </div>
+
+    <div class="hidden md:block rounded-xl border border-border bg-card px-5 py-4">
+      <p class="text-sm text-muted-foreground">
+        Filtere und öffne Berichte zur Nachbereitung. Neue Berichte legst du
+        oben rechts an.
+      </p>
+    </div>
+
+    <ReportList client:load />
   </div>
-  <ReportList client:load />
 </Layout>

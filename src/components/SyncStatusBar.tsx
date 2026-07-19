@@ -2,8 +2,15 @@ import { useCallback, useEffect, useState } from "react";
 import { countPending } from "../lib/local/repository";
 import { pushPendingChanges, registerAutoSync } from "../lib/sync/syncManager";
 import { isSupabaseConfigured } from "../lib/supabase/client";
+import { cn } from "@/lib/utils";
 
-export default function SyncStatusBar() {
+type Variant = "header" | "sidebar";
+
+export default function SyncStatusBar({
+  variant = "header",
+}: {
+  variant?: Variant;
+}) {
   const [pending, setPending] = useState<number | null>(null);
   const [online, setOnline] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -46,16 +53,29 @@ export default function SyncStatusBar() {
     setMessage(result.message);
     await refreshPending();
     setSyncing(false);
-    // Detailseite neu laden, damit Badges (pending/synced) aktualisiert werden
     if (result.ok && result.synced > 0) {
       window.dispatchEvent(new Event("scouting:synced"));
     }
   };
 
+  const isHeader = variant === "header";
+
   return (
-    <div className="relative flex items-center gap-2 text-xs text-primary-foreground/85">
+    <div
+      className={cn(
+        "relative flex items-center gap-2 text-xs",
+        isHeader ? "text-primary-foreground/85" : "text-foreground"
+      )}
+    >
       <span
-        className={`inline-flex items-center gap-1 ${online ? "text-accent" : "text-amber-300"}`}
+        className={cn(
+          "inline-flex items-center gap-1",
+          online
+            ? isHeader
+              ? "text-accent"
+              : "text-primary"
+            : "text-amber-500"
+        )}
         title={online ? "Online" : "Offline"}
       >
         <span className="text-[10px]">●</span>
@@ -73,15 +93,17 @@ export default function SyncStatusBar() {
           type="button"
           onClick={handleSync}
           disabled={syncing || !online}
-          className="rounded-md bg-white/10 hover:bg-white/20 disabled:opacity-40 px-2 py-1 font-medium"
+          className={cn(
+            "rounded-md px-2 py-1 font-medium disabled:opacity-40",
+            isHeader
+              ? "bg-white/10 hover:bg-white/20"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
+          )}
         >
-          {syncing ? "Synchronisiere…" : "Sync"}
+          {syncing ? "Sync…" : "Sync"}
         </button>
       ) : (
-        <span
-          className="text-slate-400"
-          title="Supabase ist nicht konfiguriert – siehe README.md"
-        >
+        <span className={isHeader ? "text-primary-foreground/60" : "text-muted-foreground"}>
           Lokal
         </span>
       )}
@@ -89,7 +111,7 @@ export default function SyncStatusBar() {
       {message && (
         <div
           role="status"
-          className="absolute top-full right-0 mt-2 z-50 w-64 rounded-lg bg-slate-800 text-slate-100 px-3 py-2 shadow-lg text-[11px] leading-snug"
+          className="absolute top-full right-0 mt-2 z-50 w-64 rounded-lg bg-card border border-border text-card-foreground px-3 py-2 shadow-lg text-[11px] leading-snug"
         >
           {message}
         </div>

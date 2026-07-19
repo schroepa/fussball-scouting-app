@@ -3,11 +3,16 @@ import "../styles/global.css";
 import SyncStatusBar from "../components/SyncStatusBar";
 import UserMenu from "../components/UserMenu";
 import AuthGate from "../components/AuthGate";
+import {
+  ClipboardList,
+  Download,
+  Home,
+  Users,
+} from "lucide-react";
 
 interface Props {
   title?: string;
   activeNav?: "home" | "reports" | "players" | "clubs" | "import";
-  /** Login-/Callback-Seiten: false. Alle anderen Seiten: true (Default). */
   requireAuth?: boolean;
   showNav?: boolean;
 }
@@ -20,10 +25,10 @@ const {
 } = Astro.props;
 
 const navItems = [
-  { key: "home", href: "/", label: "Start", icon: "🏠" },
-  { key: "reports", href: "/reports", label: "Berichte", icon: "📋" },
-  { key: "players", href: "/players", label: "Spieler", icon: "🧍" },
-  { key: "import", href: "/import", label: "Import", icon: "⬇" },
+  { key: "home", href: "/", label: "Übersicht", Icon: Home },
+  { key: "reports", href: "/reports", label: "Berichte", Icon: ClipboardList },
+  { key: "players", href: "/players", label: "Spieler", Icon: Users },
+  { key: "import", href: "/import", label: "Import", Icon: Download },
 ] as const;
 ---
 
@@ -33,51 +38,135 @@ const navItems = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#2f6b3a" />
-    <meta name="description" content="Mobile-first Scouting-App zur offline-fähigen Erfassung von Spieler- und Team-Daten." />
+    <meta
+      name="description"
+      content="Responsive Scouting-App: mobil am Platz erfassen, am Desktop auswerten."
+    />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title} · Fussball Scouting</title>
   </head>
-  <body class:list={["font-sans antialiased", showNav && "pb-20"]}>
+  <body class="font-sans antialiased bg-background text-foreground min-h-dvh">
     <AuthGate client:load requireAuth={requireAuth} />
 
-    <header class="sticky top-0 z-10 bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between gap-2 shadow-md">
-      <a href="/" class="font-heading font-semibold text-lg flex items-center gap-2 shrink-0 tracking-tight">
-        <span aria-hidden="true">⚽</span>
-        <span class="font-[family-name:var(--font-heading)]">Fussball Scouting</span>
-      </a>
-      <div class="flex items-center gap-2 min-w-0">
-        <SyncStatusBar client:load />
-        <UserMenu client:load />
-      </div>
-    </header>
+    {
+      showNav ? (
+        <div class="min-h-dvh md:flex">
+          {/* Desktop sidebar */}
+          <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 border-r border-border bg-sidebar text-sidebar-foreground">
+            <div class="flex h-16 items-center gap-2 px-5 border-b border-sidebar-border">
+              <span class="text-xl" aria-hidden="true">⚽</span>
+              <div>
+                <div class="font-semibold tracking-tight text-sm">Fussball Scouting</div>
+                <div class="text-xs text-muted-foreground">Desktop-Arbeitsplatz</div>
+              </div>
+            </div>
+            <nav class="flex-1 p-3 space-y-1">
+              {
+                navItems.map((item) => {
+                  const active = activeNav === item.key;
+                  const Icon = item.Icon;
+                  return (
+                    <a
+                      href={item.href}
+                      class:list={[
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent",
+                      ]}
+                    >
+                      <Icon className="size-4 shrink-0" />
+                      {item.label}
+                    </a>
+                  );
+                })
+              }
+            </nav>
+            <div class="border-t border-sidebar-border p-3 space-y-2">
+              <div class="rounded-lg bg-muted/60 px-3 py-2">
+                <SyncStatusBar client:load variant="sidebar" />
+              </div>
+              <div class="px-1">
+                <UserMenu client:load variant="sidebar" />
+              </div>
+            </div>
+          </aside>
 
-    <main class="max-w-2xl mx-auto px-4 py-5">
-      <slot />
-    </main>
+          {/* Main column */}
+          <div class="md:pl-64 flex-1 min-w-0 flex flex-col min-h-dvh">
+            {/* Mobile top bar */}
+            <header class="md:hidden sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-border bg-primary text-primary-foreground px-4 py-3 shadow-sm">
+              <a href="/" class="font-semibold tracking-tight flex items-center gap-2">
+                <span aria-hidden="true">⚽</span>
+                <span>Scouting</span>
+              </a>
+              <div class="flex items-center gap-2 min-w-0">
+                <SyncStatusBar client:load variant="header" />
+                <UserMenu client:load variant="header" />
+              </div>
+            </header>
 
-    {showNav && (
-      <nav class="fixed bottom-0 inset-x-0 z-10 bg-card border-t border-border flex justify-around py-1 shadow-[0_-2px_8px_oklch(0_0_0/0.06)]">
-        {navItems.map((item) => (
-          <a
-            href={item.href}
-            class:list={[
-              "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-xs font-medium font-[family-name:var(--font-heading)]",
-              activeNav === item.key ? "text-primary" : "text-muted-foreground",
-            ]}
-          >
-            <span class="text-xl leading-none">{item.icon}</span>
-            {item.label}
-          </a>
-        ))}
-      </nav>
-    )}
+            {/* Desktop top bar */}
+            <header class="hidden md:flex sticky top-0 z-10 h-16 items-center justify-between border-b border-border bg-background/90 backdrop-blur px-6 lg:px-8">
+              <div>
+                <h1 class="text-lg font-semibold tracking-tight text-card-foreground">{title}</h1>
+                <p class="text-xs text-muted-foreground">Berichte nachbereiten und Stammdaten pflegen</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <a
+                  href="/reports/new-player"
+                  class="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  + Spielerbericht
+                </a>
+                <a
+                  href="/reports/new-team"
+                  class="inline-flex h-9 items-center rounded-lg border border-border bg-card px-3 text-sm font-medium hover:bg-muted"
+                >
+                  + Teambericht
+                </a>
+              </div>
+            </header>
+
+            <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-4 pb-24 md:px-6 md:py-6 lg:px-8 md:pb-8">
+              <slot />
+            </main>
+
+            {/* Mobile bottom nav */}
+            <nav class="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-border bg-card/95 backdrop-blur flex justify-around py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+              {
+                navItems.map((item) => {
+                  const active = activeNav === item.key;
+                  const Icon = item.Icon;
+                  return (
+                    <a
+                      href={item.href}
+                      class:list={[
+                        "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-[11px] font-medium min-w-[4.5rem]",
+                        active ? "text-primary" : "text-muted-foreground",
+                      ]}
+                    >
+                      <Icon className="size-5" />
+                      {item.label}
+                    </a>
+                  );
+                })
+              }
+            </nav>
+          </div>
+        </div>
+      ) : (
+        <main class="w-full max-w-lg mx-auto px-4 py-8">
+          <slot />
+        </main>
+      )
+    }
 
     <script>
       import { registerSW } from "virtual:pwa-register";
-
       registerSW({
         immediate: true,
         onOfflineReady() {

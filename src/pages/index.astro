@@ -1,81 +1,107 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { ClipboardList, Download, Users, Shield } from "lucide-react";
 ---
 
-<Layout title="Start" activeNav="home">
-  <div class="space-y-6">
-    <section>
-      <h1 class="text-2xl font-bold text-card-foreground mb-1 tracking-tight">
-        Willkommen zurück!
+<Layout title="Übersicht" activeNav="home">
+  <div class="space-y-6 md:space-y-8">
+    <section class="md:hidden">
+      <h1 class="text-2xl font-bold tracking-tight text-card-foreground mb-1">
+        Willkommen zurück
       </h1>
-      <p class="text-muted-foreground">Was möchtest du erfassen?</p>
+      <p class="text-muted-foreground text-sm">
+        Am Platz erfassen – zu Hause am Desktop nachbereiten.
+      </p>
     </section>
 
-    <section class="grid grid-cols-1 gap-3">
+    <section class="hidden md:block rounded-xl border border-border bg-card p-6">
+      <h2 class="text-xl font-semibold tracking-tight">Arbeitsplatz</h2>
+      <p class="text-muted-foreground mt-1 max-w-2xl">
+        Erfasse Beobachtungen mobil. Am Rechner bearbeitest du Berichte, pflegst
+        Spieler und importierst Kader – mit mehr Platz und Übersicht.
+      </p>
+    </section>
+
+    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
       <a
         href="/reports/new-player"
-        class="rounded-xl bg-primary text-primary-foreground p-4 flex items-center gap-3 shadow-sm active:scale-[0.99] transition-transform"
+        class="group rounded-xl bg-primary text-primary-foreground p-4 md:p-5 flex items-start gap-3 shadow-sm hover:bg-primary/90 transition-colors"
       >
-        <span class="text-3xl" aria-hidden="true">🧍</span>
+        <Users className="size-6 shrink-0 mt-0.5 opacity-90" />
         <div>
-          <div class="font-semibold text-lg font-[family-name:var(--font-heading)]">
-            Neuer Spieler-Bericht
+          <div class="font-semibold text-base md:text-lg tracking-tight">
+            Spielerbericht
           </div>
-          <div class="text-primary-foreground/80 text-sm">
-            Spieler beim Spiel oder Training beobachten
+          <div class="text-primary-foreground/80 text-sm mt-1">
+            Beobachtung mit Bewertungsraster
           </div>
         </div>
       </a>
 
       <a
         href="/reports/new-team"
-        class="rounded-xl bg-slate-900 text-white p-4 flex items-center gap-3 shadow-sm active:scale-[0.99] transition-transform"
+        class="group rounded-xl bg-slate-900 text-white p-4 md:p-5 flex items-start gap-3 shadow-sm hover:bg-slate-800 transition-colors"
       >
-        <span class="text-3xl" aria-hidden="true">🏟️</span>
+        <Shield className="size-6 shrink-0 mt-0.5 opacity-90" />
         <div>
-          <div class="font-semibold text-lg font-[family-name:var(--font-heading)]">
-            Neuer Team-Bericht
+          <div class="font-semibold text-base md:text-lg tracking-tight">
+            Teambericht
           </div>
-          <div class="text-slate-300 text-sm">Gegner-Analyse oder eigenes Team</div>
+          <div class="text-slate-300 text-sm mt-1">
+            Gegner-Analyse oder eigenes Team
+          </div>
         </div>
       </a>
 
       <a
         href="/import"
-        class="rounded-xl border border-border bg-card p-4 flex items-center gap-3 active:scale-[0.99] transition-transform"
+        class="rounded-xl border border-border bg-card p-4 md:p-5 flex items-start gap-3 hover:bg-muted/50 transition-colors"
       >
-        <span class="text-3xl" aria-hidden="true">⬇</span>
+        <Download className="size-6 shrink-0 mt-0.5 text-primary" />
         <div>
-          <div class="font-semibold text-lg text-card-foreground font-[family-name:var(--font-heading)]">
-            Daten importieren
+          <div class="font-semibold text-base md:text-lg tracking-tight text-card-foreground">
+            Import
           </div>
-          <div class="text-muted-foreground text-sm">
-            Transfermarkt, fussball.de oder Namensliste
+          <div class="text-muted-foreground text-sm mt-1">
+            Transfermarkt, fussball.de, Listen
           </div>
         </div>
       </a>
 
       <a
         href="/reports"
-        class="rounded-xl border border-border bg-card p-4 flex items-center gap-3 active:scale-[0.99] transition-transform"
+        class="rounded-xl border border-border bg-card p-4 md:p-5 flex items-start gap-3 hover:bg-muted/50 transition-colors"
       >
-        <span class="text-3xl" aria-hidden="true">📋</span>
+        <ClipboardList className="size-6 shrink-0 mt-0.5 text-primary" />
         <div>
-          <div class="font-semibold text-lg text-card-foreground font-[family-name:var(--font-heading)]">
-            Meine Berichte
+          <div class="font-semibold text-base md:text-lg tracking-tight text-card-foreground">
+            Berichte
           </div>
-          <div class="text-muted-foreground text-sm">Alle erfassten Berichte durchsuchen</div>
+          <div class="text-muted-foreground text-sm mt-1">
+            Liste durchsuchen und nachbereiten
+          </div>
         </div>
       </a>
     </section>
 
-    <section class="rounded-xl bg-accent border border-border p-4 text-sm text-accent-foreground">
-      <p class="font-medium font-[family-name:var(--font-heading)] mb-1">Offline-Nutzung</p>
-      <p class="text-foreground/80">
-        Alle Berichte werden zuerst lokal auf diesem Gerät gespeichert und funktionieren
-        vollständig ohne Internetverbindung. Sobald wieder Netz verfügbar ist, kannst du
-        oben rechts über „Sync“ synchronisieren.
-      </p>
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 rounded-xl border border-border bg-card p-4 md:p-5">
+        <h3 class="font-semibold tracking-tight mb-2">Tipp für den Desktop</h3>
+        <p class="text-sm text-muted-foreground leading-relaxed">
+          Nutze die Seitenleiste für schnellen Wechsel zwischen Berichten,
+          Spielern und Import. Formulare und Tabellen nutzen auf großen
+          Bildschirmen die volle Breite – ideal zum Nachbereiten nach dem Spiel.
+        </p>
+      </div>
+      <div class="rounded-xl border border-border bg-accent/60 p-4 md:p-5">
+        <h3 class="font-semibold tracking-tight mb-2 text-accent-foreground">
+          Offline mobil
+        </h3>
+        <p class="text-sm text-foreground/80 leading-relaxed">
+          Am Spielfeldrand speichert die App lokal. Sync oben rechts bzw. in der
+          Sidebar, sobald wieder Netz da ist.
+        </p>
+      </div>
     </section>
   </div>
 </Layout>

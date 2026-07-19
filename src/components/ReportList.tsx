@@ -18,6 +18,16 @@ import {
   BezugstypBadge,
   SyncStatusBadge,
 } from "./ReportBadges";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type FilterType = "alle" | "spieler" | "team";
 
@@ -53,7 +63,10 @@ export default function ReportList() {
     [players]
   );
   const clubById = useMemo(() => new Map(clubs.map((c) => [c.id, c])), [clubs]);
-  const matchById = useMemo(() => new Map(matches.map((m) => [m.id, m])), [matches]);
+  const matchById = useMemo(
+    () => new Map(matches.map((m) => [m.id, m])),
+    [matches]
+  );
 
   interface Row {
     id: string;
@@ -61,7 +74,7 @@ export default function ReportList() {
     datum: string;
     title: string;
     syncStatus: PlayerReport["syncStatus"];
-    node: React.ReactNode;
+    badges: React.ReactNode;
     href: string;
   }
 
@@ -73,14 +86,16 @@ export default function ReportList() {
         id: r.id,
         kind: "spieler",
         datum: r.datum,
-        title: player ? `${player.vorname} ${player.nachname}` : "Unbekannter Spieler",
+        title: player
+          ? `${player.vorname} ${player.nachname}`
+          : "Unbekannter Spieler",
         syncStatus: r.syncStatus,
         href: `/reports/player/${r.id}`,
-        node: (
-          <div className="flex flex-wrap gap-1.5 mt-1">
+        badges: (
+          <>
             <BezugstypBadge bezugstyp={r.bezugstyp} match={match} />
             <SyncStatusBadge status={r.syncStatus} />
-          </div>
+          </>
         ),
       };
     });
@@ -95,12 +110,12 @@ export default function ReportList() {
         title: club ? club.name : "Unbekannter Verein",
         syncStatus: r.syncStatus,
         href: `/reports/team/${r.id}`,
-        node: (
-          <div className="flex flex-wrap gap-1.5 mt-1">
+        badges: (
+          <>
             <BerichtsartBadge berichtsart={r.berichtsart} />
             <BezugstypBadge bezugstyp={r.bezugstyp} match={match} />
             <SyncStatusBadge status={r.syncStatus} />
-          </div>
+          </>
         ),
       };
     });
@@ -117,58 +132,103 @@ export default function ReportList() {
   });
 
   if (loading) {
-    return <p className="text-slate-500 text-sm">Lade Berichte…</p>;
+    return <p className="text-muted-foreground text-sm">Lade Berichte…</p>;
   }
 
+  const filters = [
+    { key: "alle" as const, label: "Alle" },
+    { key: "spieler" as const, label: "Spieler" },
+    { key: "team" as const, label: "Team" },
+  ];
+
   return (
-    <div>
-      <div className="flex gap-2 mb-4">
-        {(
-          [
-            { key: "alle", label: "Alle" },
-            { key: "spieler", label: "Spieler" },
-            { key: "team", label: "Team" },
-          ] as const
-        ).map((opt) => (
-          <button
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {filters.map((opt) => (
+          <Button
             key={opt.key}
+            type="button"
+            size="sm"
+            variant={filter === opt.key ? "default" : "outline"}
             onClick={() => setFilter(opt.key)}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-              filter === opt.key
-                ? "bg-slate-900 text-white"
-                : "bg-slate-100 text-slate-600"
-            }`}
           >
             {opt.label}
-          </button>
+          </Button>
         ))}
       </div>
 
       {filteredRows.length === 0 ? (
-        <p className="text-slate-500 text-sm">
-          Noch keine Berichte erfasst. Lege oben einen neuen Bericht an.
+        <p className="text-muted-foreground text-sm">
+          Noch keine Berichte erfasst. Lege einen neuen Bericht an.
         </p>
       ) : (
-        <ul className="space-y-2">
-          {filteredRows.map((row) => (
-            <li key={row.id}>
-              <a
-                href={row.href}
-                className="block rounded-xl border border-slate-200 p-3 hover:bg-slate-50"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-800">
-                    {row.kind === "spieler" ? "🧍" : "🏟️"} {row.title}
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    {new Date(row.datum).toLocaleDateString("de-DE")}
-                  </span>
-                </div>
-                {row.node}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <>
+          {/* Mobile: cards */}
+          <ul className="space-y-2 md:hidden">
+            {filteredRows.map((row) => (
+              <li key={row.id}>
+                <a
+                  href={row.href}
+                  className="block rounded-xl border border-border bg-card p-3 hover:bg-muted/40"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-card-foreground truncate">
+                      {row.kind === "spieler" ? "Spieler" : "Team"} · {row.title}
+                    </span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {new Date(row.datum).toLocaleDateString("de-DE")}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">{row.badges}</div>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {/* Desktop: table */}
+          <div className="hidden md:block rounded-xl border border-border bg-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Typ</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Datum</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Aktion</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRows.map((row) => (
+                  <TableRow key={row.id} className="hover:bg-muted/40">
+                    <TableCell className="font-medium capitalize">
+                      {row.kind}
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{row.title}</div>
+                      <div className="flex flex-wrap gap-1.5 mt-1">{row.badges}</div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                      {new Date(row.datum).toLocaleDateString("de-DE")}
+                    </TableCell>
+                    <TableCell>
+                      <SyncStatusBadge status={row.syncStatus} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <a
+                        href={row.href}
+                        className={cn(
+                          "text-sm font-medium text-primary hover:underline"
+                        )}
+                      >
+                        Öffnen
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
     </div>
   );

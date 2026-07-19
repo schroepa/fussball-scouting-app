@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
 import { getCurrentSession, signOut } from "../lib/auth/session";
 import type { Scout } from "../lib/types";
+import { cn } from "@/lib/utils";
 
-export default function UserMenu() {
+type Variant = "header" | "sidebar";
+
+export default function UserMenu({
+  variant = "header",
+}: {
+  variant?: Variant;
+}) {
   const [scout, setScout] = useState<Scout | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
 
@@ -21,16 +28,35 @@ export default function UserMenu() {
   };
 
   const shortName = scout.name.split(" ")[0] || scout.email || "Scout";
+  const isHeader = variant === "header";
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="hidden sm:inline text-slate-300 truncate max-w-[8rem]" title={scout.email}>
+    <div
+      className={cn(
+        "flex items-center gap-2",
+        !isHeader && "justify-between w-full"
+      )}
+    >
+      <span
+        className={cn(
+          "truncate text-sm",
+          isHeader
+            ? "hidden sm:inline text-primary-foreground/80 max-w-[8rem]"
+            : "text-foreground max-w-[9rem]"
+        )}
+        title={scout.email}
+      >
         {shortName}
       </span>
       <button
         type="button"
         onClick={handleSignOut}
-        className="rounded-md bg-white/10 hover:bg-white/20 px-2 py-1 font-medium"
+        className={cn(
+          "rounded-md px-2 py-1 text-xs font-medium",
+          isHeader
+            ? "bg-white/10 hover:bg-white/20 text-primary-foreground"
+            : "border border-border hover:bg-muted"
+        )}
         title="Abmelden"
       >
         Logout
