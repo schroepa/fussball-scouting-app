@@ -1,0 +1,10 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PlayerHistory from "../../../components/dashboard/PlayerHistory";
+
+const { id } = Astro.params;
+---
+
+<Layout title="Spieler-Verlauf" activeNav="dashboard">
+  {id ? <PlayerHistory client:load playerId={id} /> : <p>Spieler fehlt.</p>}
+</Layout>

@@ -1,0 +1,24 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PlayerCompare from "../../components/dashboard/PlayerCompare";
+
+const a = Astro.url.searchParams.get("a") ?? "";
+const b = Astro.url.searchParams.get("b") ?? "";
+---
+
+<Layout title="Spieler-Vergleich" activeNav="dashboard">
+  {
+    a && b ? (
+      <PlayerCompare client:load playerAId={a} playerBId={b} />
+    ) : (
+      <div class="space-y-3">
+        <p class="text-sm text-muted-foreground">
+          Bitte zwei Spieler über das Dashboard auswählen.
+        </p>
+        <a href="/dashboard/players" class="text-sm font-medium text-primary hover:underline">
+          Zum Spieler-Dashboard
+        </a>
+      </div>
+    )
+  }
+</Layout>

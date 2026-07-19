@@ -4,6 +4,7 @@ import SyncStatusBar from "../components/SyncStatusBar";
 import UserMenu from "../components/UserMenu";
 import AuthGate from "../components/AuthGate";
 import {
+  ChartColumn,
   ClipboardList,
   Download,
   Home,
@@ -12,7 +13,7 @@ import {
 
 interface Props {
   title?: string;
-  activeNav?: "home" | "reports" | "players" | "clubs" | "import";
+  activeNav?: "home" | "dashboard" | "reports" | "players" | "clubs" | "import";
   requireAuth?: boolean;
   showNav?: boolean;
 }
@@ -26,6 +27,7 @@ const {
 
 const navItems = [
   { key: "home", href: "/", label: "Übersicht", Icon: Home },
+  { key: "dashboard", href: "/dashboard", label: "Dashboard", Icon: ChartColumn },
   { key: "reports", href: "/reports", label: "Berichte", Icon: ClipboardList },
   { key: "players", href: "/players", label: "Spieler", Icon: Users },
   { key: "import", href: "/import", label: "Import", Icon: Download },
@@ -147,7 +149,7 @@ const navItems = [
                     <a
                       href={item.href}
                       class:list={[
-                        "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-[11px] font-medium min-w-[4.5rem]",
+                        "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg text-[10px] font-medium min-w-[3.5rem]",
                         active ? "text-primary" : "text-muted-foreground",
                       ]}
                     >

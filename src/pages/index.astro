@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { ClipboardList, Download, Users, Shield } from "lucide-react";
+import { ChartColumn, ClipboardList, Download, Users, Shield } from "lucide-react";
 ---
 
 <Layout title="Übersicht" activeNav="home">
@@ -22,7 +22,21 @@ import { ClipboardList, Download, Users, Shield } from "lucide-react";
       </p>
     </section>
 
-    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4">
+      <a
+        href="/dashboard"
+        class="rounded-xl border border-border bg-card p-4 md:p-5 flex items-start gap-3 hover:bg-muted/50 transition-colors sm:col-span-2 xl:col-span-1"
+      >
+        <ChartColumn className="size-6 shrink-0 mt-0.5 text-primary" />
+        <div>
+          <div class="font-semibold text-base md:text-lg tracking-tight text-card-foreground">
+            Dashboard
+          </div>
+          <div class="text-muted-foreground text-sm mt-1">
+            Auswerten, filtern, vergleichen
+          </div>
+        </div>
+      </a>
       <a
         href="/reports/new-player"
         class="group rounded-xl bg-primary text-primary-foreground p-4 md:p-5 flex items-start gap-3 shadow-sm hover:bg-primary/90 transition-colors"

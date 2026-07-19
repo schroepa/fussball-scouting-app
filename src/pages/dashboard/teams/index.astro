@@ -1,0 +1,21 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import TeamDashboard from "../../../components/dashboard/TeamDashboard";
+---
+
+<Layout title="Team-Dashboard" activeNav="dashboard">
+  <div class="space-y-4 md:space-y-6">
+    <div class="md:hidden">
+      <h1 class="text-2xl font-bold tracking-tight">Team-Dashboard</h1>
+    </div>
+    <div class="hidden md:flex items-center justify-between gap-3">
+      <p class="text-sm text-muted-foreground">
+        Team-Berichte nach Verein – Gegner und eigenes Team.
+      </p>
+      <a href="/dashboard/players" class="text-sm font-medium text-primary hover:underline">
+        Spieler-Dashboard →
+      </a>
+    </div>
+    <TeamDashboard client:load />
+  </div>
+</Layout>

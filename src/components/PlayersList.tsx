@@ -104,13 +104,19 @@ export default function PlayersList() {
                         .join(" · ")}
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
+                  <div className="text-right shrink-0 space-y-0.5">
                     <div className="text-xs text-muted-foreground">
                       {count} Bericht{count === 1 ? "" : "e"}
                     </div>
                     <a
+                      href={`/dashboard/players/${p.id}`}
+                      className="block text-xs text-primary font-medium hover:underline"
+                    >
+                      Verlauf
+                    </a>
+                    <a
                       href="/reports/new-player"
-                      className="text-xs text-primary font-medium hover:underline"
+                      className="block text-xs text-muted-foreground hover:underline"
                     >
                       Bewerten
                     </a>
@@ -155,10 +161,16 @@ export default function PlayersList() {
                       <TableCell className="text-right tabular-nums">
                         {count}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right space-x-3">
+                        <a
+                          href={`/dashboard/players/${p.id}`}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          Verlauf
+                        </a>
                         <a
                           href="/reports/new-player"
-                          className="text-sm font-medium text-primary hover:underline"
+                          className="text-sm text-muted-foreground hover:underline"
                         >
                           Bewerten
                         </a>

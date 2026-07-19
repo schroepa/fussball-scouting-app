@@ -168,8 +168,8 @@ supabase/
 |-------------|--------|
 | M0/M1 – Scaffold, Offline-DB, Berichte, Auth, Export | erledigt |
 | M2 – Import (Transfermarkt, fussball.de, TheSportsDB) | weitgehend |
-| M3 – robuster Sync (Konflikte, Pull, Retry-UI) | offen |
-| M4 – Dashboards & Spielervergleich | offen |
+| M3 – Sync Push + Pull (Geräte) | weitgehend |
+| M4 – Dashboards & Spielervergleich | erledigt (MVP) |
 | M6 – UI für Custom-Bewertungsfelder | offen |
 
 Aktiver Entwicklungsbranch: `cursor/scouting-app-mvp-0911`

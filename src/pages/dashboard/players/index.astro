@@ -1,0 +1,21 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PlayerDashboard from "../../../components/dashboard/PlayerDashboard";
+---
+
+<Layout title="Spieler-Dashboard" activeNav="dashboard">
+  <div class="space-y-4 md:space-y-6">
+    <div class="md:hidden">
+      <h1 class="text-2xl font-bold tracking-tight">Spieler-Dashboard</h1>
+    </div>
+    <div class="hidden md:flex items-center justify-between gap-3">
+      <p class="text-sm text-muted-foreground">
+        Bewertungen auswerten, filtern und zwei Spieler vergleichen.
+      </p>
+      <a href="/dashboard/teams" class="text-sm font-medium text-primary hover:underline">
+        Team-Dashboard →
+      </a>
+    </div>
+    <PlayerDashboard client:load />
+  </div>
+</Layout>
