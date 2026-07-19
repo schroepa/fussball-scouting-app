@@ -9,9 +9,9 @@
     "menuAccent": "subtle"
   },
   "fonts": {
-    "heading": "Inter",
-    "body": "Source Serif 4",
-    "mono": "JetBrains Mono"
+    "heading": "Geist Variable",
+    "body": "Geist Variable",
+    "mono": "Geist Mono Variable"
   },
   "cssVars": {
     "light": {
