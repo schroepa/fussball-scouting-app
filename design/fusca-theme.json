@@ -1,0 +1,63 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "fusca",
+  "type": "registry:base",
+  "config": {
+    "style": "base-luma",
+    "iconLibrary": "lucide",
+    "menuColor": "default",
+    "menuAccent": "subtle"
+  },
+  "fonts": {
+    "heading": "Inter",
+    "body": "Source Serif 4",
+    "mono": "JetBrains Mono"
+  },
+  "cssVars": {
+    "light": {
+      "background": "oklch(0.985 0 0)",
+      "foreground": "oklch(0.370 0.013 285.812)",
+      "card": "oklch(1.00 0 0)",
+      "card-foreground": "oklch(0.274 0.006 286.033)",
+      "popover": "oklch(1.00 0 0)",
+      "popover-foreground": "oklch(0.274 0.006 286.033)",
+      "primary": "oklch(0.461 0.13 146.843)",
+      "primary-foreground": "oklch(0.985 0 0)",
+      "secondary": "oklch(0.922 0 0)",
+      "secondary-foreground": "oklch(0.274 0.006 286.033)",
+      "muted": "oklch(0.98 0 0)",
+      "muted-foreground": "oklch(0.55 0.02 264.41)",
+      "accent": "oklch(0.962 0.044 156.743)",
+      "accent-foreground": "oklch(0.461 0.13 146.843)",
+      "destructive": "oklch(0.64 0.21 25.39)",
+      "border": "oklch(0.922 0 0)",
+      "input": "oklch(0.871 0.006 286.3)",
+      "ring": "oklch(0.548 0.167 146.888)",
+      "chart-1": "oklch(0.641 0.202 146.573)",
+      "chart-2": "oklch(0.548 0.167 146.888)",
+      "chart-3": "oklch(0.461 0.13 146.843)",
+      "chart-4": "oklch(0.393 0.103 147.717)",
+      "chart-5": "oklch(0.266 0.065 148.997)"
+    },
+    "dark": {
+      "background": "oklch(0.220 0.006 285.885)",
+      "foreground": "oklch(0.922 0 0)",
+      "card": "oklch(0.145 0 0)",
+      "card-foreground": "oklch(0.985 0 0)",
+      "popover": "oklch(0.145 0 0)",
+      "popover-foreground": "oklch(0.985 0 0)",
+      "primary": "oklch(0.792 0.201 150.065)",
+      "primary-foreground": "oklch(0.266 0.065 148.997)",
+      "secondary": "oklch(0.220 0.006 285.885)",
+      "secondary-foreground": "oklch(0.970 0 0)",
+      "muted": "oklch(0.220 0.006 285.885)",
+      "muted-foreground": "oklch(0.922 0 0)",
+      "accent": "oklch(0.461 0.13 146.843)",
+      "accent-foreground": "oklch(0.962 0.044 156.743)",
+      "border": "oklch(0.220 0.006 285.885)",
+      "input": "oklch(0.370 0.013 285.812)",
+      "ring": "oklch(0.641 0.202 146.573)"
+    }
+  },
+  "source": "shadcnstudio.com theme fusca (license key not stored in repo)"
+}

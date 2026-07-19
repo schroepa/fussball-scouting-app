@@ -5,62 +5,76 @@ import Layout from "../layouts/Layout.astro";
 <Layout title="Start" activeNav="home">
   <div class="space-y-6">
     <section>
-      <h1 class="text-2xl font-bold text-slate-900 mb-1">Willkommen zurück!</h1>
-      <p class="text-slate-500">Was möchtest du erfassen?</p>
+      <h1 class="text-2xl font-bold text-card-foreground mb-1 tracking-tight">
+        Willkommen zurück!
+      </h1>
+      <p class="text-muted-foreground">Was möchtest du erfassen?</p>
     </section>
 
     <section class="grid grid-cols-1 gap-3">
       <a
         href="/reports/new-player"
-        class="rounded-xl bg-emerald-600 text-white p-4 flex items-center gap-3 shadow-sm active:scale-[0.99]"
+        class="rounded-xl bg-primary text-primary-foreground p-4 flex items-center gap-3 shadow-sm active:scale-[0.99] transition-transform"
       >
-        <span class="text-3xl">🧍</span>
+        <span class="text-3xl" aria-hidden="true">🧍</span>
         <div>
-          <div class="font-semibold text-lg">Neuer Spieler-Bericht</div>
-          <div class="text-emerald-100 text-sm">Spieler beim Spiel oder Training beobachten</div>
+          <div class="font-semibold text-lg font-[family-name:var(--font-heading)]">
+            Neuer Spieler-Bericht
+          </div>
+          <div class="text-primary-foreground/80 text-sm">
+            Spieler beim Spiel oder Training beobachten
+          </div>
         </div>
       </a>
 
       <a
         href="/reports/new-team"
-        class="rounded-xl bg-slate-900 text-white p-4 flex items-center gap-3 shadow-sm active:scale-[0.99]"
+        class="rounded-xl bg-slate-900 text-white p-4 flex items-center gap-3 shadow-sm active:scale-[0.99] transition-transform"
       >
-        <span class="text-3xl">🏟️</span>
+        <span class="text-3xl" aria-hidden="true">🏟️</span>
         <div>
-          <div class="font-semibold text-lg">Neuer Team-Bericht</div>
+          <div class="font-semibold text-lg font-[family-name:var(--font-heading)]">
+            Neuer Team-Bericht
+          </div>
           <div class="text-slate-300 text-sm">Gegner-Analyse oder eigenes Team</div>
         </div>
       </a>
 
       <a
         href="/import"
-        class="rounded-xl border border-slate-200 p-4 flex items-center gap-3 active:scale-[0.99]"
+        class="rounded-xl border border-border bg-card p-4 flex items-center gap-3 active:scale-[0.99] transition-transform"
       >
-        <span class="text-3xl">⬇</span>
+        <span class="text-3xl" aria-hidden="true">⬇</span>
         <div>
-          <div class="font-semibold text-lg text-slate-800">Daten importieren</div>
-          <div class="text-slate-500 text-sm">Spieler/Vereine von API oder fussball.de</div>
+          <div class="font-semibold text-lg text-card-foreground font-[family-name:var(--font-heading)]">
+            Daten importieren
+          </div>
+          <div class="text-muted-foreground text-sm">
+            Transfermarkt, fussball.de oder Namensliste
+          </div>
         </div>
       </a>
 
       <a
         href="/reports"
-        class="rounded-xl border border-slate-200 p-4 flex items-center gap-3 active:scale-[0.99]"
+        class="rounded-xl border border-border bg-card p-4 flex items-center gap-3 active:scale-[0.99] transition-transform"
       >
-        <span class="text-3xl">📋</span>
+        <span class="text-3xl" aria-hidden="true">📋</span>
         <div>
-          <div class="font-semibold text-lg text-slate-800">Meine Berichte</div>
-          <div class="text-slate-500 text-sm">Alle erfassten Berichte durchsuchen</div>
+          <div class="font-semibold text-lg text-card-foreground font-[family-name:var(--font-heading)]">
+            Meine Berichte
+          </div>
+          <div class="text-muted-foreground text-sm">Alle erfassten Berichte durchsuchen</div>
         </div>
       </a>
     </section>
 
-    <section class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-600">
-      <p class="font-medium text-slate-800 mb-1">💡 Offline-Nutzung</p>
-      <p>
+    <section class="rounded-xl bg-accent border border-border p-4 text-sm text-accent-foreground">
+      <p class="font-medium font-[family-name:var(--font-heading)] mb-1">Offline-Nutzung</p>
+      <p class="text-foreground/80">
         Alle Berichte werden zuerst lokal auf diesem Gerät gespeichert und funktionieren
         vollständig ohne Internetverbindung. Sobald wieder Netz verfügbar ist, kannst du
-        oben rechts über „Sync" synchronisieren.
+        oben rechts über „Sync“ synchronisieren.
       </p>
     </section>
   </div>
