@@ -1,6 +1,16 @@
 import { useEffect, useState, type FormEvent } from "react";
 import ClubPicker from "./ClubPicker";
 import { createPlayer } from "../lib/local/repository";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface Props {
   onCreated?: () => void;
@@ -58,79 +68,77 @@ export default function CreatePlayerForm({ onCreated }: Props) {
     return (
       <div className="space-y-2">
         {ok && (
-          <p className="text-sm text-emerald-700">✅ Spieler wurde angelegt.</p>
+          <p className="text-sm text-primary">Spieler wurde angelegt.</p>
         )}
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="w-full rounded-lg bg-emerald-600 text-white py-2.5 font-medium"
-        >
+        <Button type="button" onClick={() => setOpen(true)} className="w-full sm:w-auto">
           + Spieler manuell anlegen
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
-    >
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Vorname"
-          value={vorname}
-          onChange={(e) => setVorname(e.target.value)}
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Nachname"
-          value={nachname}
-          onChange={(e) => setNachname(e.target.value)}
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
-          required
-        />
-      </div>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Position (optional)"
-          value={position}
-          onChange={(e) => setPosition(e.target.value)}
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
-        />
-        <input
-          type="date"
-          value={geburtsdatum}
-          onChange={(e) => setGeburtsdatum(e.target.value)}
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <ClubPicker
-        label="Verein (optional)"
-        value={clubId}
-        onChange={(id) => setClubId(id || undefined)}
-      />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={saving}
-          className="flex-1 rounded-lg bg-emerald-600 text-white py-2.5 font-medium disabled:opacity-50"
-        >
-          {saving ? "Speichere…" : "Spieler speichern"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="rounded-lg border border-slate-300 px-4 py-2.5"
-        >
-          Abbrechen
-        </button>
-      </div>
-    </form>
+    <Card size="sm" className="shadow-sm">
+      <CardHeader className="border-b">
+        <CardTitle>Neuer Spieler</CardTitle>
+        <CardDescription>Manuell anlegen, wenn kein Import passt</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="cp-vorname">Vorname</Label>
+              <Input
+                id="cp-vorname"
+                value={vorname}
+                onChange={(e) => setVorname(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cp-nachname">Nachname</Label>
+              <Input
+                id="cp-nachname"
+                value={nachname}
+                onChange={(e) => setNachname(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cp-pos">Position</Label>
+              <Input
+                id="cp-pos"
+                placeholder="optional"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cp-dob">Geburtsdatum</Label>
+              <Input
+                id="cp-dob"
+                type="date"
+                value={geburtsdatum}
+                onChange={(e) => setGeburtsdatum(e.target.value)}
+              />
+            </div>
+          </div>
+          <ClubPicker
+            label="Verein (optional)"
+            value={clubId}
+            onChange={(id) => setClubId(id || undefined)}
+          />
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Abbrechen
+            </Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? "Speichere…" : "Spieler speichern"}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

@@ -57,7 +57,9 @@ const navItems = [
           {/* Desktop sidebar */}
           <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 border-r border-border bg-sidebar text-sidebar-foreground">
             <div class="flex h-16 items-center gap-2 px-5 border-b border-sidebar-border">
-              <span class="text-xl" aria-hidden="true">⚽</span>
+              <div class="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center text-xs font-bold tracking-tight">
+                FS
+              </div>
               <div>
                 <div class="font-semibold tracking-tight text-sm">Fussball Scouting</div>
                 <div class="text-xs text-muted-foreground">Desktop-Arbeitsplatz</div>
@@ -100,7 +102,7 @@ const navItems = [
             {/* Mobile top bar */}
             <header class="md:hidden sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-border bg-primary text-primary-foreground px-4 py-3 shadow-sm">
               <a href="/" class="font-semibold tracking-tight flex items-center gap-2">
-                <span aria-hidden="true">⚽</span>
+                <span class="size-7 rounded-md bg-primary-foreground/15 grid place-items-center text-[10px] font-bold">FS</span>
                 <span>Scouting</span>
               </a>
               <div class="flex items-center gap-2 min-w-0">

@@ -11,14 +11,6 @@ import PlayersList from "../../components/PlayersList";
       </h1>
     </div>
 
-    <div class="hidden md:block rounded-xl border border-border bg-card px-5 py-4">
-      <p class="text-sm text-muted-foreground">
-        Stammdaten pflegen und Spieler für neue Berichte vorbereiten.
-      </p>
-    </div>
-
-    <div class="md:rounded-xl md:border md:border-border md:bg-card md:p-6">
-      <PlayersList client:load />
-    </div>
+    <PlayersList client:load />
   </div>
 </Layout>

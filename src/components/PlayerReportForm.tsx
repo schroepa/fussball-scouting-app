@@ -13,6 +13,18 @@ import type {
   RatingValue,
 } from "../lib/types";
 import { EMPFEHLUNG_LABELS } from "../lib/types";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 const EMPFEHLUNG_OPTIONS: Empfehlung[] = [
   "unbedingt_beobachten",
@@ -74,8 +86,6 @@ export default function PlayerReportForm() {
         ([attributeKey, value]) => ({ attributeKey, value })
       );
 
-      // Vorerst lokaler Fallback-Scout, bis Login (M0 Auth) im Browser
-      // aktiv genutzt wird – siehe src/lib/auth/session.ts.
       const { getCurrentSession } = await import("../lib/auth/session");
       const session = await getCurrentSession();
 
@@ -106,162 +116,218 @@ export default function PlayerReportForm() {
 
   if (savedId) {
     return (
-      <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-6 text-center space-y-3">
-        <p className="text-emerald-800 font-semibold">
-          ✅ Bericht wurde lokal gespeichert.
-        </p>
-        <p className="text-sm text-emerald-700">
-          Er wird synchronisiert, sobald wieder eine Internetverbindung besteht.
-        </p>
-        <div className="flex gap-2 justify-center pt-2">
-          <a
-            href={`/reports/player/${savedId}`}
-            className="rounded-lg bg-emerald-600 text-white px-4 py-2 font-medium"
-          >
+      <Card className="max-w-xl mx-auto text-center">
+        <CardHeader>
+          <CardTitle>Bericht gespeichert</CardTitle>
+          <CardDescription>
+            Lokal gespeichert – Sync sobald wieder Netz da ist.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2 justify-center pb-6">
+          <Button render={<a href={`/reports/player/${savedId}`} />}>
             Bericht ansehen
-          </a>
-          <a
-            href="/reports/new-player"
-            className="rounded-lg border border-emerald-600 text-emerald-700 px-4 py-2 font-medium"
-          >
+          </Button>
+          <Button variant="outline" render={<a href="/reports/new-player" />}>
             Weiteren Bericht anlegen
-          </a>
-        </div>
-      </div>
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <PlayerPicker
-        value={playerId}
-        onChange={(id) => setPlayerId(id)}
-      />
+    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+      <div className="md:hidden">
+        <h2 className="text-xl font-semibold tracking-tight">Spielerbericht</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Schnell erfassen – später am Desktop verfeinern.
+        </p>
+      </div>
 
-      <BezugstypSelector
-        bezugstyp={bezugstyp}
-        matchId={matchId}
-        onBezugstypChange={setBezugstyp}
-        onMatchChange={setMatchId}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+        {/* Kontext / Meta */}
+        <div className="lg:col-span-5 space-y-4">
+          <Card size="sm" className="shadow-sm">
+            <CardHeader className="border-b">
+              <CardTitle>Kontext</CardTitle>
+              <CardDescription>Spieler, Bezug und Rahmendaten</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+              <PlayerPicker value={playerId} onChange={(id) => setPlayerId(id)} />
+              <BezugstypSelector
+                bezugstyp={bezugstyp}
+                matchId={matchId}
+                onBezugstypChange={setBezugstyp}
+                onMatchChange={setMatchId}
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pr-datum">Datum</Label>
+                  <Input
+                    id="pr-datum"
+                    type="date"
+                    value={datum}
+                    onChange={(e) => setDatum(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="pr-pos">Beobachtete Position</Label>
+                  <Input
+                    id="pr-pos"
+                    type="text"
+                    placeholder="z. B. Linksaußen"
+                    value={positionBeobachtet}
+                    onChange={(e) => setPositionBeobachtet(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block font-medium text-slate-800 mb-1">Datum</label>
-          <input
-            type="date"
-            value={datum}
-            onChange={(e) => setDatum(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2"
-          />
+          <Card size="sm" className="shadow-sm">
+            <CardHeader className="border-b">
+              <CardTitle>Empfehlung</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="grid grid-cols-1 gap-2">
+                {EMPFEHLUNG_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => setEmpfehlung(opt)}
+                    className={cn(
+                      "rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                      empfehlung === opt
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border bg-background text-muted-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    {EMPFEHLUNG_LABELS[opt]}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card size="sm" className="shadow-sm lg:block">
+            <CardHeader className="border-b">
+              <CardTitle>Fotos</CardTitle>
+              <CardDescription>Optional – Kamera oder Galerie</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <CameraCapture
+                photos={photos}
+                onAdd={(p) => setPhotos((prev) => [...prev, p])}
+                onRemove={(id) =>
+                  setPhotos((prev) => prev.filter((p) => p.id !== id))
+                }
+              />
+            </CardContent>
+          </Card>
         </div>
-        <div>
-          <label className="block font-medium text-slate-800 mb-1">
-            Beobachtete Position
-          </label>
-          <input
-            type="text"
-            placeholder="z. B. Linksaußen"
-            value={positionBeobachtet}
-            onChange={(e) => setPositionBeobachtet(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2"
-          />
+
+        {/* Bewertung + Notizen */}
+        <div className="lg:col-span-7 space-y-4">
+          <Card size="sm" className="shadow-sm">
+            <CardHeader className="border-b">
+              <CardTitle>Bewertungsraster</CardTitle>
+              <CardDescription>
+                1–10 · am Desktop nebeneinander zum schnellen Nachjustieren
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                {attributes.map((attr) => (
+                  <RatingSlider
+                    key={attr.id}
+                    label={attr.name}
+                    description={attr.gruppe}
+                    value={ratings[attr.key]}
+                    min={attr.skalaMin}
+                    max={attr.skalaMax}
+                    onChange={(v) =>
+                      setRatings((prev) => ({ ...prev, [attr.key]: v }))
+                    }
+                  />
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-border md:max-w-md">
+                <RatingSlider
+                  label="Gesamtbewertung"
+                  description="Manuell – nicht automatisch berechnet."
+                  value={gesamtbewertung}
+                  onChange={setGesamtbewertung}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card size="sm" className="shadow-sm">
+            <CardHeader className="border-b">
+              <CardTitle>Notizen</CardTitle>
+              <CardDescription>Zum Nachbereiten am Rechner gedacht</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pr-staerken">Stärken</Label>
+                  <Textarea
+                    id="pr-staerken"
+                    value={staerken}
+                    onChange={(e) => setStaerken(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="pr-schwaechen">Schwächen</Label>
+                  <Textarea
+                    id="pr-schwaechen"
+                    value={schwaechen}
+                    onChange={(e) => setSchwaechen(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pr-notizen">Weitere Notizen</Label>
+                <Textarea
+                  id="pr-notizen"
+                  value={freitext}
+                  onChange={(e) => setFreitext(e.target.value)}
+                  rows={4}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 p-4">
-        <h3 className="font-semibold text-slate-800 mb-2">Bewertungsraster</h3>
-        {attributes.map((attr) => (
-          <RatingSlider
-            key={attr.id}
-            label={attr.name}
-            description={attr.gruppe}
-            value={ratings[attr.key]}
-            min={attr.skalaMin}
-            max={attr.skalaMax}
-            onChange={(v) => setRatings((prev) => ({ ...prev, [attr.key]: v }))}
-          />
-        ))}
-        <div className="mt-2 pt-2 border-t border-slate-100">
-          <RatingSlider
-            label="Gesamtbewertung"
-            description="Manuell – nicht automatisch aus den Einzelwerten berechnet."
-            value={gesamtbewertung}
-            onChange={setGesamtbewertung}
-          />
+      {error && (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+
+      <div className="sticky bottom-[4.5rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 max-w-7xl mx-auto">
+          <Button
+            type="button"
+            variant="outline"
+            className="sm:w-auto w-full"
+            render={<a href="/reports" />}
+          >
+            Abbrechen
+          </Button>
+          <Button
+            type="submit"
+            disabled={saving}
+            className="sm:w-auto w-full sm:min-w-[12rem]"
+            size="lg"
+          >
+            {saving ? "Speichere…" : "Bericht speichern"}
+          </Button>
         </div>
       </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Stärken</label>
-        <textarea
-          value={staerken}
-          onChange={(e) => setStaerken(e.target.value)}
-          rows={2}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Schwächen</label>
-        <textarea
-          value={schwaechen}
-          onChange={(e) => setSchwaechen(e.target.value)}
-          rows={2}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">
-          Weitere Notizen
-        </label>
-        <textarea
-          value={freitext}
-          onChange={(e) => setFreitext(e.target.value)}
-          rows={3}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Empfehlung</label>
-        <div className="grid grid-cols-1 gap-2">
-          {EMPFEHLUNG_OPTIONS.map((opt) => (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => setEmpfehlung(opt)}
-              className={`rounded-lg border-2 py-2 px-3 text-left font-medium ${
-                empfehlung === opt
-                  ? "border-emerald-600 bg-emerald-50 text-emerald-800"
-                  : "border-slate-200 text-slate-600"
-              }`}
-            >
-              {EMPFEHLUNG_LABELS[opt]}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Fotos</label>
-        <CameraCapture
-          photos={photos}
-          onAdd={(p) => setPhotos((prev) => [...prev, p])}
-          onRemove={(id) =>
-            setPhotos((prev) => prev.filter((p) => p.id !== id))
-          }
-        />
-      </div>
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
-
-      <button
-        type="submit"
-        disabled={saving}
-        className="w-full rounded-lg bg-emerald-600 text-white py-3 font-semibold disabled:opacity-50"
-      >
-        {saving ? "Speichere…" : "Bericht speichern"}
-      </button>
     </form>
   );
 }

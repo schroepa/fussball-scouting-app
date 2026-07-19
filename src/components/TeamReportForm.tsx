@@ -6,11 +6,22 @@ import BezugstypSelector from "./BezugstypSelector";
 import { createTeamReport, saveMediaBlob } from "../lib/local/repository";
 import type { Berichtsart, Bezugstyp, MediaRef, Player } from "../lib/types";
 import { BERICHTSART_LABELS } from "../lib/types";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
-const BERICHTSART_OPTIONS: { value: Berichtsart; icon: string }[] = [
-  { value: "gegner_analyse", icon: "🎯" },
-  { value: "eigenes_team", icon: "🏠" },
-];
+const BERICHTSART_OPTIONS: Berichtsart[] = ["gegner_analyse", "eigenes_team"];
 
 export default function TeamReportForm() {
   const [berichtsart, setBerichtsart] = useState<Berichtsart>("gegner_analyse");
@@ -80,191 +91,248 @@ export default function TeamReportForm() {
 
   if (savedId) {
     return (
-      <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-6 text-center space-y-3">
-        <p className="text-emerald-800 font-semibold">
-          ✅ Team-Bericht wurde lokal gespeichert.
-        </p>
-        <p className="text-sm text-emerald-700">
-          Er wird synchronisiert, sobald wieder eine Internetverbindung besteht.
-        </p>
-        <div className="flex gap-2 justify-center pt-2">
-          <a
-            href={`/reports/team/${savedId}`}
-            className="rounded-lg bg-emerald-600 text-white px-4 py-2 font-medium"
-          >
+      <Card className="max-w-xl mx-auto text-center">
+        <CardHeader>
+          <CardTitle>Team-Bericht gespeichert</CardTitle>
+          <CardDescription>
+            Lokal gespeichert – Sync sobald wieder Netz da ist.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2 justify-center pb-6">
+          <Button render={<a href={`/reports/team/${savedId}`} />}>
             Bericht ansehen
-          </a>
-          <a
-            href="/reports/new-team"
-            className="rounded-lg border border-emerald-600 text-emerald-700 px-4 py-2 font-medium"
-          >
+          </Button>
+          <Button variant="outline" render={<a href="/reports/new-team" />}>
             Weiteren Bericht anlegen
-          </a>
-        </div>
-      </div>
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Berichtsart</label>
-        <div className="grid grid-cols-2 gap-2">
-          {BERICHTSART_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setBerichtsart(opt.value)}
-              className={`rounded-lg border-2 py-2 px-2 font-medium flex items-center justify-center gap-2 ${
-                berichtsart === opt.value
-                  ? "border-emerald-600 bg-emerald-50 text-emerald-800"
-                  : "border-slate-200 text-slate-600"
-              }`}
-            >
-              <span>{opt.icon}</span>
-              {BERICHTSART_LABELS[opt.value]}
-            </button>
-          ))}
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+      <div className="md:hidden">
+        <h2 className="text-xl font-semibold tracking-tight">Teambericht</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Gegner oder eigenes Team – kompakt am Platz.
+        </p>
       </div>
 
-      <ClubPicker
-        label={berichtsart === "gegner_analyse" ? "Gegner-Verein" : "Eigener Verein"}
-        value={clubId}
-        onChange={(id) => setClubId(id)}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+        <div className="lg:col-span-5 space-y-4">
+          <Card size="sm" className="shadow-sm">
+            <CardHeader className="border-b">
+              <CardTitle>Kontext</CardTitle>
+              <CardDescription>Art, Verein und Bezug</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+              <div className="space-y-1.5">
+                <Label>Berichtsart</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {BERICHTSART_OPTIONS.map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setBerichtsart(opt)}
+                      className={cn(
+                        "rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
+                        berichtsart === opt
+                          ? "border-primary bg-primary/10 text-foreground"
+                          : "border-border bg-background text-muted-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      {BERICHTSART_LABELS[opt]}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-      <BezugstypSelector
-        bezugstyp={bezugstyp}
-        matchId={matchId}
-        onBezugstypChange={setBezugstyp}
-        onMatchChange={setMatchId}
-      />
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Datum</label>
-        <input
-          type="date"
-          value={datum}
-          onChange={(e) => setDatum(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Formation</label>
-        <input
-          type="text"
-          placeholder="z. B. 4-4-2"
-          value={formation}
-          onChange={(e) => setFormation(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Spielstil</label>
-        <textarea
-          value={spielstil}
-          onChange={(e) => setSpielstil(e.target.value)}
-          rows={2}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">
-          Standardsituationen
-        </label>
-        <textarea
-          value={standardsituationen}
-          onChange={(e) => setStandardsituationen(e.target.value)}
-          rows={2}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Stärken</label>
-        <textarea
-          value={staerken}
-          onChange={(e) => setStaerken(e.target.value)}
-          rows={2}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Schwächen</label>
-        <textarea
-          value={schwaechen}
-          onChange={(e) => setSchwaechen(e.target.value)}
-          rows={2}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">
-          Schlüsselspieler
-        </label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {schluesselspieler.map((p) => (
-            <span
-              key={p.id}
-              className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-sm"
-            >
-              {p.vorname} {p.nachname}
-              <button
-                type="button"
-                onClick={() =>
-                  setSchluesselspieler((prev) => prev.filter((x) => x.id !== p.id))
+              <ClubPicker
+                label={
+                  berichtsart === "gegner_analyse"
+                    ? "Gegner-Verein"
+                    : "Eigener Verein"
                 }
-                aria-label="Entfernen"
-              >
-                ✕
-              </button>
-            </span>
-          ))}
+                value={clubId}
+                onChange={(id) => setClubId(id)}
+              />
+
+              <BezugstypSelector
+                bezugstyp={bezugstyp}
+                matchId={matchId}
+                onBezugstypChange={setBezugstyp}
+                onMatchChange={setMatchId}
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="tr-datum">Datum</Label>
+                  <Input
+                    id="tr-datum"
+                    type="date"
+                    value={datum}
+                    onChange={(e) => setDatum(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="tr-formation">Formation</Label>
+                  <Input
+                    id="tr-formation"
+                    type="text"
+                    placeholder="z. B. 4-4-2"
+                    value={formation}
+                    onChange={(e) => setFormation(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card size="sm" className="shadow-sm">
+            <CardHeader className="border-b">
+              <CardTitle>Schlüsselspieler</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 pt-4">
+              <div className="flex flex-wrap gap-2 min-h-[1.5rem]">
+                {schluesselspieler.map((p) => (
+                  <Badge key={p.id} variant="secondary" className="gap-1 pr-1">
+                    {p.vorname} {p.nachname}
+                    <button
+                      type="button"
+                      className="rounded-full p-0.5 hover:bg-muted"
+                      onClick={() =>
+                        setSchluesselspieler((prev) =>
+                          prev.filter((x) => x.id !== p.id)
+                        )
+                      }
+                      aria-label="Entfernen"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              {addingKeyPlayer ? (
+                <PlayerPicker
+                  value=""
+                  onChange={(_id, player) => {
+                    if (
+                      player &&
+                      !schluesselspieler.some((p) => p.id === player.id)
+                    ) {
+                      setSchluesselspieler((prev) => [...prev, player]);
+                    }
+                    setAddingKeyPlayer(false);
+                  }}
+                />
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAddingKeyPlayer(true)}
+                >
+                  + Schlüsselspieler
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card size="sm" className="shadow-sm">
+            <CardHeader className="border-b">
+              <CardTitle>Fotos</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <CameraCapture
+                photos={photos}
+                onAdd={(p) => setPhotos((prev) => [...prev, p])}
+                onRemove={(id) =>
+                  setPhotos((prev) => prev.filter((p) => p.id !== id))
+                }
+              />
+            </CardContent>
+          </Card>
         </div>
-        {addingKeyPlayer ? (
-          <PlayerPicker
-            value=""
-            onChange={(_id, player) => {
-              if (player && !schluesselspieler.some((p) => p.id === player.id)) {
-                setSchluesselspieler((prev) => [...prev, player]);
-              }
-              setAddingKeyPlayer(false);
-            }}
-          />
-        ) : (
-          <button
+
+        <div className="lg:col-span-7 space-y-4">
+          <Card size="sm" className="shadow-sm">
+            <CardHeader className="border-b">
+              <CardTitle>Analyse</CardTitle>
+              <CardDescription>
+                Spielstil und Standards – am Desktop mit mehr Schreibfläche
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 pt-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="tr-stil">Spielstil</Label>
+                <Textarea
+                  id="tr-stil"
+                  value={spielstil}
+                  onChange={(e) => setSpielstil(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="tr-standards">Standardsituationen</Label>
+                <Textarea
+                  id="tr-standards"
+                  value={standardsituationen}
+                  onChange={(e) => setStandardsituationen(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="tr-staerken">Stärken</Label>
+                  <Textarea
+                    id="tr-staerken"
+                    value={staerken}
+                    onChange={(e) => setStaerken(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="tr-schwaechen">Schwächen</Label>
+                  <Textarea
+                    id="tr-schwaechen"
+                    value={schwaechen}
+                    onChange={(e) => setSchwaechen(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {error && (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+
+      <div className="sticky bottom-[4.5rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+          <Button
             type="button"
-            className="text-sm text-emerald-700 underline"
-            onClick={() => setAddingKeyPlayer(true)}
+            variant="outline"
+            className="w-full sm:w-auto"
+            render={<a href="/reports" />}
           >
-            + Schlüsselspieler hinzufügen
-          </button>
-        )}
+            Abbrechen
+          </Button>
+          <Button
+            type="submit"
+            disabled={saving}
+            className="w-full sm:w-auto sm:min-w-[12rem]"
+            size="lg"
+          >
+            {saving ? "Speichere…" : "Bericht speichern"}
+          </Button>
+        </div>
       </div>
-
-      <div>
-        <label className="block font-medium text-slate-800 mb-1">Fotos</label>
-        <CameraCapture
-          photos={photos}
-          onAdd={(p) => setPhotos((prev) => [...prev, p])}
-          onRemove={(id) => setPhotos((prev) => prev.filter((p) => p.id !== id))}
-        />
-      </div>
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
-
-      <button
-        type="submit"
-        disabled={saving}
-        className="w-full rounded-lg bg-emerald-600 text-white py-3 font-semibold disabled:opacity-50"
-      >
-        {saving ? "Speichere…" : "Bericht speichern"}
-      </button>
     </form>
   );
 }
