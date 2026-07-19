@@ -18,6 +18,8 @@ Pro-Account nutzen für Blocks/Themes/MCP:
    oder `.cursor/mcp.json.example` nach `.cursor/mcp.json` kopieren und Key/E-Mail eintragen.
 3. Cursor danach neu starten. Befehle: `/cui`, `/iui`, `/rui`, `/ftc`.
 4. CLI-Registries stehen in `components.json` (`@ss-blocks`, `@ss-components`, `@ss-themes`).
+5. MCP-Workflow-Instructions liegen unter `.github/instructions/shadcn-studio.instructions.md`
+   und als Cursor-Rule unter `.cursor/rules/shadcn-studio.mdc`.
 
 ## Documentation
 
