@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClub, listClubs } from "../lib/local/repository";
 import type { Club } from "../lib/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface ClubPickerProps {
   label?: string;
@@ -8,7 +11,11 @@ interface ClubPickerProps {
   onChange: (clubId: string, club: Club) => void;
 }
 
-export default function ClubPicker({ label = "Verein", value, onChange }: ClubPickerProps) {
+export default function ClubPicker({
+  label = "Verein",
+  value,
+  onChange,
+}: ClubPickerProps) {
   const [clubs, setClubs] = useState<Club[]>([]);
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
@@ -38,36 +45,35 @@ export default function ClubPicker({ label = "Verein", value, onChange }: ClubPi
     setQuery("");
   };
 
+  const clearSelection = () => {
+    onChange("", undefined as unknown as Club);
+  };
+
   return (
-    <div>
-      <label className="block font-medium text-slate-800 mb-1">{label}</label>
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
       {selected && !creating ? (
-        <div className="flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2">
-          <span>{selected.name}</span>
-          <button
-            type="button"
-            className="text-xs text-emerald-700 underline"
-            onClick={() => onChange("", undefined as unknown as Club)}
-          >
+        <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2">
+          <span className="font-medium truncate">{selected.name}</span>
+          <Button type="button" variant="link" size="sm" onClick={clearSelection}>
             ändern
-          </button>
+          </Button>
         </div>
       ) : (
-        <div>
-          <input
-            type="text"
+        <div className="space-y-2">
+          <Input
+            type="search"
             placeholder="Verein suchen…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 mb-1"
           />
           {filtered.length > 0 && (
-            <ul className="max-h-40 overflow-auto border border-slate-200 rounded-lg divide-y">
+            <ul className="max-h-44 md:max-h-56 overflow-auto rounded-xl border border-border divide-y divide-border bg-card">
               {filtered.map((c) => (
                 <li key={c.id}>
                   <button
                     type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-slate-50"
+                    className="w-full text-left px-3 py-2.5 text-sm hover:bg-muted/60 transition-colors"
                     onClick={() => {
                       onChange(c.id, c);
                       setQuery("");
@@ -80,32 +86,40 @@ export default function ClubPicker({ label = "Verein", value, onChange }: ClubPi
             </ul>
           )}
           {!creating ? (
-            <button
+            <Button
               type="button"
-              className="text-sm text-emerald-700 underline mt-1"
+              variant="link"
+              size="sm"
+              className="px-0 h-auto"
               onClick={() => {
                 setCreating(true);
                 setNewName(query);
               }}
             >
               + Neuen Verein anlegen
-            </button>
+            </Button>
           ) : (
-            <div className="flex gap-2 mt-1">
-              <input
+            <div className="flex flex-col sm:flex-row gap-2 rounded-xl border border-border bg-muted/30 p-3">
+              <Input
                 type="text"
                 placeholder="Vereinsname"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
+                className="flex-1"
               />
-              <button
-                type="button"
-                onClick={handleCreate}
-                className="rounded-lg bg-emerald-600 text-white px-3 font-medium"
-              >
-                Anlegen
-              </button>
+              <div className="flex gap-2">
+                <Button type="button" onClick={handleCreate} className="flex-1 sm:flex-none">
+                  Anlegen
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCreating(false)}
+                  className="flex-1 sm:flex-none"
+                >
+                  Abbrechen
+                </Button>
+              </div>
             </div>
           )}
         </div>

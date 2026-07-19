@@ -4,12 +4,16 @@ import LoginForm from "../components/LoginForm";
 ---
 
 <Layout title="Anmelden" requireAuth={false} showNav={false}>
-  <div class="max-w-sm mx-auto pt-8">
+  <div class="max-w-md mx-auto pt-6 md:pt-12">
     <div class="text-center mb-6">
-      <span class="text-4xl">⚽</span>
-      <h1 class="text-2xl font-bold text-card-foreground mt-2 tracking-tight">Anmelden</h1>
-      <p class="text-muted-foreground text-sm">
-        Melde dich an, um Berichte zu erfassen und zu synchronisieren.
+      <div class="mx-auto size-12 rounded-xl bg-primary text-primary-foreground grid place-items-center text-sm font-bold tracking-tight">
+        FS
+      </div>
+      <h1 class="text-2xl font-semibold tracking-tight text-card-foreground mt-3">
+        Fussball Scouting
+      </h1>
+      <p class="text-muted-foreground text-sm mt-1">
+        Mobil erfassen, am Desktop nachbereiten.
       </p>
     </div>
     <LoginForm client:load />

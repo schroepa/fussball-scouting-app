@@ -5,6 +5,17 @@ import {
   signInWithGoogle,
   signInWithMagicLink,
 } from "../lib/auth/session";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 function getNextPath(): string {
   if (typeof window === "undefined") return "/";
@@ -36,22 +47,25 @@ export default function LoginForm() {
 
   if (!isSupabaseConfigured) {
     return (
-      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-800 text-sm space-y-2">
-        <p className="font-semibold">Supabase ist noch nicht konfiguriert.</p>
-        <p>
-          Trage{" "}
-          <code className="mx-1 rounded bg-amber-100 px-1">PUBLIC_SUPABASE_URL</code>
-          und{" "}
-          <code className="mx-1 rounded bg-amber-100 px-1">PUBLIC_SUPABASE_ANON_KEY</code>
-          in der lokalen <code className="mx-1 rounded bg-amber-100 px-1">.env</code> ein
-          (siehe README.md), dann Dev-Server neu starten.
-        </p>
-      </div>
+      <Card size="sm" className="border-amber-300/60 bg-amber-50 text-amber-900 shadow-sm">
+        <CardHeader>
+          <CardTitle>Supabase ist noch nicht konfiguriert</CardTitle>
+          <CardDescription className="text-amber-800/80">
+            Trage{" "}
+            <code className="rounded bg-amber-100 px-1">PUBLIC_SUPABASE_URL</code> und{" "}
+            <code className="rounded bg-amber-100 px-1">PUBLIC_SUPABASE_ANON_KEY</code>{" "}
+            in der lokalen <code className="rounded bg-amber-100 px-1">.env</code> ein
+            (siehe README), dann Dev-Server neu starten.
+          </CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 
   if (checking) {
-    return <p className="text-slate-500 text-sm text-center">Prüfe Anmeldung…</p>;
+    return (
+      <p className="text-muted-foreground text-sm text-center">Prüfe Anmeldung…</p>
+    );
   }
 
   const handleGoogle = async () => {
@@ -78,46 +92,60 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="space-y-4">
-      <button
-        onClick={handleGoogle}
-        className="w-full rounded-lg border border-slate-300 bg-white py-3 font-medium flex items-center justify-center gap-2"
-      >
-        <span>🔵</span> Mit Google anmelden
-      </button>
+    <Card size="sm" className="shadow-sm">
+      <CardHeader>
+        <CardTitle>Anmelden</CardTitle>
+        <CardDescription>
+          Google oder Magic Link – danach lokal und mit Sync weiterarbeiten.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          size="lg"
+          onClick={handleGoogle}
+        >
+          Mit Google anmelden
+        </Button>
 
-      <div className="flex items-center gap-2 text-slate-400 text-xs">
-        <div className="flex-1 h-px bg-slate-200" />
-        oder per E-Mail
-        <div className="flex-1 h-px bg-slate-200" />
-      </div>
+        <div className="flex items-center gap-3">
+          <Separator className="flex-1" />
+          <span className="text-xs text-muted-foreground shrink-0">oder per E-Mail</span>
+          <Separator className="flex-1" />
+        </div>
 
-      {sent ? (
-        <p className="text-emerald-700 text-sm text-center">
-          ✅ Link zum Einloggen wurde an <strong>{email}</strong> geschickt. Bitte
-          E-Mail-Postfach prüfen.
-        </p>
-      ) : (
-        <form onSubmit={handleMagicLink} className="space-y-2">
-          <input
-            type="email"
-            required
-            placeholder="deine@email.de"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-emerald-600 text-white py-3 font-semibold disabled:opacity-50"
-          >
-            {loading ? "Sende Link…" : "Magic Link senden"}
-          </button>
-        </form>
-      )}
+        {sent ? (
+          <p className="text-sm text-primary text-center">
+            Link zum Einloggen wurde an <strong>{email}</strong> geschickt. Bitte
+            Postfach prüfen.
+          </p>
+        ) : (
+          <form onSubmit={handleMagicLink} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="login-email">E-Mail</Label>
+              <Input
+                id="login-email"
+                type="email"
+                required
+                placeholder="deine@email.de"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full" size="lg">
+              {loading ? "Sende Link…" : "Magic Link senden"}
+            </Button>
+          </form>
+        )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-    </div>
+        {error && (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

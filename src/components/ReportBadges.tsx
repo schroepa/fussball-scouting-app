@@ -1,16 +1,7 @@
 import type { Bezugstyp, Berichtsart, Match, SyncStatus } from "../lib/types";
 import { BERICHTSART_LABELS, BEZUGSTYP_LABELS } from "../lib/types";
-
-const BEZUGSTYP_ICON: Record<Bezugstyp, string> = {
-  spiel: "⚽",
-  training: "🏋️",
-  sonstige_beobachtung: "👁️",
-};
-
-const BERICHTSART_ICON: Record<Berichtsart, string> = {
-  gegner_analyse: "🎯",
-  eigenes_team: "🏠",
-};
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function BezugstypBadge({
   bezugstyp,
@@ -21,40 +12,46 @@ export function BezugstypBadge({
 }) {
   const text =
     bezugstyp === "spiel" && match
-      ? `${BEZUGSTYP_ICON.spiel} Spiel: ${match.heimClubName} vs. ${match.gastClubName}`
-      : `${BEZUGSTYP_ICON[bezugstyp]} ${BEZUGSTYP_LABELS[bezugstyp]}`;
+      ? `Spiel: ${match.heimClubName} vs. ${match.gastClubName}`
+      : BEZUGSTYP_LABELS[bezugstyp];
 
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium px-2.5 py-1">
-      {text}
-    </span>
-  );
+  return <Badge variant="secondary">{text}</Badge>;
 }
 
 export function BerichtsartBadge({ berichtsart }: { berichtsart: Berichtsart }) {
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full text-xs font-medium px-2.5 py-1 ${
+    <Badge
+      variant="outline"
+      className={cn(
         berichtsart === "gegner_analyse"
-          ? "bg-rose-100 text-rose-700"
-          : "bg-blue-100 text-blue-700"
-      }`}
+          ? "border-rose-300/80 text-rose-800 bg-rose-50"
+          : "border-sky-300/80 text-sky-800 bg-sky-50"
+      )}
     >
-      {BERICHTSART_ICON[berichtsart]} {BERICHTSART_LABELS[berichtsart]}
-    </span>
+      {BERICHTSART_LABELS[berichtsart]}
+    </Badge>
   );
 }
 
 export function SyncStatusBadge({ status }: { status: SyncStatus }) {
   const map: Record<SyncStatus, { label: string; className: string }> = {
-    pending: { label: "Noch nicht synchronisiert", className: "bg-amber-100 text-amber-700" },
-    synced: { label: "Synchronisiert", className: "bg-emerald-100 text-emerald-700" },
-    error: { label: "Sync-Fehler – erneut tippen", className: "bg-red-100 text-red-700" },
+    pending: {
+      label: "Noch nicht synchronisiert",
+      className: "border-amber-300/80 text-amber-800 bg-amber-50",
+    },
+    synced: {
+      label: "Synchronisiert",
+      className: "border-primary/30 text-foreground bg-primary/10",
+    },
+    error: {
+      label: "Sync-Fehler – erneut tippen",
+      className: "border-destructive/40 text-destructive bg-destructive/10",
+    },
   };
   const { label, className } = map[status];
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full text-xs font-medium px-2.5 py-1 ${className}`}>
+    <Badge variant="outline" className={className}>
       {label}
-    </span>
+    </Badge>
   );
 }

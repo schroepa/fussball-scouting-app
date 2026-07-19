@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Camera, X } from "lucide-react";
 
 export interface CapturedPhoto {
   id: string;
@@ -15,13 +17,14 @@ interface CameraCaptureProps {
 /**
  * Foto-Aufnahme direkt aus der App.
  *
- * Nutzt `<input type="file" accept="image/*" capture="environment">` – das
- * funktioniert auf praktisch allen mobilen Browsern zuverlässig (öffnet die
- * native Kamera-App), ist offline-fähig und benötigt keine zusätzlichen
- * Berechtigungen/Prompts wie `getUserMedia`. Fotos werden sofort lokal als
- * Blob gespeichert (siehe src/lib/local/repository.ts::saveMediaBlob).
+ * Nutzt `<input type="file" accept="image/*" capture="environment">` –
+ * mobil öffnet das die Kamera, am Desktop die Dateiauswahl.
  */
-export default function CameraCapture({ photos, onAdd, onRemove }: CameraCaptureProps) {
+export default function CameraCapture({
+  photos,
+  onAdd,
+  onRemove,
+}: CameraCaptureProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,26 +49,28 @@ export default function CameraCapture({ photos, onAdd, onRemove }: CameraCapture
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {photos.map((photo) => (
-          <div key={photo.id} className="relative">
-            <img
-              src={photo.previewUrl}
-              alt="Aufgenommenes Foto"
-              className="w-20 h-20 object-cover rounded-lg border border-slate-200"
-            />
-            <button
-              type="button"
-              onClick={() => onRemove(photo.id)}
-              aria-label="Foto entfernen"
-              className="absolute -top-2 -right-2 bg-slate-900 text-white rounded-full w-6 h-6 text-xs"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-      </div>
+    <div className="space-y-2">
+      {photos.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {photos.map((photo) => (
+            <div key={photo.id} className="relative">
+              <img
+                src={photo.previewUrl}
+                alt="Aufgenommenes Foto"
+                className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl border border-border"
+              />
+              <button
+                type="button"
+                onClick={() => onRemove(photo.id)}
+                aria-label="Foto entfernen"
+                className="absolute -top-1.5 -right-1.5 size-6 rounded-full bg-foreground text-background grid place-items-center shadow-sm"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <input
         ref={inputRef}
@@ -75,14 +80,20 @@ export default function CameraCapture({ photos, onAdd, onRemove }: CameraCapture
         onChange={handleFile}
         className="hidden"
       />
-      <button
+      <Button
         type="button"
+        variant="outline"
+        className="w-full border-dashed h-11"
         onClick={() => inputRef.current?.click()}
-        className="w-full rounded-lg border-2 border-dashed border-slate-300 text-slate-600 py-3 font-medium flex items-center justify-center gap-2"
       >
-        📷 Foto aufnehmen
-      </button>
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+        <Camera data-icon="inline-start" />
+        Foto aufnehmen / auswählen
+      </Button>
+      {error && (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

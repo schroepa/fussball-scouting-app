@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { createPlayer, listPlayers } from "../lib/local/repository";
 import type { Player } from "../lib/types";
 import ClubPicker from "./ClubPicker";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface PlayerPickerProps {
   label?: string;
@@ -56,73 +59,79 @@ export default function PlayerPicker({
     setQuery("");
   };
 
+  const clearSelection = () => {
+    onChange("", undefined as unknown as Player);
+  };
+
   return (
-    <div>
-      <label className="block font-medium text-slate-800 mb-1">{label}</label>
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
       {selected && !creating ? (
-        <div className="flex items-center justify-between rounded-lg border border-slate-300 px-3 py-2">
-          <span>
+        <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2">
+          <span className="font-medium truncate">
             {selected.vorname} {selected.nachname}
           </span>
-          <button
-            type="button"
-            className="text-xs text-emerald-700 underline"
-            onClick={() => onChange("", undefined as unknown as Player)}
-          >
+          <Button type="button" variant="link" size="sm" onClick={clearSelection}>
             ändern
-          </button>
+          </Button>
         </div>
       ) : (
-        <div>
-          <input
-            type="text"
+        <div className="space-y-2">
+          <Input
+            type="search"
             placeholder="Spieler suchen…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 mb-1"
           />
           {filtered.length > 0 && (
-            <ul className="max-h-40 overflow-auto border border-slate-200 rounded-lg divide-y">
+            <ul className="max-h-44 md:max-h-56 overflow-auto rounded-xl border border-border divide-y divide-border bg-card">
               {filtered.map((p) => (
                 <li key={p.id}>
                   <button
                     type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-slate-50"
+                    className="w-full text-left px-3 py-2.5 text-sm hover:bg-muted/60 transition-colors"
                     onClick={() => {
                       onChange(p.id, p);
                       setQuery("");
                     }}
                   >
-                    {p.vorname} {p.nachname}
+                    <span className="font-medium">
+                      {p.vorname} {p.nachname}
+                    </span>
+                    {p.positionen.length > 0 && (
+                      <span className="text-muted-foreground ml-2">
+                        {p.positionen.join(", ")}
+                      </span>
+                    )}
                   </button>
                 </li>
               ))}
             </ul>
           )}
           {!creating ? (
-            <button
+            <Button
               type="button"
-              className="text-sm text-emerald-700 underline mt-1"
+              variant="link"
+              size="sm"
+              className="px-0 h-auto"
               onClick={() => setCreating(true)}
             >
               + Neuen Spieler anlegen
-            </button>
+            </Button>
           ) : (
-            <div className="space-y-2 mt-2 border border-slate-200 rounded-lg p-3 bg-slate-50">
-              <div className="flex gap-2">
-                <input
+            <div className="space-y-3 rounded-xl border border-border bg-muted/30 p-3 md:p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Input
                   type="text"
                   placeholder="Vorname"
                   value={vorname}
                   onChange={(e) => setVorname(e.target.value)}
-                  className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
                 />
-                <input
+                <Input
                   type="text"
                   placeholder="Nachname"
                   value={nachname}
                   onChange={(e) => setNachname(e.target.value)}
-                  className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
                 />
               </div>
               <ClubPicker
@@ -130,13 +139,18 @@ export default function PlayerPicker({
                 value={clubId}
                 onChange={(id) => setClubId(id || undefined)}
               />
-              <button
-                type="button"
-                onClick={handleCreate}
-                className="w-full rounded-lg bg-emerald-600 text-white py-2 font-medium"
-              >
-                Spieler anlegen
-              </button>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCreating(false)}
+                >
+                  Abbrechen
+                </Button>
+                <Button type="button" onClick={handleCreate}>
+                  Spieler anlegen
+                </Button>
+              </div>
             </div>
           )}
         </div>
