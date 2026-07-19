@@ -1,0 +1,9 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import TeamReportForm from "../../components/TeamReportForm";
+---
+
+<Layout title="Neuer Team-Bericht" activeNav="reports">
+  <h1 class="text-2xl font-bold text-slate-900 mb-4">Neuer Team-Bericht</h1>
+  <TeamReportForm client:load />
+</Layout>

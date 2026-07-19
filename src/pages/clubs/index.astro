@@ -1,0 +1,17 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ClubsList from "../../components/ClubsList";
+---
+
+<Layout title="Vereine" activeNav="import">
+  <div class="flex items-center justify-between mb-4 gap-2">
+    <h1 class="text-2xl font-bold text-slate-900">Vereine</h1>
+    <a
+      href="/import"
+      class="rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm font-medium"
+    >
+      Import
+    </a>
+  </div>
+  <ClubsList client:load />
+</Layout>

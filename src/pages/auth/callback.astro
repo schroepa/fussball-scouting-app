@@ -1,0 +1,10 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AuthCallback from "../../components/AuthCallback";
+---
+
+<Layout title="Anmeldung" requireAuth={false} showNav={false}>
+  <div class="pt-16">
+    <AuthCallback client:load />
+  </div>
+</Layout>
