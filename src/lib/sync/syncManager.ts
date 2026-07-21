@@ -238,24 +238,34 @@ export async function pushPendingChanges(): Promise<SyncResult> {
   );
 
   track(
-    await syncTable<TeamReport>(db.teamReports, "team_reports", (r) => ({
-      id: r.id,
-      club_id: r.clubId,
-      scout_id: r.scoutId,
-      berichtsart: r.berichtsart,
-      bezugstyp: r.bezugstyp,
-      match_id: r.matchId ?? null,
-      datum: r.datum,
-      formation: r.formation ?? null,
-      spielstil: r.spielstil ?? null,
-      standardsituationen: r.standardsituationen ?? null,
-      staerken: r.staerken ?? null,
-      schwaechen: r.schwaechen ?? null,
-      schluesselspieler_ids: r.schluesselspielerIds,
-      custom_fields: r.customFields ?? {},
-      updated_at: r.updatedAt,
-      created_at: r.createdAt,
-    }))
+    await syncTable<TeamReport>(db.teamReports, "team_reports", (r) => {
+      const customFields: Record<string, unknown> = {
+        ...(r.customFields ?? {}),
+      };
+      if (r.ratings && r.ratings.length > 0) {
+        customFields.ratings = r.ratings;
+      } else {
+        delete customFields.ratings;
+      }
+      return {
+        id: r.id,
+        club_id: r.clubId,
+        scout_id: r.scoutId,
+        berichtsart: r.berichtsart,
+        bezugstyp: r.bezugstyp,
+        match_id: r.matchId ?? null,
+        datum: r.datum,
+        formation: r.formation ?? null,
+        spielstil: r.spielstil ?? null,
+        standardsituationen: r.standardsituationen ?? null,
+        staerken: r.staerken ?? null,
+        schwaechen: r.schwaechen ?? null,
+        schluesselspieler_ids: r.schluesselspielerIds,
+        custom_fields: customFields,
+        updated_at: r.updatedAt,
+        created_at: r.createdAt,
+      };
+    })
   );
 
   track(await syncCustomAttributes(session.scout.id));
@@ -437,30 +447,38 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
   );
 
   track(
-    await pullTable<TeamReport>("team_reports", db.teamReports, (row) => ({
-      id: String(row.id),
-      clubId: String(row.club_id),
-      scoutId: String(row.scout_id),
-      berichtsart: row.berichtsart as Berichtsart,
-      bezugstyp: row.bezugstyp as Bezugstyp,
-      matchId: (row.match_id as string | null) ?? undefined,
-      datum: iso(row.datum) ?? new Date().toISOString(),
-      formation: (row.formation as string | null) ?? undefined,
-      spielstil: (row.spielstil as string | null) ?? undefined,
-      standardsituationen:
-        (row.standardsituationen as string | null) ?? undefined,
-      staerken: (row.staerken as string | null) ?? undefined,
-      schwaechen: (row.schwaechen as string | null) ?? undefined,
-      schluesselspielerIds: Array.isArray(row.schluesselspieler_ids)
-        ? (row.schluesselspieler_ids as string[])
-        : [],
-      media: [],
-      customFields:
-        (row.custom_fields as Record<string, unknown> | null) ?? undefined,
-      syncStatus: "synced",
-      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
-      createdAt: iso(row.created_at) ?? new Date().toISOString(),
-    }))
+    await pullTable<TeamReport>("team_reports", db.teamReports, (row) => {
+      const rawCustom =
+        (row.custom_fields as Record<string, unknown> | null) ?? {};
+      const ratingsRaw = rawCustom.ratings;
+      const ratings = Array.isArray(ratingsRaw) ? ratingsRaw : [];
+      const { ratings: _drop, ...restCustom } = rawCustom;
+      return {
+        id: String(row.id),
+        clubId: String(row.club_id),
+        scoutId: String(row.scout_id),
+        berichtsart: row.berichtsart as Berichtsart,
+        bezugstyp: row.bezugstyp as Bezugstyp,
+        matchId: (row.match_id as string | null) ?? undefined,
+        datum: iso(row.datum) ?? new Date().toISOString(),
+        formation: (row.formation as string | null) ?? undefined,
+        spielstil: (row.spielstil as string | null) ?? undefined,
+        standardsituationen:
+          (row.standardsituationen as string | null) ?? undefined,
+        staerken: (row.staerken as string | null) ?? undefined,
+        schwaechen: (row.schwaechen as string | null) ?? undefined,
+        schluesselspielerIds: Array.isArray(row.schluesselspieler_ids)
+          ? (row.schluesselspieler_ids as string[])
+          : [],
+        ratings,
+        media: [],
+        customFields:
+          Object.keys(restCustom).length > 0 ? restCustom : undefined,
+        syncStatus: "synced",
+        updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+        createdAt: iso(row.created_at) ?? new Date().toISOString(),
+      };
+    })
   );
 
   track(await pullCustomAttributes(session.scout.id));

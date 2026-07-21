@@ -1,7 +1,19 @@
 import { useEffect, useState } from "react";
 import { db } from "../lib/local/db";
-import { getClub, getMatch, getMediaBlobUrl, getTeamReport } from "../lib/local/repository";
-import type { Club, Match, Player, TeamReport } from "../lib/types";
+import {
+  getClub,
+  getMatch,
+  getMediaBlobUrl,
+  getTeamReport,
+  listAttributeDefinitions,
+} from "../lib/local/repository";
+import type {
+  AttributeDefinition,
+  Club,
+  Match,
+  Player,
+  TeamReport,
+} from "../lib/types";
 import { BerichtsartBadge, BezugstypBadge, SyncStatusBadge } from "./ReportBadges";
 import MatchFormationsSummary from "./MatchFormationsSummary";
 import MatchVideoSummary from "./MatchVideoSummary";
@@ -25,6 +37,7 @@ export default function TeamReportDetail({ reportId }: Props) {
   const [club, setClub] = useState<Club | undefined>();
   const [match, setMatch] = useState<Match | undefined>();
   const [keyPlayers, setKeyPlayers] = useState<Player[]>([]);
+  const [attributes, setAttributes] = useState<AttributeDefinition[]>([]);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
 
   useEffect(() => {
@@ -36,6 +49,7 @@ export default function TeamReportDetail({ reportId }: Props) {
       }
       setReport(r);
       setClub(await getClub(r.clubId));
+      setAttributes(await listAttributeDefinitions("team"));
       if (r.matchId) {
         setMatch(await getMatch(r.matchId));
       } else {
@@ -164,7 +178,32 @@ export default function TeamReportDetail({ reportId }: Props) {
           )}
         </div>
 
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-8 space-y-4">
+          {report.ratings && report.ratings.length > 0 ? (
+            <Card size="sm" className="shadow-sm">
+              <CardHeader className="border-b">
+                <CardTitle>Bewertungsraster</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-3 text-sm pt-4">
+                {report.ratings.map((r) => {
+                  const def = attributes.find((a) => a.key === r.attributeKey);
+                  return (
+                    <div key={r.attributeKey}>
+                      <div className="flex justify-between gap-2">
+                        <span className="text-muted-foreground">
+                          {def?.name ?? r.attributeKey}
+                        </span>
+                        <span className="font-semibold tabular-nums">
+                          {r.value}/{def?.skalaMax ?? 10}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          ) : null}
+
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Analyse</CardTitle>

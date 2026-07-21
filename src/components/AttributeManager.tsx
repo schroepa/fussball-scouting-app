@@ -5,7 +5,7 @@ import {
   listAttributeDefinitions,
   updateCustomAttribute,
 } from "@/lib/local/repository";
-import type { AttributeDefinition } from "@/lib/types";
+import type { AttributeAppliesTo, AttributeDefinition } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,9 +17,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2 } from "lucide-react";
 
 export default function AttributeManager() {
+  const [scope, setScope] = useState<AttributeAppliesTo>("player");
   const [defs, setDefs] = useState<AttributeDefinition[]>([]);
   const [name, setName] = useState("");
   const [gruppe, setGruppe] = useState("");
@@ -27,21 +29,22 @@ export default function AttributeManager() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const reload = async () => {
-    setDefs(await listAttributeDefinitions("player"));
+  const reload = async (giltFuer: AttributeAppliesTo = scope) => {
+    setDefs(await listAttributeDefinitions(giltFuer));
   };
 
   useEffect(() => {
-    void reload();
+    void reload(scope);
     const onSynced = () => {
-      void reload();
+      void reload(scope);
     };
     window.addEventListener("scouting:synced", onSynced);
     return () => window.removeEventListener("scouting:synced", onSynced);
-  }, []);
+  }, [scope]);
 
   const defaults = defs.filter((d) => !d.istCustom);
   const customs = defs.filter((d) => d.istCustom);
+  const scopeLabel = scope === "player" ? "Spielerbericht" : "Teambericht";
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
@@ -56,11 +59,11 @@ export default function AttributeManager() {
       await createCustomAttribute({
         name: name.trim(),
         gruppe: gruppe.trim() || undefined,
-        giltFuer: "player",
+        giltFuer: scope,
       });
       setName("");
       setGruppe("");
-      setMessage("Feld angelegt – erscheint im Spielerbericht.");
+      setMessage(`Feld angelegt – erscheint im ${scopeLabel}.`);
       await reload();
       window.dispatchEvent(new Event("scouting:synced"));
     } catch (err) {
@@ -84,14 +87,25 @@ export default function AttributeManager() {
     await reload();
   };
 
-  return (
-    <div className="space-y-6 max-w-3xl">
+  const onTabChange = (value: string | number | null) => {
+    if (value !== "player" && value !== "team") return;
+    setScope(value);
+    setError(null);
+    setMessage(null);
+    setName("");
+    setGruppe("");
+  };
+
+  const panels = (
+    <div className="space-y-6">
       <Card size="sm" className="shadow-sm">
         <CardHeader className="border-b">
           <CardTitle>Eigenes Bewertungsfeld</CardTitle>
           <CardDescription>
-            Ergänzt das Standard-Raster (Technik, Taktik, Athletik, Mentalität)
-            im Spielerbericht. Skala 1–10. Nur für dich sichtbar.
+            {scope === "player"
+              ? "Ergänzt Technik, Taktik, Athletik, Mentalität im Spielerbericht."
+              : "Ergänzt Organisation, Pressing, Umschalten, Standards im Teambericht."}{" "}
+            Skala 1–10. Nur für dich sichtbar.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-4">
@@ -101,7 +115,11 @@ export default function AttributeManager() {
                 <Label htmlFor="attr-name">Name</Label>
                 <Input
                   id="attr-name"
-                  placeholder="z. B. Kopfballspiel"
+                  placeholder={
+                    scope === "player"
+                      ? "z. B. Kopfballspiel"
+                      : "z. B. Ballbesitz"
+                  }
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -197,6 +215,23 @@ export default function AttributeManager() {
           ))}
         </CardContent>
       </Card>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6 max-w-3xl">
+      <Tabs value={scope} onValueChange={onTabChange}>
+        <TabsList>
+          <TabsTrigger value="player">Spieler</TabsTrigger>
+          <TabsTrigger value="team">Team</TabsTrigger>
+        </TabsList>
+        <TabsContent value="player" className="mt-4">
+          {scope === "player" ? panels : null}
+        </TabsContent>
+        <TabsContent value="team" className="mt-4">
+          {scope === "team" ? panels : null}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

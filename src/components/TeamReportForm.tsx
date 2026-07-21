@@ -1,10 +1,22 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import CameraCapture, { type CapturedPhoto } from "./CameraCapture";
 import ClubPicker from "./ClubPicker";
 import PlayerPicker from "./PlayerPicker";
 import BezugstypSelector from "./BezugstypSelector";
-import { createTeamReport, saveMediaBlob } from "../lib/local/repository";
-import type { Berichtsart, Bezugstyp, MediaRef, Player } from "../lib/types";
+import RatingSlider from "./RatingSlider";
+import {
+  createTeamReport,
+  listAttributeDefinitions,
+  saveMediaBlob,
+} from "../lib/local/repository";
+import type {
+  AttributeDefinition,
+  Berichtsart,
+  Bezugstyp,
+  MediaRef,
+  Player,
+  RatingValue,
+} from "../lib/types";
 import { BERICHTSART_LABELS } from "../lib/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,12 +36,14 @@ import { X } from "lucide-react";
 const BERICHTSART_OPTIONS: Berichtsart[] = ["gegner_analyse", "eigenes_team"];
 
 export default function TeamReportForm() {
+  const [attributes, setAttributes] = useState<AttributeDefinition[]>([]);
   const [berichtsart, setBerichtsart] = useState<Berichtsart>("gegner_analyse");
   const [clubId, setClubId] = useState<string>("");
   const [bezugstyp, setBezugstyp] = useState<Bezugstyp>("spiel");
   const [matchId, setMatchId] = useState<string>("");
   const [datum, setDatum] = useState(() => new Date().toISOString().slice(0, 10));
   const [formation, setFormation] = useState("");
+  const [ratings, setRatings] = useState<Record<string, number>>({});
   const [spielstil, setSpielstil] = useState("");
   const [standardsituationen, setStandardsituationen] = useState("");
   const [staerken, setStaerken] = useState("");
@@ -40,6 +54,10 @@ export default function TeamReportForm() {
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void listAttributeDefinitions("team").then(setAttributes);
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -62,6 +80,10 @@ export default function TeamReportForm() {
         media.push(ref);
       }
 
+      const ratingValues: RatingValue[] = Object.entries(ratings).map(
+        ([attributeKey, value]) => ({ attributeKey, value })
+      );
+
       const { getCurrentSession } = await import("../lib/auth/session");
       const session = await getCurrentSession();
 
@@ -78,6 +100,7 @@ export default function TeamReportForm() {
         staerken: staerken || undefined,
         schwaechen: schwaechen || undefined,
         schluesselspielerIds: schluesselspieler.map((p) => p.id),
+        ratings: ratingValues,
         media,
       });
       setSavedId(report.id);
@@ -260,6 +283,40 @@ export default function TeamReportForm() {
         </div>
 
         <div className="lg:col-span-7 space-y-4">
+          {attributes.length > 0 ? (
+            <Card size="sm" className="shadow-sm">
+              <CardHeader className="border-b">
+                <CardTitle>Bewertungsraster</CardTitle>
+                <CardDescription>
+                  1–10 · eigene Felder unter{" "}
+                  <a
+                    href="/einstellungen/attribute"
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    Bewertungsfelder → Team
+                  </a>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                  {attributes.map((attr) => (
+                    <RatingSlider
+                      key={attr.id}
+                      label={attr.name}
+                      description={attr.gruppe}
+                      value={ratings[attr.key]}
+                      min={attr.skalaMin}
+                      max={attr.skalaMax}
+                      onChange={(v) =>
+                        setRatings((prev) => ({ ...prev, [attr.key]: v }))
+                      }
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Analyse</CardTitle>

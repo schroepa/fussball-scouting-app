@@ -176,7 +176,7 @@ supabase/
 | M7 – Match-Phasen & Formationen | **erledigt (MVP)** – SQL `match_formations.sql` ausführen |
 | **M8 – VEO/Video-Link + Timecode** | **erledigt (Phase 1)** – SQL `match_video.sql` ausführen |
 | **M9 – Onboarding + FAQ/Hilfe** | **erledigt (MVP)** – `/hilfe`, First-Run |
-| **M6 – Custom-Bewertungsfelder** | **erledigt (MVP)** – `/einstellungen/attribute` |
+| **M6 – Custom-Bewertungsfelder** | **erledigt** – Spieler + Team (`/einstellungen/attribute`) |
 
 Aktueller Plan: `docs/PLANNING.md` (v3).
 

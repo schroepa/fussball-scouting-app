@@ -177,6 +177,8 @@ export interface TeamReport {
   staerken?: string;
   schwaechen?: string;
   schluesselspielerIds: string[];
+  /** Optionales Team-Bewertungsraster (Skalen), analog zu Spielerberichten. */
+  ratings?: RatingValue[];
   media: MediaRef[];
   customFields?: Record<string, unknown>;
   syncStatus: SyncStatus;

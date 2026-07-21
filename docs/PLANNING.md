@@ -70,7 +70,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | **M7** | **Match-Phasen & Formationen** | **erledigt (MVP)** | Heim/Gast × off/def, Phasen, Editor am Spiel |
 | **M8** | **VEO / Video-Bezug** | **erledigt (MVP Phase 1)** | Link + Ref + Zeitmarken am Match |
 | **M9** | **Onboarding + FAQ/Tutorial** | **erledigt (MVP)** | First-Run, `/hilfe`, FAQ |
-| **M6** | **Custom-Attribute-UI** | **erledigt (MVP)** | Spieler-Felder anlegen, Formular + Sync |
+| **M6** | **Custom-Attribute-UI** | **erledigt** | Spieler + Team; Formulare + Sync |
 | **M3b** | **Sync-Retry-UI** | **erledigt** | Fehler-Badge, Panel, Retry |
 
 ### Empfohlene Umsetzungsreihenfolge ab jetzt

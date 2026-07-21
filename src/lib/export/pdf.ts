@@ -125,6 +125,18 @@ export function exportTeamReportPdf(
     y += 8;
   }
 
+  if (report.ratings && report.ratings.length > 0) {
+    doc.setFont("helvetica", "bold");
+    doc.text("Bewertungsraster", 14, y);
+    y += 6;
+    doc.setFont("helvetica", "normal");
+    for (const r of report.ratings) {
+      doc.text(`${r.attributeKey}: ${r.value}/10`, 14, y);
+      y += 6;
+    }
+    y += 2;
+  }
+
   const addTextBlock = (label: string, value?: string) => {
     if (!value) return;
     doc.setFont("helvetica", "bold");

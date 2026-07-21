@@ -59,7 +59,56 @@ export const DEFAULT_PLAYER_ATTRIBUTES: AttributeDefinition[] = [
   },
 ];
 
-export const DEFAULT_TEAM_ATTRIBUTES: AttributeDefinition[] = [];
+export const DEFAULT_TEAM_ATTRIBUTES: AttributeDefinition[] = [
+  {
+    id: "default-team-organisation",
+    giltFuer: "team",
+    key: "organisation",
+    name: "Organisation",
+    typ: "skala",
+    skalaMin: 1,
+    skalaMax: 10,
+    gruppe: "Defensive Ordnung, Abstände, Kompaktheit",
+    istCustom: false,
+    reihenfolge: 1,
+  },
+  {
+    id: "default-team-pressing",
+    giltFuer: "team",
+    key: "pressing",
+    name: "Pressing",
+    typ: "skala",
+    skalaMin: 1,
+    skalaMax: 10,
+    gruppe: "Höhe, Timing, Intensität des Gegenpressings",
+    istCustom: false,
+    reihenfolge: 2,
+  },
+  {
+    id: "default-team-umschalten",
+    giltFuer: "team",
+    key: "umschalten",
+    name: "Umschaltspiel",
+    typ: "skala",
+    skalaMin: 1,
+    skalaMax: 10,
+    gruppe: "Umschalten nach Ballgewinn/-verlust",
+    istCustom: false,
+    reihenfolge: 3,
+  },
+  {
+    id: "default-team-standards",
+    giltFuer: "team",
+    key: "standards",
+    name: "Standards",
+    typ: "skala",
+    skalaMin: 1,
+    skalaMax: 10,
+    gruppe: "Ecken, Freistöße, Einwürfe – offensiv und defensiv",
+    istCustom: false,
+    reihenfolge: 4,
+  },
+];
 
 export const DEFAULT_ATTRIBUTES: AttributeDefinition[] = [
   ...DEFAULT_PLAYER_ATTRIBUTES,

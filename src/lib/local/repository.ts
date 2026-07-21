@@ -342,6 +342,7 @@ export async function createTeamReport(
   const now = nowIso();
   const report: TeamReport = {
     ...input,
+    ratings: input.ratings ?? [],
     id: newId(),
     syncStatus: "pending",
     updatedAt: now,

@@ -133,7 +133,7 @@ export const helpSections: HelpSection[] = [
     title: "Bewertungsfelder",
     summary: "Standard-Raster und eigene Kategorien.",
     paragraphs: [
-      "Jeder Spielerbericht nutzt Technik, Taktik, Athletik und Mentalität. Unter Bewertungsfelder legst du zusätzliche Skalen an (z. B. Kopfballspiel) – sie erscheinen automatisch im Formular.",
+      "Jeder Spielerbericht nutzt Technik, Taktik, Athletik und Mentalität. Teamberichte haben Organisation, Pressing, Umschalten und Standards. Unter Bewertungsfelder (Tabs Spieler/Team) legst du zusätzliche Skalen an.",
       "Custom-Felder gehören nur dir und synchronisieren geräteübergreifend.",
     ],
   },
