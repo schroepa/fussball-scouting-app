@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MatchFormationsEditor from "./MatchFormationsEditor";
 import MatchVideoEditor from "./MatchVideoEditor";
+import { selectClassName } from "@/lib/ui";
 
 interface MatchPickerProps {
   value: string | undefined;
@@ -74,7 +75,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
       <Label>Spiel</Label>
       {selected && !creating ? (
         <div className="space-y-2">
-          <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2">
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 py-2">
             <span className="text-sm font-medium truncate">
               {formatMatch(selected)}
             </span>
@@ -169,7 +170,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
         <div className="space-y-2">
           {matches.length > 0 && !creating && (
             <select
-              className="h-9 w-full rounded-3xl border border-transparent bg-input/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+              className={selectClassName}
               value={value ?? ""}
               onChange={(e) => e.target.value && onChange(e.target.value)}
             >
@@ -192,7 +193,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
               + Neues Spiel anlegen
             </Button>
           ) : (
-            <div className="space-y-3 rounded-xl border border-border bg-muted/30 p-3 md:p-4">
+            <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-3 md:p-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Input
                   type="text"

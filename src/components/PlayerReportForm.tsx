@@ -191,7 +191,7 @@ export default function PlayerReportForm() {
                     type="button"
                     onClick={() => setEmpfehlung(opt)}
                     className={cn(
-                      "rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                      "rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-colors",
                       empfehlung === opt
                         ? "border-primary bg-primary/10 text-foreground"
                         : "border-border bg-background text-muted-foreground hover:bg-muted/50"

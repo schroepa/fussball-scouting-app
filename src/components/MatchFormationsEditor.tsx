@@ -185,7 +185,7 @@ export default function MatchFormationsEditor({
   return (
     <div
       className={cn(
-        "space-y-4 rounded-xl border border-border bg-muted/20",
+        "space-y-4 rounded-lg border border-border bg-muted/20",
         compact ? "p-3" : "p-4 md:p-5"
       )}
     >

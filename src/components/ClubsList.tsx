@@ -48,7 +48,7 @@ export default function ClubsList() {
             {filtered.map((c) => (
               <li
                 key={c.id}
-                className="rounded-xl border border-border bg-card p-3 flex items-center justify-between gap-2"
+                className="rounded-lg border border-border bg-card p-3 flex items-center justify-between gap-2"
               >
                 <div className="font-semibold truncate">{c.name}</div>
                 {c.liga && (

@@ -78,7 +78,7 @@ export default function OnboardingWizard({
       aria-modal="true"
       aria-labelledby="onboarding-title"
     >
-      <div className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl border border-border bg-card shadow-xl overflow-hidden animate-in fade-in">
+      <div className="w-full sm:max-w-lg rounded-t-xl sm:rounded-xl border border-border bg-card shadow-xl overflow-hidden animate-in fade-in">
         <div className="h-1.5 bg-muted">
           <div
             className="h-full bg-primary transition-all duration-300"

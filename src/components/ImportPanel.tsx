@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { selectClassName } from "@/lib/ui";
 
 type Tab = "transfermarkt" | "scraper" | "spieler" | "fussballde";
 
@@ -477,7 +478,7 @@ export default function ImportPanel() {
                     id="season"
                     value={season}
                     onChange={(e) => setSeason(e.target.value)}
-                    className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+                    className={selectClassName}
                   >
                     <option value="2627">2026/27</option>
                     <option value="2526">2025/26</option>
@@ -507,7 +508,7 @@ export default function ImportPanel() {
               </p>
 
               {teams.length > 0 && (
-                <div className="rounded-xl border border-border overflow-hidden">
+                <div className="rounded-lg border border-border overflow-hidden">
                   <div className="px-3 py-2 text-sm font-medium border-b border-border bg-muted/40">
                     Mannschaften ({teams.length})
                   </div>
@@ -533,7 +534,7 @@ export default function ImportPanel() {
                 </div>
               )}
 
-              <div className="rounded-xl border border-dashed border-border p-3 space-y-2">
+              <div className="rounded-lg border border-dashed border-border p-3 space-y-2">
                 <p className="text-sm font-medium">Namensliste (Fallback)</p>
                 <p className="text-xs text-muted-foreground">
                   Eine Zeile pro Spieler –{" "}
@@ -615,14 +616,14 @@ export default function ImportPanel() {
           </div>
 
           {!result ? (
-            <div className="rounded-xl border border-dashed border-border bg-muted/20 px-4 py-10 text-center text-sm text-muted-foreground">
+            <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-10 text-center text-sm text-muted-foreground">
               Treffer erscheinen hier. Am Desktop kannst du Kader in der Tabelle
               prüfen und einzeln oder komplett übernehmen.
             </div>
           ) : result.players.length === 0 &&
             result.clubs.length === 0 &&
             result.matches.length === 0 ? (
-            <div className="rounded-xl border border-border bg-card px-4 py-8 text-center space-y-2">
+            <div className="rounded-lg border border-border bg-card px-4 py-8 text-center space-y-2">
               <p className="text-sm font-medium text-foreground">
                 Keine Treffer in dieser Quelle
               </p>
@@ -658,7 +659,7 @@ export default function ImportPanel() {
                     {result.players.map((p) => (
                       <li
                         key={`${p.externalSource}:${p.externalRef}`}
-                        className="rounded-xl border border-border p-3 flex items-center gap-3"
+                        className="rounded-lg border border-border p-3 flex items-center gap-3"
                       >
                         {p.fotoUrl ? (
                           <img
@@ -692,7 +693,7 @@ export default function ImportPanel() {
                     ))}
                   </ul>
 
-                  <div className="hidden md:block rounded-xl border border-border overflow-hidden">
+                  <div className="hidden md:block rounded-lg border border-border overflow-hidden">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -746,7 +747,7 @@ export default function ImportPanel() {
                     {result.clubs.map((c) => (
                       <li
                         key={`${c.externalSource}:${c.externalRef}`}
-                        className="rounded-xl border border-border p-3 flex items-center gap-3"
+                        className="rounded-lg border border-border p-3 flex items-center gap-3"
                       >
                         {c.logoUrl ? (
                           <img
@@ -783,7 +784,7 @@ export default function ImportPanel() {
                   <h3 className="font-semibold tracking-tight">
                     Spiele ({result.matches.length})
                   </h3>
-                  <ul className="space-y-1 text-sm text-muted-foreground max-h-40 overflow-auto rounded-xl border border-border p-3">
+                  <ul className="space-y-1 text-sm text-muted-foreground max-h-40 overflow-auto rounded-lg border border-border p-3">
                     {result.matches.slice(0, 20).map((m) => (
                       <li key={`${m.externalSource}:${m.externalRef}`}>
                         {new Date(m.datum).toLocaleDateString("de-DE")}:{" "}
