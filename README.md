@@ -123,7 +123,7 @@ Unter **`/import`**:
 3. **Spieler suchen** – TheSportsDB für bekannte Namen.
 4. **Namensliste** – eine Zeile pro Spieler (`Nachname, Vorname` oder `Vorname Nachname`), wenn keine Quelle liefert.
 
-Deduplizierung über `external_source` + `external_ref`.
+Deduplizierung **pro Scout** über `ownerScoutId` + `external_source` + `external_ref`.
 
 ---
 
@@ -167,7 +167,7 @@ supabase/
 | Meilenstein | Stand |
 |-------------|--------|
 | M0/M1 – Scaffold, Offline-DB, Berichte, Auth, Export | erledigt |
-| M2 – Import (Transfermarkt, fussball.de, TheSportsDB) | weitgehend |
+| M2 – Import (Transfermarkt, fussball.de, TheSportsDB) | **erledigt (MVP+Feinschliff)** |
 | M3 – Sync Push + Pull (Geräte) | weitgehend |
 | **M3b – Sync-Retry-UI** | **erledigt** |
 | **M3.5 – Datentrennung pro Scout** | **erledigt (App)** – RLS-SQL in Supabase ausführen |

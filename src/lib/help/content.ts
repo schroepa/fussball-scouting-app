@@ -156,8 +156,15 @@ export const helpSections: HelpSection[] = [
     title: "Import",
     summary: "Kader von Transfermarkt, fussball.de oder manuell.",
     paragraphs: [
-      "Unter Import suchst du Vereine/Spieler und übernimmst Stammdaten. Deduplizierung gilt pro Scout: was du schon importiert hast, wird nicht doppelt angelegt.",
+      "Unter Import wählst du eine Quelle, prüfst die Treffer und übernimmst sie. Deduplizierung gilt pro Scout: derselbe externe Spieler wird bei dir nicht doppelt angelegt – bei einem anderen Scout kann er als eigener Datensatz existieren.",
       "Jugendkader auf fussball.de sind oft gesperrt – dann Namensliste einfügen oder manuell anlegen.",
+    ],
+    bullets: [
+      "Transfermarkt: empfohlen für Jugend-/Vereinsskader",
+      "fussball.de: Verein/Teams; Kader oft nur per Namensliste",
+      "Spieler-Tab: TheSportsDB (eher bekannte/Profi-Namen)",
+      "API-Tab fussball.de braucht API_FUSSBALL_TOKEN in der .env",
+      "Nach Übernehmen: Sync-Status in der Leiste prüfen",
     ],
   },
   {

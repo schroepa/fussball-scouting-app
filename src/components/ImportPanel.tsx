@@ -45,17 +45,67 @@ type ScrapeResult = ImportSearchResult & {
 };
 
 /** Nach lokalem Import: wenn möglich sofort pushen, damit andere Geräte pullen können. */
-async function syncAfterImport(): Promise<string | null> {
-  if (typeof navigator !== "undefined" && !navigator.onLine) return null;
+async function syncAfterImport(): Promise<{
+  kind: "ok" | "offline" | "failed" | "noop";
+  message: string;
+}> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    return {
+      kind: "offline",
+      message: "Offline – Sync später über die Sync-Leiste.",
+    };
+  }
   try {
     const result = await syncAll();
     if (result.ok && (result.synced > 0 || result.pulled > 0)) {
       window.dispatchEvent(new Event("scouting:synced"));
     }
-    return result.ok ? null : result.message;
-  } catch {
-    return null;
+    if (!result.ok) {
+      return { kind: "failed", message: result.message };
+    }
+    if (result.synced === 0 && result.pulled === 0) {
+      return { kind: "noop", message: "Lokal gespeichert (bereits aktuell)." };
+    }
+    return {
+      kind: "ok",
+      message: result.message || "Mit Server synchronisiert.",
+    };
+  } catch (err) {
+    return {
+      kind: "failed",
+      message:
+        err instanceof Error
+          ? `Sync fehlgeschlagen: ${err.message}`
+          : "Sync fehlgeschlagen.",
+    };
   }
+}
+
+function FeedbackBanner({
+  loading,
+  error,
+  status,
+}: {
+  loading: boolean;
+  error: string | null;
+  status: string | null;
+}) {
+  if (!loading && !error && !status) return null;
+  return (
+    <div className="space-y-1.5" aria-live="polite">
+      {loading ? (
+        <p className="text-sm text-muted-foreground" aria-busy="true">
+          Lade Daten…
+        </p>
+      ) : null}
+      {error ? (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {status ? <p className="text-sm text-primary">{status}</p> : null}
+    </div>
+  );
 }
 
 export default function ImportPanel() {
@@ -279,10 +329,9 @@ export default function ImportPanel() {
       };
       const saved = await persistImportResult(payload);
       setResult(payload);
-      const syncHint = await syncAfterImport();
+      const sync = await syncAfterImport();
       setStatus(
-        `${saved.playersCreated} Spieler neu / ${saved.playersUpdated} aktualisiert aus Namensliste übernommen.` +
-          (syncHint ? ` Sync: ${syncHint}` : " – Sync gestartet.")
+        `${saved.playersCreated} Spieler neu / ${saved.playersUpdated} aktualisiert aus Namensliste. ${sync.message}`
       );
       setPasteNames("");
     } catch (err) {
@@ -298,12 +347,12 @@ export default function ImportPanel() {
     setError(null);
     try {
       const saved = await persistImportResult(result);
-      const syncHint = await syncAfterImport();
+      const sync = await syncAfterImport();
       setStatus(
         `Importiert: ${saved.playersCreated} Spieler neu / ${saved.playersUpdated} aktualisiert, ` +
           `${saved.clubsCreated} Vereine neu / ${saved.clubsUpdated} aktualisiert, ` +
-          `${saved.matchesCreated} Spiele neu / ${saved.matchesUpdated} aktualisiert.` +
-          (syncHint ? ` Sync: ${syncHint}` : " – zum Server synchronisiert.")
+          `${saved.matchesCreated} Spiele neu / ${saved.matchesUpdated} aktualisiert. ` +
+          sync.message
       );
     } catch (err) {
       setError((err as Error).message);
@@ -321,11 +370,12 @@ export default function ImportPanel() {
         players: [player],
         matches: [],
       });
-      await syncAfterImport();
+      const sync = await syncAfterImport();
       setStatus(
-        saved.playersCreated
-          ? `${player.vorname} ${player.nachname} wurde übernommen und synchronisiert.`
-          : `${player.vorname} ${player.nachname} war schon vorhanden und wurde aktualisiert.`
+        (saved.playersCreated
+          ? `${player.vorname} ${player.nachname} wurde übernommen.`
+          : `${player.vorname} ${player.nachname} war schon vorhanden und wurde aktualisiert.`) +
+          ` ${sync.message}`
       );
     } catch (err) {
       setError((err as Error).message);
@@ -343,11 +393,12 @@ export default function ImportPanel() {
         players: [],
         matches: [],
       });
-      await syncAfterImport();
+      const sync = await syncAfterImport();
       setStatus(
-        saved.clubsCreated
-          ? `${club.name} wurde übernommen und synchronisiert.`
-          : `${club.name} war schon vorhanden und wurde aktualisiert.`
+        (saved.clubsCreated
+          ? `${club.name} wurde übernommen.`
+          : `${club.name} war schon vorhanden und wurde aktualisiert.`) +
+          ` ${sync.message}`
       );
     } catch (err) {
       setError((err as Error).message);
@@ -553,37 +604,49 @@ export default function ImportPanel() {
             </TabsContent>
           </Tabs>
 
-          {loading && <p className="text-sm text-muted-foreground">Lade…</p>}
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          {status && <p className="text-sm text-primary">{status}</p>}
+          <div className="hidden xl:block">
+            <FeedbackBanner loading={loading} error={error} status={status} />
+          </div>
         </div>
 
         <div className="xl:col-span-7 space-y-4 min-w-0">
+          <div className="xl:hidden">
+            <FeedbackBanner loading={loading} error={error} status={status} />
+          </div>
+
           {!result ? (
             <div className="rounded-xl border border-dashed border-border bg-muted/20 px-4 py-10 text-center text-sm text-muted-foreground">
               Treffer erscheinen hier. Am Desktop kannst du Kader in der Tabelle
               prüfen und einzeln oder komplett übernehmen.
             </div>
+          ) : result.players.length === 0 &&
+            result.clubs.length === 0 &&
+            result.matches.length === 0 ? (
+            <div className="rounded-xl border border-border bg-card px-4 py-8 text-center space-y-2">
+              <p className="text-sm font-medium text-foreground">
+                Keine Treffer in dieser Quelle
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Tipp: Transfermarkt für Jugendkader, fussball.de + Namensliste
+                als Fallback, oder den Tab „Spieler“ für bekannte Namen.
+              </p>
+            </div>
           ) : (
             <>
-              {(result.players.length > 0 ||
-                result.clubs.length > 0 ||
-                result.matches.length > 0) && (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <p className="text-sm text-muted-foreground">
-                    {result.players.length} Spieler · {result.clubs.length} Vereine
-                    · {result.matches.length} Spiele
-                  </p>
-                  <Button
-                    type="button"
-                    onClick={importAll}
-                    disabled={loading}
-                    className="w-full sm:w-auto"
-                  >
-                    Alle Treffer übernehmen
-                  </Button>
-                </div>
-              )}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <p className="text-sm text-muted-foreground">
+                  {result.players.length} Spieler · {result.clubs.length} Vereine
+                  · {result.matches.length} Spiele
+                </p>
+                <Button
+                  type="button"
+                  onClick={importAll}
+                  disabled={loading}
+                  className="w-full sm:w-auto"
+                >
+                  Alle Treffer übernehmen
+                </Button>
+              </div>
 
               {result.players.length > 0 && (
                 <section className="space-y-2">
@@ -620,6 +683,7 @@ export default function ImportPanel() {
                           type="button"
                           variant="link"
                           size="sm"
+                          disabled={loading}
                           onClick={() => importPlayer(p)}
                         >
                           Übernehmen
@@ -659,6 +723,7 @@ export default function ImportPanel() {
                                 type="button"
                                 variant="link"
                                 size="sm"
+                                disabled={loading}
                                 onClick={() => importPlayer(p)}
                               >
                                 Übernehmen
@@ -702,6 +767,7 @@ export default function ImportPanel() {
                           type="button"
                           variant="link"
                           size="sm"
+                          disabled={loading}
                           onClick={() => importClub(c)}
                         >
                           Übernehmen

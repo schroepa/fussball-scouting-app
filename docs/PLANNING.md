@@ -62,7 +62,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | ID | Thema | Status | Inhalt |
 |---|---|---|---|
 | M0/M1 | Fundament + Team-Berichte | erledigt | Auth, Offline, Formulare, Bezugstyp/Berichtsart |
-| M2 | Import | weitgehend | Adapter; Dedup künftig owner-scoped |
+| M2 | Import | **erledigt (MVP+Feinschliff)** | Adapter; Dedup pro Scout; UX-Feedback |
 | M3 | Sync Push+Pull | weitgehend | Auto-Sync; Retry-UI (M3b) |
 | **M3.5** | **Datentrennung Scout** | **erledigt (App)** | RLS-SQL ausführen; `ownerScoutId`, Purge, Listen |
 | M4 | Dashboards | erledigt (MVP) | Spieler/Team/Vergleich/Verlauf |
@@ -81,7 +81,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 4. ~~**M8 VEO-Link + Timestamp**~~ – Phase 1; **`supabase/match_video.sql` ausführen**
 5. ~~**M3b Sync-Retry-UI**~~ – Fehler sichtbar + Retry
 6. ~~**M6 Custom-Felder**~~ – `/einstellungen/attribute`; SQL `attribute_definitions_owner.sql`
-7. Import-Feinschliff (optional)
+7. ~~**Import-Feinschliff**~~ – leere Treffer, Sync-Meldungen, Hilfe
 
 ## 7. M7 – Match-Phasen & Formationen
 
