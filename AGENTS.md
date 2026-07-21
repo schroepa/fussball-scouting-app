@@ -23,8 +23,8 @@ Pro-Account nutzen für Blocks/Themes/MCP:
 
 ## Roadmap (Kurz)
 
-Siehe `docs/PLANNING.md` v3. Reihenfolge: **M3.5 Privacy** → M9 Hilfe → M7 Formationen → M8 VEO-Link.  
-Nach Privacy-Deploy: `supabase/rls_owner_scoped.sql` im Supabase SQL-Editor ausführen.
+Siehe `docs/PLANNING.md` v3. Reihenfolge: Privacy → Hilfe → **Formationen** → VEO-Link.  
+Ops: `supabase/rls_owner_scoped.sql` und `supabase/match_formations.sql` im SQL-Editor ausführen.
 
 ## Documentation
 

@@ -176,14 +176,18 @@ export default function TeamReportForm() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="tr-formation">Formation</Label>
+                  <Label htmlFor="tr-formation">Formation (Kurznotiz)</Label>
                   <Input
                     id="tr-formation"
                     type="text"
-                    placeholder="z. B. 4-4-2"
+                    placeholder="optional – Details am Spiel"
                     value={formation}
                     onChange={(e) => setFormation(e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Heim/Gast × off/def und Phasen pflegst du am ausgewählten
+                    Spiel unter „Formationen & Phasen“.
+                  </p>
                 </div>
               </div>
             </CardContent>

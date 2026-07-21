@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { db } from "../lib/local/db";
-import { getMediaBlobUrl, getPlayerReport, getPlayer } from "../lib/local/repository";
+import {
+  getMatch,
+  getMediaBlobUrl,
+  getPlayerReport,
+  getPlayer,
+} from "../lib/local/repository";
 import type { AttributeDefinition, Match, Player, PlayerReport } from "../lib/types";
 import { EMPFEHLUNG_LABELS } from "../lib/types";
 import { BezugstypBadge, SyncStatusBadge } from "./ReportBadges";
+import MatchFormationsSummary from "./MatchFormationsSummary";
 import { downloadJson } from "../lib/export/json";
 import { exportPlayerReportPdf } from "../lib/export/pdf";
 import { Button } from "@/components/ui/button";
@@ -41,7 +47,9 @@ export default function PlayerReportDetail({ reportId }: Props) {
       setPlayer(p);
       setAttributes(defs);
       if (r.matchId) {
-        setMatch(await db.matches.get(r.matchId));
+        setMatch(await getMatch(r.matchId));
+      } else {
+        setMatch(undefined);
       }
       const urls: string[] = [];
       for (const m of r.media) {
@@ -140,6 +148,8 @@ export default function PlayerReportDetail({ reportId }: Props) {
               )}
             </CardContent>
           </Card>
+
+          <MatchFormationsSummary match={match} />
 
           {photoUrls.length > 0 && (
             <Card size="sm" className="shadow-sm">

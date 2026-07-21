@@ -67,7 +67,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | **M3.5** | **Datentrennung Scout** | **erledigt (App)** | RLS-SQL ausführen; `ownerScoutId`, Purge, Listen |
 | M4 | Dashboards | erledigt (MVP) | Spieler/Team/Vergleich/Verlauf |
 | M5 | Export | erledigt | PDF + JSON |
-| **M7** | **Match-Phasen & Formationen** | geplant | Heim/Gast, off/def, Phasen mit Zeit, Systemwechsel |
+| **M7** | **Match-Phasen & Formationen** | **erledigt (MVP)** | Heim/Gast × off/def, Phasen, Editor am Spiel |
 | **M8** | **VEO / Video-Bezug** | geplant | Link + Timecode; später Events; keine Auto-Note |
 | **M9** | **Onboarding + FAQ/Tutorial** | **erledigt (MVP)** | First-Run, `/hilfe`, FAQ |
 | M6 | Custom-Attribute-UI | später | dynamische Felder |
@@ -77,18 +77,18 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 
 1. ~~**M3.5 Privacy**~~ – App-seitig erledigt; **`supabase/rls_owner_scoped.sql` in Supabase ausführen**
 2. ~~**M9 Onboarding/FAQ**~~ – `/hilfe` + First-Run
-3. **M7 Match-Phasen/Formationen** – taktischer Mehrwert
+3. ~~**M7 Match-Phasen/Formationen**~~ – Editor am Spiel; **`supabase/match_formations.sql` ausführen**
 4. **M8 VEO-Link + Timestamp** – Video-Studium
 5. M3b Retry-UI, M6 Custom-Felder, Import-Feinschliff
 
-## 7. M7 – Match-Phasen & Formationen (Skizze)
+## 7. M7 – Match-Phasen & Formationen
 
-Am **Match** (nicht nur Freitext am Team-Bericht):
+Am **Match** (zusätzlich zur optionalen Kurznotiz `TeamReport.formation`):
 
-- Formation Heim/Gast × offensiv/defensiv
-- Phasen: `{ abMinute, formationHeimOff, formationHeimDef, formationGastOff, formationGastDef, notiz? }[]`
-- Events: Systemwechsel, optional kurze Tags (Pressinghöhe, …)
-- UI: am Rand Chips; Zuhause/Video Detailbearbeitung
+- Basis: `formationHeimOff/Def`, `formationGastOff/Def`
+- Phasen: `{ id, abMinute, formationHeimOff/Def, formationGastOff/Def, notiz? }[]`
+- UI: Chips + Editor im MatchPicker; Zusammenfassung in Berichtsdetails
+- SQL: `supabase/match_formations.sql`
 
 ## 8. M8 – VEO (Skizze)
 

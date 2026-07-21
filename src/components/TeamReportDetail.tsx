@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { db } from "../lib/local/db";
-import { getClub, getMediaBlobUrl, getTeamReport } from "../lib/local/repository";
+import { getClub, getMatch, getMediaBlobUrl, getTeamReport } from "../lib/local/repository";
 import type { Club, Match, Player, TeamReport } from "../lib/types";
 import { BerichtsartBadge, BezugstypBadge, SyncStatusBadge } from "./ReportBadges";
+import MatchFormationsSummary from "./MatchFormationsSummary";
 import { downloadJson } from "../lib/export/json";
 import { exportTeamReportPdf } from "../lib/export/pdf";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,9 @@ export default function TeamReportDetail({ reportId }: Props) {
       setReport(r);
       setClub(await getClub(r.clubId));
       if (r.matchId) {
-        setMatch(await db.matches.get(r.matchId));
+        setMatch(await getMatch(r.matchId));
+      } else {
+        setMatch(undefined);
       }
       if (r.schluesselspielerIds.length > 0) {
         const players = await db.players.bulkGet(r.schluesselspielerIds);
@@ -116,12 +119,14 @@ export default function TeamReportDetail({ reportId }: Props) {
               </div>
               {report.formation && (
                 <div>
-                  <div className="text-muted-foreground">Formation</div>
+                  <div className="text-muted-foreground">Formation (Kurz)</div>
                   <div className="font-medium">{report.formation}</div>
                 </div>
               )}
             </CardContent>
           </Card>
+
+          <MatchFormationsSummary match={match} />
 
           {keyPlayers.length > 0 && (
             <Card size="sm" className="shadow-sm">

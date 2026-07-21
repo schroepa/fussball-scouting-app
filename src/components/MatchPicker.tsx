@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { createMatch, listMatches } from "../lib/local/repository";
 import type { Match } from "../lib/types";
+import { matchHasFormations, summarizeMatchFormations } from "../lib/match/formations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import MatchFormationsEditor from "./MatchFormationsEditor";
 
 interface MatchPickerProps {
   value: string | undefined;
@@ -18,6 +20,7 @@ function formatMatch(m: Match): string {
 export default function MatchPicker({ value, onChange }: MatchPickerProps) {
   const [matches, setMatches] = useState<Match[]>([]);
   const [creating, setCreating] = useState(false);
+  const [editFormations, setEditFormations] = useState(false);
   const [heim, setHeim] = useState("");
   const [gast, setGast] = useState("");
   const [datum, setDatum] = useState(() => new Date().toISOString().slice(0, 10));
@@ -27,12 +30,21 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
 
   useEffect(() => {
     reload();
+    const onSynced = () => {
+      void reload();
+    };
+    window.addEventListener("scouting:synced", onSynced);
+    return () => window.removeEventListener("scouting:synced", onSynced);
   }, []);
 
   const selected = useMemo(
     () => matches.find((m) => m.id === value),
     [matches, value]
   );
+
+  useEffect(() => {
+    setEditFormations(false);
+  }, [value]);
 
   const handleCreate = async () => {
     if (!heim.trim() || !gast.trim()) return;
@@ -41,6 +53,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
       gastClubName: gast.trim(),
       datum: new Date(datum).toISOString(),
       wettbewerb: wettbewerb.trim() || undefined,
+      phases: [],
     });
     await reload();
     onChange(match.id);
@@ -48,17 +61,54 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
     setHeim("");
     setGast("");
     setWettbewerb("");
+    setEditFormations(true);
   };
 
   return (
     <div className="space-y-1.5">
       <Label>Spiel</Label>
       {selected && !creating ? (
-        <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2">
-          <span className="text-sm font-medium truncate">{formatMatch(selected)}</span>
-          <Button type="button" variant="link" size="sm" onClick={() => onChange("")}>
-            ändern
-          </Button>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2">
+            <span className="text-sm font-medium truncate">
+              {formatMatch(selected)}
+            </span>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              onClick={() => onChange("")}
+            >
+              ändern
+            </Button>
+          </div>
+
+          {matchHasFormations(selected) && !editFormations ? (
+            <p className="text-xs text-muted-foreground px-1">
+              {summarizeMatchFormations(selected)}
+            </p>
+          ) : null}
+
+          {!editFormations ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full sm:w-auto"
+              onClick={() => setEditFormations(true)}
+            >
+              Formationen & Phasen
+            </Button>
+          ) : (
+            <MatchFormationsEditor
+              match={selected}
+              compact
+              onSaved={async (m) => {
+                await reload();
+                onChange(m.id);
+              }}
+            />
+          )}
         </div>
       ) : (
         <div className="space-y-2">

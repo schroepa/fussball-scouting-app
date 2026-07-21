@@ -172,17 +172,21 @@ supabase/
 | **M3.5 – Datentrennung pro Scout** | **erledigt (App)** – RLS-SQL in Supabase ausführen |
 | M4 – Dashboards & Spielervergleich | erledigt (MVP) |
 | M5 – Export PDF/JSON | erledigt |
-| M7 – Match-Phasen & Formationen | geplant |
+| M7 – Match-Phasen & Formationen | **erledigt (MVP)** – SQL `match_formations.sql` ausführen |
 | M8 – VEO/Video-Link + Timecode | geplant |
 | **M9 – Onboarding + FAQ/Hilfe** | **erledigt (MVP)** – `/hilfe`, First-Run |
 | M6 – UI für Custom-Bewertungsfelder | offen |
 
 Aktueller Plan: `docs/PLANNING.md` (v3).
 
-### Wichtig nach Deploy (Privacy)
+### Wichtig nach Deploy (Privacy + Formationen)
 
-Im Supabase SQL-Editor einmal ausführen: `supabase/rls_owner_scoped.sql`  
-Sonst können andere Scouts weiterhin fremde Daten per Sync pullen.
+Im Supabase SQL-Editor ausführen:
+
+1. `supabase/rls_owner_scoped.sql` – Datentrennung pro Scout  
+2. `supabase/match_formations.sql` – Formations-/Phasen-Spalten am Match
+
+Sonst können Sync bzw. Formations-Push fehlschlagen bzw. fremde Daten sichtbar bleiben.
 
 ---
 

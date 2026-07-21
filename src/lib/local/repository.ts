@@ -187,6 +187,7 @@ export async function createMatch(
   const match: Match = {
     ...input,
     ownerScoutId,
+    phases: input.phases ?? [],
     id: newId(),
     syncStatus: "pending",
     updatedAt: now,
@@ -194,6 +195,35 @@ export async function createMatch(
   };
   await db.matches.add(match);
   return match;
+}
+
+export async function getMatch(id: string): Promise<Match | undefined> {
+  const match = await db.matches.get(id);
+  if (!match) return undefined;
+  const scoutId = await currentScoutId();
+  if (match.ownerScoutId && match.ownerScoutId !== scoutId) return undefined;
+  return match;
+}
+
+export async function updateMatch(
+  id: string,
+  patch: Partial<
+    Omit<Match, "id" | "createdAt" | "ownerScoutId" | "syncStatus">
+  >
+): Promise<Match | undefined> {
+  const existing = await getMatch(id);
+  if (!existing) return undefined;
+  const updated: Match = {
+    ...existing,
+    ...patch,
+    id: existing.id,
+    ownerScoutId: existing.ownerScoutId,
+    createdAt: existing.createdAt,
+    syncStatus: "pending",
+    updatedAt: nowIso(),
+  };
+  await db.matches.put(updated);
+  return updated;
 }
 
 export async function upsertMatchByExternalRef(

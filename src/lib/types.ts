@@ -72,6 +72,17 @@ export interface Player {
   createdAt: string;
 }
 
+/** Spielphase mit Formationen ab einer Minute (M7). */
+export interface MatchPhase {
+  id: string;
+  abMinute: number;
+  formationHeimOff?: string;
+  formationHeimDef?: string;
+  formationGastOff?: string;
+  formationGastDef?: string;
+  notiz?: string;
+}
+
 /** Ein Spiel (optional als Bezug für Berichte). */
 export interface Match {
   id: string;
@@ -82,6 +93,13 @@ export interface Match {
   wettbewerb?: string;
   datum: string;
   spielort?: string;
+  /** Basis-Formation Heim offensiv (z. B. 4-3-3). */
+  formationHeimOff?: string;
+  formationHeimDef?: string;
+  formationGastOff?: string;
+  formationGastDef?: string;
+  /** Systemwechsel / Phasen chronologisch nach abMinute. */
+  phases?: MatchPhase[];
   externalSource?: string;
   externalRef?: string;
   /** Scout, dem dieses Spiel gehört (Datentrennung). */

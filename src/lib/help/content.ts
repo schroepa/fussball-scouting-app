@@ -6,6 +6,7 @@ export type HelpSectionId =
   | "offline-sync"
   | "mobil-desktop"
   | "berichte"
+  | "formationen"
   | "import"
   | "dashboard"
   | "faq";
@@ -121,7 +122,21 @@ export const helpSections: HelpSection[] = [
     bullets: [
       "PDF- und JSON-Export in der Berichtsdetailansicht",
       "Listen filtern und Berichte nachbereiten",
-      "Formationen und Spielphasen folgen in einem späteren Update",
+      "Formationen Heim/Gast × off/def und Phasen am Spiel (nicht nur Freitext am Team-Bericht)",
+    ],
+  },
+  {
+    id: "formationen",
+    title: "Formationen & Phasen",
+    summary: "Systeme und Systemwechsel am Spiel.",
+    paragraphs: [
+      "Wenn der Bericht den Bezug „Spiel“ hat, kannst du am ausgewählten Spiel unter „Formationen & Phasen“ Basis-Systeme für Heim und Gast (offensiv/defensiv) setzen.",
+      "Phasen markieren Systemwechsel ab einer Minute – ideal am Platz per Chip, Zuhause detailliert nachpflegen.",
+    ],
+    bullets: [
+      "Chips für gängige Systeme (4-3-3, 4-2-3-1, …) plus Freitext",
+      "Phasen mit optionaler Notiz",
+      "Anzeige in der Berichtsdetailansicht",
     ],
   },
   {

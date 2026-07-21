@@ -13,6 +13,7 @@ import type {
   SyncStatus,
   TeamReport,
 } from "../types";
+import { parsePhasesFromRemote } from "../match/formations";
 
 export interface SyncResult {
   ok: boolean;
@@ -191,6 +192,11 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       wettbewerb: m.wettbewerb ?? null,
       datum: m.datum,
       spielort: m.spielort ?? null,
+      formation_heim_off: m.formationHeimOff ?? null,
+      formation_heim_def: m.formationHeimDef ?? null,
+      formation_gast_off: m.formationGastOff ?? null,
+      formation_gast_def: m.formationGastDef ?? null,
+      phases: m.phases ?? [],
       external_source: m.externalSource ?? null,
       external_ref: m.externalRef ?? null,
       created_by: m.ownerScoutId ?? session.scout.id,
@@ -373,6 +379,11 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
       wettbewerb: (row.wettbewerb as string | null) ?? undefined,
       datum: iso(row.datum) ?? new Date().toISOString(),
       spielort: (row.spielort as string | null) ?? undefined,
+      formationHeimOff: (row.formation_heim_off as string | null) ?? undefined,
+      formationHeimDef: (row.formation_heim_def as string | null) ?? undefined,
+      formationGastOff: (row.formation_gast_off as string | null) ?? undefined,
+      formationGastDef: (row.formation_gast_def as string | null) ?? undefined,
+      phases: parsePhasesFromRemote(row.phases),
       externalSource: (row.external_source as string | null) ?? undefined,
       externalRef: (row.external_ref as string | null) ?? undefined,
       ownerScoutId: (row.created_by as string | null) ?? session.scout.id,
