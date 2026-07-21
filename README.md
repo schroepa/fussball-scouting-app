@@ -191,6 +191,13 @@ Im Supabase SQL-Editor ausführen:
 
 Sonst können Sync bzw. neue Match-/Attribute-Felder fehlschlagen bzw. fremde Daten sichtbar bleiben.
 
+### Qualität, Tests, Security
+
+- Unit-Tests: `npm test` (Vitest)
+- CI: `.github/workflows/ci.yml`
+- Konventionen (IDs/Semantik): `docs/CONVENTIONS.md`
+- Security-Checkliste: `docs/SECURITY.md`
+
 ---
 
 ## Lizenz & Hinweise

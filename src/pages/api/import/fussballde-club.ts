@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
 import { importFussballDeClub } from "../../../lib/import/fussballDe";
+import { requireApiUser } from "../../../lib/security/apiAuth";
+import { validateImportUrlOrId } from "../../../lib/security/importHosts";
 
 export const prerender = false;
 
@@ -11,6 +13,9 @@ export const prerender = false;
  * API_FUSSBALL_TOKEN). Spieler-Kader liefert diese API nicht.
  */
 export const POST: APIRoute = async ({ request }) => {
+  const auth = await requireApiUser(request);
+  if (!auth.ok) return auth.response;
+
   let body: { urlOrId?: string };
   try {
     body = (await request.json()) as { urlOrId?: string };
@@ -27,6 +32,14 @@ export const POST: APIRoute = async ({ request }) => {
       JSON.stringify({ error: "urlOrId fehlt (fussball.de-URL oder ID)." }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
+  }
+
+  const hostCheck = validateImportUrlOrId(urlOrId);
+  if (!hostCheck.ok) {
+    return new Response(JSON.stringify({ error: hostCheck.error }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   try {

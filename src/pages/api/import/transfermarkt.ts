@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
 import { importViaSportDbOrTransfermarkt } from "../../../lib/import/sportDb";
+import { requireApiUser } from "../../../lib/security/apiAuth";
+import { validateImportUrlOrId } from "../../../lib/security/importHosts";
 
 export const prerender = false;
 
@@ -11,6 +13,9 @@ export const prerender = false;
  * Versuch über SportDB.dev wenn SPORTDB_API_KEY gesetzt ist.
  */
 export const POST: APIRoute = async ({ request }) => {
+  const auth = await requireApiUser(request);
+  if (!auth.ok) return auth.response;
+
   let body: { urlOrId?: string };
   try {
     body = (await request.json()) as { urlOrId?: string };
@@ -29,6 +34,14 @@ export const POST: APIRoute = async ({ request }) => {
       }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
+  }
+
+  const hostCheck = validateImportUrlOrId(urlOrId);
+  if (!hostCheck.ok) {
+    return new Response(JSON.stringify({ error: hostCheck.error }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   try {

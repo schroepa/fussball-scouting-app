@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { searchTheSportsDb } from "../../../lib/import/theSportsDb";
+import { requireApiUser } from "../../../lib/security/apiAuth";
 
 export const prerender = false;
 
@@ -7,7 +8,10 @@ export const prerender = false;
  * GET /api/import/search?q=...
  * Sucht Spieler und Vereine über TheSportsDB (kostenloser Hobby-Key).
  */
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ request, url }) => {
+  const auth = await requireApiUser(request);
+  if (!auth.ok) return auth.response;
+
   const q = url.searchParams.get("q")?.trim() ?? "";
   if (q.length < 2) {
     return new Response(

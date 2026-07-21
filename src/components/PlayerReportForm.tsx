@@ -131,7 +131,12 @@ export default function PlayerReportForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+    <form
+      id="form-player-report"
+      onSubmit={handleSubmit}
+      className="space-y-4 md:space-y-6"
+      aria-label="Spielerbericht erfassen"
+    >
       <div className="md:hidden">
         <h2 className="text-xl font-semibold tracking-tight">Spielerbericht</h2>
         <p className="text-sm text-muted-foreground mt-0.5">

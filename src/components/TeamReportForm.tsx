@@ -134,7 +134,12 @@ export default function TeamReportForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+    <form
+      id="form-team-report"
+      onSubmit={handleSubmit}
+      className="space-y-4 md:space-y-6"
+      aria-label="Teambericht erfassen"
+    >
       <div className="md:hidden">
         <h2 className="text-xl font-semibold tracking-tight">Teambericht</h2>
         <p className="text-sm text-muted-foreground mt-0.5">

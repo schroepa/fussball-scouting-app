@@ -6,6 +6,7 @@ import type {
 } from "../lib/import/types";
 import { persistImportResult } from "../lib/import/persist";
 import { syncAll } from "../lib/sync/syncManager";
+import { apiFetch } from "../lib/api/clientFetch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,7 +130,7 @@ export default function ImportPanel() {
     setStatus(null);
     setResult(null);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/import/search?q=${encodeURIComponent(query.trim())}`
       );
       const data = (await res.json()) as ImportSearchResult & { error?: string };
@@ -153,9 +154,8 @@ export default function ImportPanel() {
     setStatus(null);
     setResult(null);
     try {
-      const res = await fetch("/api/import/fussballde-club", {
+      const res = await apiFetch("/api/import/fussballde-club", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ urlOrId: fussballUrl.trim() }),
       });
       const data = (await res.json()) as ImportSearchResult & { error?: string };
@@ -177,9 +177,8 @@ export default function ImportPanel() {
     setStatus(null);
     setResult(null);
     try {
-      const res = await fetch("/api/import/transfermarkt", {
+      const res = await apiFetch("/api/import/transfermarkt", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ urlOrId: tmUrl.trim() }),
       });
       const data = (await res.json()) as ScrapeResult;
@@ -214,9 +213,8 @@ export default function ImportPanel() {
       setStatus(null);
       setResult(null);
       try {
-        const res = await fetch("/api/import/transfermarkt", {
+        const res = await apiFetch("/api/import/transfermarkt", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ urlOrId: url }),
         });
         const data = (await res.json()) as ScrapeResult;
@@ -241,9 +239,8 @@ export default function ImportPanel() {
     setStatus(null);
     if (!opts?.teamId) setResult(null);
     try {
-      const res = await fetch("/api/import/fussballde-scrape", {
+      const res = await apiFetch("/api/import/fussballde-scrape", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           urlOrId: url,
           mode: opts?.teamId ? "squad" : "auto",
@@ -416,7 +413,7 @@ export default function ImportPanel() {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div id="panel-import" className="space-y-4 md:space-y-6">
       <Card size="sm" className="shadow-sm hidden md:block">
         <CardHeader>
           <CardTitle>Import-Arbeitsplatz</CardTitle>

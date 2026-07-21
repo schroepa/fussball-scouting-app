@@ -72,6 +72,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | **M9** | **Onboarding + FAQ/Tutorial** | **erledigt (MVP)** | First-Run, `/hilfe`, FAQ |
 | **M6** | **Custom-Attribute-UI** | **erledigt** | Spieler + Team; Formulare + Sync |
 | **M3b** | **Sync-Retry-UI** | **erledigt** | Fehler-Badge, Panel, Retry |
+| **M10** | **Qualität / Security / Tests** | **in Arbeit** | Semantik, Vitest+CI, Import-Auth, Header |
 
 ### Empfohlene Umsetzungsreihenfolge ab jetzt
 
@@ -82,6 +83,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 5. ~~**M3b Sync-Retry-UI**~~ – Fehler sichtbar + Retry
 6. ~~**M6 Custom-Felder**~~ – `/einstellungen/attribute`; SQL `attribute_definitions_owner.sql`
 7. ~~**Import-Feinschliff**~~ – leere Treffer, Sync-Meldungen, Hilfe
+8. **M10 Qualität** – Semantik/a11y-Konventionen, Unit-Tests (Vitest), CI, Security-Basics (siehe `docs/SECURITY.md`, `docs/CONVENTIONS.md`)
 
 ## 7. M7 – Match-Phasen & Formationen
 

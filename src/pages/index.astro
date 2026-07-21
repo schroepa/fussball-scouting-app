@@ -12,9 +12,9 @@ import {
 ---
 
 <Layout title="Übersicht" activeNav="home">
-  <div class="space-y-6 md:space-y-8">
-    <section class="md:hidden">
-      <h1 class="text-2xl font-bold tracking-tight text-card-foreground mb-1">
+  <div id="page-home" class="app-page space-y-6 md:space-y-8">
+    <section id="section-welcome" class="app-section md:hidden" aria-labelledby="home-welcome-title">
+      <h1 id="home-welcome-title" class="text-2xl font-bold tracking-tight text-card-foreground mb-1">
         Willkommen zurück
       </h1>
       <p class="text-muted-foreground text-sm">
@@ -22,20 +22,28 @@ import {
       </p>
     </section>
 
-    <section class="hidden md:block rounded-xl border border-border bg-card p-6">
-      <h2 class="text-xl font-semibold tracking-tight">Arbeitsplatz</h2>
+    <section
+      id="section-workspace"
+      class="app-section hidden md:block rounded-xl border border-border bg-card p-6"
+      aria-labelledby="home-workspace-title"
+    >
+      <h2 id="home-workspace-title" class="text-xl font-semibold tracking-tight">Arbeitsplatz</h2>
       <p class="text-muted-foreground mt-1 max-w-2xl">
         Erfasse Beobachtungen mobil. Am Rechner bearbeitest du Berichte, pflegst
         Spieler und importierst Kader – mit mehr Platz und Übersicht.
       </p>
     </section>
 
-    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4">
+    <section
+      id="section-quick-actions"
+      class="app-section grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4"
+      aria-label="Schnellzugriff"
+    >
       <a
         href="/dashboard"
         class="rounded-xl border border-border bg-card p-4 md:p-5 flex items-start gap-3 hover:bg-muted/50 transition-colors sm:col-span-2 xl:col-span-1"
       >
-        <ChartColumn className="size-6 shrink-0 mt-0.5 text-primary" />
+        <ChartColumn className="size-6 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
         <div>
           <div class="font-semibold text-base md:text-lg tracking-tight text-card-foreground">
             Dashboard
@@ -49,7 +57,7 @@ import {
         href="/reports/new-player"
         class="group rounded-xl bg-primary text-primary-foreground p-4 md:p-5 flex items-start gap-3 shadow-sm hover:bg-primary/90 transition-colors"
       >
-        <Users className="size-6 shrink-0 mt-0.5 opacity-90" />
+        <Users className="size-6 shrink-0 mt-0.5 opacity-90" aria-hidden="true" />
         <div>
           <div class="font-semibold text-base md:text-lg tracking-tight">
             Spielerbericht
@@ -64,7 +72,7 @@ import {
         href="/reports/new-team"
         class="group rounded-xl bg-foreground text-background p-4 md:p-5 flex items-start gap-3 shadow-sm hover:opacity-90 transition-colors"
       >
-        <Shield className="size-6 shrink-0 mt-0.5 opacity-90" />
+        <Shield className="size-6 shrink-0 mt-0.5 opacity-90" aria-hidden="true" />
         <div>
           <div class="font-semibold text-base md:text-lg tracking-tight">
             Teambericht
@@ -79,7 +87,7 @@ import {
         href="/import"
         class="rounded-xl border border-border bg-card p-4 md:p-5 flex items-start gap-3 hover:bg-muted/50 transition-colors"
       >
-        <Download className="size-6 shrink-0 mt-0.5 text-primary" />
+        <Download className="size-6 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
         <div>
           <div class="font-semibold text-base md:text-lg tracking-tight text-card-foreground">
             Import
@@ -94,7 +102,7 @@ import {
         href="/reports"
         class="rounded-xl border border-border bg-card p-4 md:p-5 flex items-start gap-3 hover:bg-muted/50 transition-colors"
       >
-        <ClipboardList className="size-6 shrink-0 mt-0.5 text-primary" />
+        <ClipboardList className="size-6 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
         <div>
           <div class="font-semibold text-base md:text-lg tracking-tight text-card-foreground">
             Berichte
@@ -106,7 +114,12 @@ import {
       </a>
     </section>
 
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <section
+      id="section-tips"
+      class="app-section grid grid-cols-1 lg:grid-cols-3 gap-4"
+      aria-labelledby="home-tips-title"
+    >
+      <h2 id="home-tips-title" class="sr-only">Hinweise</h2>
       <div class="lg:col-span-2 rounded-xl border border-border bg-card p-4 md:p-5">
         <h3 class="font-semibold tracking-tight mb-2">Tipp für den Desktop</h3>
         <p class="text-sm text-muted-foreground leading-relaxed">
@@ -126,12 +139,12 @@ import {
       </div>
     </section>
 
-    <section>
+    <section id="section-secondary-links" class="app-section" aria-label="Weitere Einstiege">
       <a
         href="/einstellungen/attribute"
         class="flex items-start gap-3 rounded-xl border border-border bg-card p-4 md:p-5 hover:bg-muted/50 transition-colors mb-3"
       >
-        <SlidersHorizontal className="size-6 shrink-0 mt-0.5 text-primary" />
+        <SlidersHorizontal className="size-6 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
         <div>
           <div class="font-semibold tracking-tight">Bewertungsfelder</div>
           <p class="text-sm text-muted-foreground mt-1">
@@ -143,7 +156,7 @@ import {
         href="/hilfe"
         class="flex items-start gap-3 rounded-xl border border-dashed border-border bg-muted/30 p-4 md:p-5 hover:bg-muted/50 transition-colors"
       >
-        <CircleHelp className="size-6 shrink-0 mt-0.5 text-primary" />
+        <CircleHelp className="size-6 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
         <div>
           <div class="font-semibold tracking-tight">Hilfe & Tutorial</div>
           <p class="text-sm text-muted-foreground mt-1">
