@@ -23,6 +23,14 @@ jobs:
         run: npm ci
       - name: Unit tests
         run: npm test
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: E2E smoke
+        run: npm run test:e2e
+        env:
+          CI: true
+          PUBLIC_SUPABASE_URL: ""
+          PUBLIC_SUPABASE_ANON_KEY: ""
       - name: Production build
         run: npm run build
         env:
