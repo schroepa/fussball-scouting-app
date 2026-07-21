@@ -40,7 +40,6 @@ In-App-Hilfe unter **`/hilfe`** · Plan: [`docs/PLANNING.md`](docs/PLANNING.md)
 | Backend / Auth | Supabase (Postgres, Auth, Storage) |
 | Schema | Drizzle ORM |
 | Export | jsPDF |
-| Tests | Vitest (`npm test`) |
 | Hosting | Vercel (`@astrojs/vercel`) |
 
 Weitere Docs: [`docs/PLANNING.md`](docs/PLANNING.md) · [`docs/RADIUS.md`](docs/RADIUS.md)
@@ -65,8 +64,6 @@ App: [http://localhost:4321](http://localhost:4321)
 | `npm run dev` | Entwicklungsserver |
 | `npm run build` | Produktionsbuild |
 | `npm run preview` | Build lokal prüfen (inkl. PWA) |
-| `npm test` | Unit-Tests (Vitest) |
-| `npm run check` | Astro/Type-Check (falls konfiguriert) |
 
 **Ohne Supabase:** reiner Lokal-Modus (Erfassung, Kamera, Export). Login und geräteübergreifender Sync sind dann aus.
 
