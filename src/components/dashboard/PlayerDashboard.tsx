@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  listAttributeDefinitions,
   listClubs,
   listPlayerReports,
   listPlayers,
@@ -7,10 +8,11 @@ import {
 import {
   AGE_BUCKET_LABELS,
   type AgeBucket,
+  attributeKeys,
   buildPlayerDashboardRows,
   type PlayerDashboardRow,
 } from "../../lib/dashboard/aggregates";
-import type { Empfehlung } from "../../lib/types";
+import type { AttributeDefinition, Empfehlung } from "../../lib/types";
 import { EMPFEHLUNG_LABELS } from "../../lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +42,7 @@ const EMPFEHLUNG_OPTIONS: Empfehlung[] = [
 
 export default function PlayerDashboard() {
   const [rows, setRows] = useState<PlayerDashboardRow[]>([]);
+  const [attributes, setAttributes] = useState<AttributeDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState<string>("");
@@ -51,12 +54,16 @@ export default function PlayerDashboard() {
   const [compareIds, setCompareIds] = useState<string[]>([]);
 
   const load = async () => {
-    const [players, reports, clubs] = await Promise.all([
+    const [players, reports, clubs, defs] = await Promise.all([
       listPlayers(),
       listPlayerReports(),
       listClubs(),
+      listAttributeDefinitions("player"),
     ]);
-    setRows(buildPlayerDashboardRows(players, reports, clubs));
+    setAttributes(defs);
+    setRows(
+      buildPlayerDashboardRows(players, reports, clubs, attributeKeys(defs))
+    );
     setLoading(false);
   };
 
@@ -387,7 +394,7 @@ export default function PlayerDashboard() {
                   <TableHead className="text-right">Ber.</TableHead>
                   <TableHead className="text-right">Gesamt</TableHead>
                   <TableHead>Empfehlung</TableHead>
-                  <TableHead className="text-right">Ø T/Ta/A/M</TableHead>
+                  <TableHead className="text-right">Ø Raster</TableHead>
                   <TableHead className="text-right">Aktion</TableHead>
                 </TableRow>
               </TableHeader>
@@ -434,14 +441,16 @@ export default function PlayerDashboard() {
                           ? EMPFEHLUNG_LABELS[row.latestEmpfehlung]
                           : "—"}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums text-muted-foreground text-xs">
-                        {[
-                          row.avgByKey.technik,
-                          row.avgByKey.taktik,
-                          row.avgByKey.athletik,
-                          row.avgByKey.mentalitaet,
-                        ]
-                          .map((v) => (v != null ? v : "–"))
+                      <TableCell
+                        className="text-right tabular-nums text-muted-foreground text-xs"
+                        title={attributes.map((a) => a.name).join(" / ")}
+                      >
+                        {attributes
+                          .map((a) =>
+                            row.avgByKey[a.key] != null
+                              ? row.avgByKey[a.key]
+                              : "–"
+                          )
                           .join(" / ")}
                       </TableCell>
                       <TableCell className="text-right">

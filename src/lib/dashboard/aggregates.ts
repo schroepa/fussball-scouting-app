@@ -1,4 +1,5 @@
 import type {
+  AttributeDefinition,
   Club,
   Empfehlung,
   Player,
@@ -7,7 +8,18 @@ import type {
 } from "../types";
 import { DEFAULT_PLAYER_ATTRIBUTES } from "../attributeDefinitions";
 
+/** Fallback, wenn noch keine Dexie-Attribute geladen wurden. */
 export const RATING_KEYS = DEFAULT_PLAYER_ATTRIBUTES.map((a) => a.key);
+
+export function attributeKeys(defs: AttributeDefinition[]): string[] {
+  return defs.map((a) => a.key);
+}
+
+export function attributeLabels(
+  defs: AttributeDefinition[]
+): { key: string; label: string }[] {
+  return defs.map((a) => ({ key: a.key, label: a.name }));
+}
 
 export type AgeBucket = "u18" | "19_23" | "24_29" | "30plus" | "unbekannt";
 
@@ -101,7 +113,8 @@ export function averageGesamt(reports: PlayerReport[]): number | undefined {
 export function buildPlayerDashboardRows(
   players: Player[],
   reports: PlayerReport[],
-  clubs: Club[]
+  clubs: Club[],
+  ratingKeys: string[] = RATING_KEYS
 ): PlayerDashboardRow[] {
   const clubById = new Map(clubs.map((c) => [c.id, c]));
   const reportsByPlayer = new Map<string, PlayerReport[]>();
@@ -130,7 +143,7 @@ export function buildPlayerDashboardRows(
       latest,
       latestGesamt: latest?.gesamtbewertung,
       latestEmpfehlung: latest?.empfehlung,
-      avgByKey: averageRatings(playerReports),
+      avgByKey: averageRatings(playerReports, ratingKeys),
       avgGesamt: averageGesamt(playerReports),
     };
   });
@@ -175,7 +188,6 @@ export function buildTeamDashboardRows(
     });
   }
 
-  // Clubs without master data but with reports (orphan)
   for (const [clubId, clubReports] of byClub) {
     if (clubs.some((c) => c.id === clubId)) continue;
     const sorted = [...clubReports].sort(
@@ -205,14 +217,11 @@ export function buildTeamDashboardRows(
 
 export function radarDataFromAverages(
   avgByKey: Record<string, number | undefined>,
-  keys: string[] = RATING_KEYS
+  defs: AttributeDefinition[] = DEFAULT_PLAYER_ATTRIBUTES
 ): { key: string; label: string; value: number }[] {
-  const labels = Object.fromEntries(
-    DEFAULT_PLAYER_ATTRIBUTES.map((a) => [a.key, a.name])
-  );
-  return keys.map((key) => ({
-    key,
-    label: labels[key] ?? key,
-    value: avgByKey[key] ?? 0,
+  return defs.map((a) => ({
+    key: a.key,
+    label: a.name,
+    value: avgByKey[a.key] ?? 0,
   }));
 }

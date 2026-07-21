@@ -1,17 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   getPlayer,
+  listAttributeDefinitions,
   listClubs,
   listPlayerReportsForPlayer,
 } from "../../lib/local/repository";
-import type { Club, Player, PlayerReport } from "../../lib/types";
+import type {
+  AttributeDefinition,
+  Club,
+  Player,
+  PlayerReport,
+} from "../../lib/types";
 import { EMPFEHLUNG_LABELS } from "../../lib/types";
 import {
+  attributeKeys,
+  attributeLabels,
   averageGesamt,
   averageRatings,
-  RATING_KEYS,
 } from "../../lib/dashboard/aggregates";
-import { DEFAULT_PLAYER_ATTRIBUTES } from "../../lib/attributeDefinitions";
 import { BezugstypBadge, SyncStatusBadge } from "../ReportBadges";
 import RatingRadarChart from "./RatingRadarChart";
 import RatingTrendChart from "./RatingTrendChart";
@@ -33,6 +39,7 @@ export default function PlayerHistory({ playerId }: Props) {
   const [player, setPlayer] = useState<Player | null | undefined>(undefined);
   const [club, setClub] = useState<Club | undefined>();
   const [reports, setReports] = useState<PlayerReport[]>([]);
+  const [attributes, setAttributes] = useState<AttributeDefinition[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -42,10 +49,12 @@ export default function PlayerHistory({ playerId }: Props) {
         return;
       }
       setPlayer(p);
-      const [reps, clubs] = await Promise.all([
+      const [reps, clubs, defs] = await Promise.all([
         listPlayerReportsForPlayer(playerId),
         listClubs(),
+        listAttributeDefinitions("player"),
       ]);
+      setAttributes(defs);
       setReports(
         [...reps].sort(
           (a, b) => new Date(b.datum).getTime() - new Date(a.datum).getTime()
@@ -60,12 +69,13 @@ export default function PlayerHistory({ playerId }: Props) {
     return () => window.removeEventListener("scouting:synced", load);
   }, [playerId]);
 
-  const avgByKey = useMemo(() => averageRatings(reports), [reports]);
+  const keys = useMemo(() => attributeKeys(attributes), [attributes]);
+  const avgByKey = useMemo(
+    () => averageRatings(reports, keys),
+    [reports, keys]
+  );
   const avgGesamt = useMemo(() => averageGesamt(reports), [reports]);
-  const labels = DEFAULT_PLAYER_ATTRIBUTES.map((a) => ({
-    key: a.key,
-    label: a.name,
-  }));
+  const labels = useMemo(() => attributeLabels(attributes), [attributes]);
 
   if (player === undefined) {
     return <p className="text-sm text-muted-foreground">Lade Verlauf…</p>;
@@ -82,18 +92,10 @@ export default function PlayerHistory({ playerId }: Props) {
             {player.vorname} {player.nachname}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {[club?.name, player.positionen.join(", "), `${reports.length} Berichte`]
+            {[club?.name, player.positionen.join(", ")]
               .filter(Boolean)
-              .join(" · ")}
+              .join(" · ") || "Spieler-Verlauf"}
           </p>
-          {avgGesamt != null && (
-            <p className="text-sm mt-1">
-              Ø Gesamt:{" "}
-              <span className="font-semibold tabular-nums text-primary">
-                {avgGesamt}
-              </span>
-            </p>
-          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" render={<a href="/dashboard/players" />}>
@@ -112,11 +114,14 @@ export default function PlayerHistory({ playerId }: Props) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <Card size="sm" className="lg:col-span-5 shadow-sm">
             <CardHeader className="border-b">
-              <CardTitle>Profil (Ø)</CardTitle>
-              <CardDescription>Mittelwerte über alle Berichte</CardDescription>
+              <CardTitle>Durchschnitt</CardTitle>
+              <CardDescription>
+                Ø Gesamt {avgGesamt ?? "–"} · {reports.length} Bericht
+                {reports.length === 1 ? "" : "e"}
+              </CardDescription>
             </CardHeader>
             <CardContent className="pt-2">
               <RatingRadarChart
@@ -130,20 +135,17 @@ export default function PlayerHistory({ playerId }: Props) {
                 ]}
               />
               <div className="grid grid-cols-2 gap-2 text-sm mt-2">
-                {RATING_KEYS.map((key) => {
-                  const attr = DEFAULT_PLAYER_ATTRIBUTES.find((a) => a.key === key);
-                  return (
-                    <div
-                      key={key}
-                      className="flex justify-between rounded-lg bg-muted/40 px-2 py-1.5"
-                    >
-                      <span>{attr?.name ?? key}</span>
-                      <span className="font-semibold tabular-nums">
-                        {avgByKey[key] ?? "–"}
-                      </span>
-                    </div>
-                  );
-                })}
+                {attributes.map((attr) => (
+                  <div
+                    key={attr.key}
+                    className="flex justify-between rounded-lg bg-muted/40 px-2 py-1.5"
+                  >
+                    <span>{attr.name}</span>
+                    <span className="font-semibold tabular-nums">
+                      {avgByKey[attr.key] ?? "–"}
+                    </span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -154,7 +156,7 @@ export default function PlayerHistory({ playerId }: Props) {
               <CardDescription>Bewertungen über die Zeit</CardDescription>
             </CardHeader>
             <CardContent className="pt-4">
-              <RatingTrendChart reports={reports} />
+              <RatingTrendChart reports={reports} attributes={attributes} />
             </CardContent>
           </Card>
 

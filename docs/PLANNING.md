@@ -65,7 +65,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | M2 | Import | **erledigt (MVP+Feinschliff)** | Adapter; Dedup pro Scout; UX-Feedback |
 | M3 | Sync Push+Pull | weitgehend | Auto-Sync; Retry-UI (M3b) |
 | **M3.5** | **Datentrennung Scout** | **erledigt (App)** | RLS-SQL ausführen; `ownerScoutId`, Purge, Listen |
-| M4 | Dashboards | erledigt (MVP) | Spieler/Team/Vergleich/Verlauf |
+| M4 | Dashboards | erledigt | Spieler/Team/Vergleich inkl. Custom-Attribute |
 | M5 | Export | erledigt | PDF + JSON |
 | **M7** | **Match-Phasen & Formationen** | **erledigt (MVP)** | Heim/Gast × off/def, Phasen, Editor am Spiel |
 | **M8** | **VEO / Video-Bezug** | **erledigt (MVP Phase 1)** | Link + Ref + Zeitmarken am Match |

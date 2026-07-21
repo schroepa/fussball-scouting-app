@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   getPlayer,
+  listAttributeDefinitions,
   listClubs,
   listPlayerReportsForPlayer,
 } from "../../lib/local/repository";
-import type { Player, PlayerReport } from "../../lib/types";
+import type { AttributeDefinition, Player, PlayerReport } from "../../lib/types";
 import { EMPFEHLUNG_LABELS } from "../../lib/types";
 import {
+  attributeKeys,
+  attributeLabels,
   averageGesamt,
   averageRatings,
-  RATING_KEYS,
 } from "../../lib/dashboard/aggregates";
-import { DEFAULT_PLAYER_ATTRIBUTES } from "../../lib/attributeDefinitions";
 import RatingRadarChart from "./RatingRadarChart";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,9 +39,13 @@ interface Side {
 export default function PlayerCompare({ playerAId, playerBId }: Props) {
   const [a, setA] = useState<Side | null | undefined>(undefined);
   const [b, setB] = useState<Side | null | undefined>(undefined);
+  const [attributes, setAttributes] = useState<AttributeDefinition[]>([]);
 
   useEffect(() => {
-    const loadSide = async (id: string): Promise<Side | null> => {
+    const loadSide = async (
+      id: string,
+      keys: string[]
+    ): Promise<Side | null> => {
       const player = await getPlayer(id);
       if (!player) return null;
       const [reports, clubs] = await Promise.all([
@@ -54,15 +59,18 @@ export default function PlayerCompare({ playerAId, playerBId }: Props) {
         player,
         clubName: club?.name,
         reports,
-        avgByKey: averageRatings(reports),
+        avgByKey: averageRatings(reports, keys),
         avgGesamt: averageGesamt(reports),
       };
     };
 
     const load = async () => {
+      const defs = await listAttributeDefinitions("player");
+      setAttributes(defs);
+      const keys = attributeKeys(defs);
       const [sideA, sideB] = await Promise.all([
-        loadSide(playerAId),
-        loadSide(playerBId),
+        loadSide(playerAId, keys),
+        loadSide(playerBId, keys),
       ]);
       setA(sideA);
       setB(sideB);
@@ -72,17 +80,10 @@ export default function PlayerCompare({ playerAId, playerBId }: Props) {
     return () => window.removeEventListener("scouting:synced", load);
   }, [playerAId, playerBId]);
 
-  const labels = DEFAULT_PLAYER_ATTRIBUTES.map((x) => ({
-    key: x.key,
-    label: x.name,
-  }));
+  const labels = attributeLabels(attributes);
 
-  const nameA = a
-    ? `${a.player.vorname} ${a.player.nachname}`
-    : "Spieler A";
-  const nameB = b
-    ? `${b.player.vorname} ${b.player.nachname}`
-    : "Spieler B";
+  const nameA = a ? `${a.player.vorname} ${a.player.nachname}` : "Spieler A";
+  const nameB = b ? `${b.player.vorname} ${b.player.nachname}` : "Spieler B";
 
   if (a === undefined || b === undefined) {
     return <p className="text-sm text-muted-foreground">Lade Vergleich…</p>;
@@ -124,7 +125,9 @@ export default function PlayerCompare({ playerAId, playerBId }: Props) {
       <Card size="sm" className="shadow-sm">
         <CardHeader className="border-b">
           <CardTitle>Radar</CardTitle>
-          <CardDescription>Technik · Taktik · Athletik · Mentalität</CardDescription>
+          <CardDescription>
+            {attributes.map((x) => x.name).join(" · ") || "Bewertungsraster"}
+          </CardDescription>
         </CardHeader>
         <CardContent className="pt-2">
           {a.reports.length === 0 && b.reports.length === 0 ? (
@@ -164,17 +167,14 @@ export default function PlayerCompare({ playerAId, playerBId }: Props) {
         <CardContent className="pt-4">
           <div className="space-y-2">
             <CompareRow label="Ø Gesamt" a={a.avgGesamt} b={b.avgGesamt} />
-            {RATING_KEYS.map((key) => {
-              const attr = DEFAULT_PLAYER_ATTRIBUTES.find((x) => x.key === key);
-              return (
-                <CompareRow
-                  key={key}
-                  label={attr?.name ?? key}
-                  a={a.avgByKey[key]}
-                  b={b.avgByKey[key]}
-                />
-              );
-            })}
+            {attributes.map((attr) => (
+              <CompareRow
+                key={attr.key}
+                label={attr.name}
+                a={a.avgByKey[attr.key]}
+                b={b.avgByKey[attr.key]}
+              />
+            ))}
             <CompareRow
               label="Berichte"
               a={a.reports.length}

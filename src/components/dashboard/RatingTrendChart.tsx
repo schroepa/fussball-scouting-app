@@ -8,12 +8,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { PlayerReport } from "../../lib/types";
-import { RATING_KEYS, ratingMap } from "../../lib/dashboard/aggregates";
+import type { AttributeDefinition, PlayerReport } from "../../lib/types";
+import { ratingMap } from "../../lib/dashboard/aggregates";
 import { DEFAULT_PLAYER_ATTRIBUTES } from "../../lib/attributeDefinitions";
 
 interface Props {
   reports: PlayerReport[];
+  attributes?: AttributeDefinition[];
   height?: number;
 }
 
@@ -23,9 +24,16 @@ const COLORS = [
   "oklch(0.55 0.14 40)",
   "oklch(0.5 0.12 320)",
   "oklch(0.45 0.08 200)",
+  "oklch(0.5 0.1 140)",
+  "oklch(0.48 0.12 20)",
+  "oklch(0.52 0.09 280)",
 ];
 
-export default function RatingTrendChart({ reports, height = 260 }: Props) {
+export default function RatingTrendChart({
+  reports,
+  attributes = DEFAULT_PLAYER_ATTRIBUTES,
+  height = 260,
+}: Props) {
   const chronological = [...reports].sort(
     (a, b) => new Date(a.datum).getTime() - new Date(b.datum).getTime()
   );
@@ -39,19 +47,18 @@ export default function RatingTrendChart({ reports, height = 260 }: Props) {
       }),
       Gesamt: r.gesamtbewertung ?? "",
     };
-    for (const key of RATING_KEYS) {
-      const attr = DEFAULT_PLAYER_ATTRIBUTES.find((a) => a.key === key);
-      point[attr?.name ?? key] = map[key] ?? "";
+    for (const attr of attributes) {
+      point[attr.name] = map[attr.key] ?? "";
     }
     return point;
   });
 
   const lines = [
     { key: "Gesamt", color: COLORS[0]! },
-    ...RATING_KEYS.map((key, i) => {
-      const attr = DEFAULT_PLAYER_ATTRIBUTES.find((a) => a.key === key);
-      return { key: attr?.name ?? key, color: COLORS[i + 1] ?? COLORS[0]! };
-    }),
+    ...attributes.map((attr, i) => ({
+      key: attr.name,
+      color: COLORS[(i + 1) % COLORS.length]!,
+    })),
   ];
 
   if (data.length === 0) {
@@ -78,7 +85,7 @@ export default function RatingTrendChart({ reports, height = 260 }: Props) {
               dataKey={line.key}
               stroke={line.color}
               strokeWidth={line.key === "Gesamt" ? 2.5 : 1.5}
-              dot={{ r: 3 }}
+              dot={false}
               connectNulls
             />
           ))}

@@ -187,6 +187,7 @@ export const helpSections: HelpSection[] = [
     summary: "Auswerten, filtern, vergleichen.",
     paragraphs: [
       "Im Dashboard siehst du Aggregationen deiner Spieler- und Teamberichte, Trends und einen Spielervergleich. Es erscheinen nur Daten, die du selbst erfasst hast.",
+      "Radar, Verlauf und Vergleich nutzen dein Bewertungsraster inklusive eigener Custom-Felder.",
     ],
   },
   {
