@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Select } from "@/components/ui/select";
+import { SimpleSelect } from "@/components/ui/select";
 import { EmptyState } from "@/components/EmptyState";
 
 type Tab = "transfermarkt" | "scraper" | "spieler" | "fussballde";
@@ -462,17 +462,18 @@ export default function ImportPanel() {
               <div className="flex flex-wrap items-end gap-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="season">Saison</Label>
-                  <Select
+                  <SimpleSelect
                     id="season"
                     value={season}
-                    onChange={(e) => setSeason(e.target.value)}
-                  >
-                    <option value="2627">2026/27</option>
-                    <option value="2526">2025/26</option>
-                    <option value="2425">2024/25</option>
-                    <option value="2324">2023/24</option>
-                    <option value="2223">2022/23</option>
-                  </Select>
+                    onValueChange={setSeason}
+                    options={[
+                      { value: "2627", label: "2026/27" },
+                      { value: "2526", label: "2025/26" },
+                      { value: "2425", label: "2024/25" },
+                      { value: "2324", label: "2023/24" },
+                      { value: "2223", label: "2022/23" },
+                    ]}
+                  />
                 </div>
                 <Button
                   type="button"

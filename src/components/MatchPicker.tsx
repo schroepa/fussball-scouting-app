@@ -6,9 +6,9 @@ import { matchHasVideo, summarizeMatchVideo } from "../lib/match/video";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SimpleSelect } from "@/components/ui/select";
 import MatchFormationsEditor from "./MatchFormationsEditor";
 import MatchVideoEditor from "./MatchVideoEditor";
-import { Select } from "@/components/ui/select";
 
 interface MatchPickerProps {
   value: string | undefined;
@@ -169,17 +169,17 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
       ) : (
         <div className="space-y-2">
           {matches.length > 0 && !creating && (
-            <Select
+            <SimpleSelect
               value={value ?? ""}
-              onChange={(e) => e.target.value && onChange(e.target.value)}
-            >
-              <option value="">Spiel auswählen…</option>
-              {matches.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {formatMatch(m)}
-                </option>
-              ))}
-            </Select>
+              onValueChange={(next) => {
+                if (next) onChange(next);
+              }}
+              placeholder="Spiel auswählen…"
+              options={matches.map((m) => ({
+                value: m.id,
+                label: formatMatch(m),
+              }))}
+            />
           )}
           {!creating ? (
             <Button
