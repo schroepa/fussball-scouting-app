@@ -119,12 +119,14 @@ export default function PlayersList() {
                     <a
                       href={`/dashboard/players/${p.id}`}
                       className="block text-xs text-primary font-medium hover:underline"
+                      aria-label={`Verlauf: ${p.vorname} ${p.nachname}`}
                     >
                       Verlauf
                     </a>
                     <a
-                      href="/reports/new-player"
+                      href={`/reports/new-player?player=${encodeURIComponent(p.id)}`}
                       className="block text-xs text-muted-foreground hover:underline"
+                      aria-label={`Bewerten: ${p.vorname} ${p.nachname}`}
                     >
                       Bewerten
                     </a>
@@ -173,12 +175,14 @@ export default function PlayersList() {
                         <a
                           href={`/dashboard/players/${p.id}`}
                           className="text-sm font-medium text-primary hover:underline"
+                          aria-label={`Verlauf: ${p.vorname} ${p.nachname}`}
                         >
                           Verlauf
                         </a>
                         <a
-                          href="/reports/new-player"
+                          href={`/reports/new-player?player=${encodeURIComponent(p.id)}`}
                           className="text-sm text-muted-foreground hover:underline"
+                          aria-label={`Bewerten: ${p.vorname} ${p.nachname}`}
                         >
                           Bewerten
                         </a>

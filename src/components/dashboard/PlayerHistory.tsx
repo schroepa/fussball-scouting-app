@@ -21,6 +21,7 @@ import {
 import { BezugstypBadge, SyncStatusBadge } from "../ReportBadges";
 import RatingRadarChart from "./RatingRadarChart";
 import RatingTrendChart from "./RatingTrendChart";
+import BackLink from "../BackLink";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -86,6 +87,7 @@ export default function PlayerHistory({ playerId }: Props) {
 
   return (
     <div className="space-y-4 md:space-y-6">
+      <BackLink href="/dashboard/players" label="Zurück zum Spieler-Dashboard" />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-xl md:text-2xl font-semibold tracking-tight">
@@ -98,11 +100,14 @@ export default function PlayerHistory({ playerId }: Props) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" render={<a href="/dashboard/players" />}>
-            Zurück
-          </Button>
-          <Button render={<a href="/reports/new-player" />}>
-            Neuer Bericht
+          <Button
+            render={
+              <a
+                href={`/reports/new-player?player=${encodeURIComponent(player.id)}`}
+              />
+            }
+          >
+            Bewerten
           </Button>
         </div>
       </div>

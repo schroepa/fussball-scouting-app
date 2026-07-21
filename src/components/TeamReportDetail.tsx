@@ -19,6 +19,7 @@ import MatchFormationsSummary from "./MatchFormationsSummary";
 import MatchVideoSummary from "./MatchVideoSummary";
 import { downloadJson } from "../lib/export/json";
 import { exportTeamReportPdf } from "../lib/export/pdf";
+import BackLink from "./BackLink";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -83,6 +84,7 @@ export default function TeamReportDetail({ reportId }: Props) {
 
   return (
     <div className="space-y-4 md:space-y-6">
+      <BackLink href="/reports" label="Zurück zu Berichten" />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-xl md:text-2xl font-semibold tracking-tight">

@@ -41,11 +41,18 @@ interface Props {
   reportId?: string;
 }
 
+function initialPlayerIdFromQuery(): string {
+  if (typeof window === "undefined") return "";
+  return new URLSearchParams(window.location.search).get("player")?.trim() ?? "";
+}
+
 export default function PlayerReportForm({ reportId }: Props) {
   const isEdit = Boolean(reportId);
   const [loading, setLoading] = useState(isEdit);
   const [attributes, setAttributes] = useState<AttributeDefinition[]>([]);
-  const [playerId, setPlayerId] = useState<string>("");
+  const [playerId, setPlayerId] = useState<string>(() =>
+    reportId ? "" : initialPlayerIdFromQuery()
+  );
   const [bezugstyp, setBezugstyp] = useState<Bezugstyp>("spiel");
   const [matchId, setMatchId] = useState<string>("");
   const [datum, setDatum] = useState(() => new Date().toISOString().slice(0, 10));
@@ -88,6 +95,9 @@ export default function PlayerReportForm({ reportId }: Props) {
           setExistingMedia(report.media);
         }
         setLoading(false);
+      } else {
+        const fromQuery = initialPlayerIdFromQuery();
+        if (fromQuery) setPlayerId(fromQuery);
       }
     })();
   }, [reportId]);

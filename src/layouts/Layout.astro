@@ -38,8 +38,20 @@ const {
 } = Astro.props;
 
 const navItems = [
-  { key: "home", href: "/", label: "Übersicht", Icon: Home },
-  { key: "dashboard", href: "/dashboard", label: "Dashboard", Icon: ChartColumn },
+  {
+    key: "home",
+    href: "/",
+    label: "Übersicht",
+    description: "Start & Schnellzugriff",
+    Icon: Home,
+  },
+  {
+    key: "dashboard",
+    href: "/dashboard",
+    label: "Dashboard",
+    description: "Auswerten & vergleichen",
+    Icon: ChartColumn,
+  },
   { key: "reports", href: "/reports", label: "Berichte", Icon: ClipboardList },
   { key: "players", href: "/players", label: "Spieler", Icon: Users },
   { key: "import", href: "/import", label: "Import", Icon: Download },
@@ -133,6 +145,8 @@ const sidebarExtra = [
                   navItems.map((item) => {
                     const active = activeNav === item.key;
                     const Icon = item.Icon;
+                    const description =
+                      "description" in item ? item.description : undefined;
                     return (
                       <a
                         href={item.href}
@@ -145,7 +159,21 @@ const sidebarExtra = [
                         ]}
                       >
                         <Icon className="size-4 shrink-0" aria-hidden="true" />
-                        {item.label}
+                        <span class="min-w-0 flex flex-col items-start gap-0.5">
+                          <span>{item.label}</span>
+                          {description ? (
+                            <span
+                              class:list={[
+                                "text-[11px] font-normal leading-tight",
+                                active
+                                  ? "text-primary-foreground/80"
+                                  : "text-muted-foreground",
+                              ]}
+                            >
+                              {description}
+                            </span>
+                          ) : null}
+                        </span>
                       </a>
                     );
                   })
@@ -224,7 +252,6 @@ const sidebarExtra = [
                 <p class="text-xs text-muted-foreground">Berichte nachbereiten und Stammdaten pflegen</p>
               </div>
               <div class="flex items-center gap-3" aria-label="Schnellaktionen">
-                <ThemeToggle client:load variant="bar" />
                 <a
                   href="/reports/new-player"
                   class="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"

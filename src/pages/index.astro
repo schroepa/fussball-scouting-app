@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import HomeTips from "../components/HomeTips";
 import {
   ChartColumn,
   CircleHelp,
@@ -114,30 +115,7 @@ import {
       </a>
     </section>
 
-    <section
-      id="section-tips"
-      class="app-section grid grid-cols-1 lg:grid-cols-3 gap-4"
-      aria-labelledby="home-tips-title"
-    >
-      <h2 id="home-tips-title" class="sr-only">Hinweise</h2>
-      <div class="lg:col-span-2 rounded-xl border border-border bg-card p-4 md:p-5">
-        <h3 class="font-semibold tracking-tight mb-2">Tipp für den Desktop</h3>
-        <p class="text-sm text-muted-foreground leading-relaxed">
-          Nutze die Seitenleiste für schnellen Wechsel zwischen Berichten,
-          Spielern und Import. Formulare und Tabellen nutzen auf großen
-          Bildschirmen die volle Breite – ideal zum Nachbereiten nach dem Spiel.
-        </p>
-      </div>
-      <div class="rounded-xl border border-border bg-accent/60 p-4 md:p-5">
-        <h3 class="font-semibold tracking-tight mb-2 text-accent-foreground">
-          Offline mobil
-        </h3>
-        <p class="text-sm text-foreground/80 leading-relaxed">
-          Am Spielfeldrand speichert die App lokal. Sync oben rechts bzw. in der
-          Sidebar, sobald wieder Netz da ist.
-        </p>
-      </div>
-    </section>
+    <HomeTips client:load />
 
     <section id="section-secondary-links" class="app-section" aria-label="Weitere Einstiege">
       <a
