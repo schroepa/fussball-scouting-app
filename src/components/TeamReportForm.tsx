@@ -164,7 +164,7 @@ export default function TeamReportForm() {
                       type="button"
                       onClick={() => setBerichtsart(opt)}
                       className={cn(
-                        "rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
+                        "rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
                         berichtsart === opt
                           ? "border-primary bg-primary/10 text-foreground"
                           : "border-border bg-background text-muted-foreground hover:bg-muted/50"

@@ -169,7 +169,7 @@ export default function PlayerHistory({ playerId }: Props) {
                 <a
                   key={r.id}
                   href={`/reports/player/${r.id}`}
-                  className="block rounded-xl border border-border px-3 py-3 hover:bg-muted/40 transition-colors"
+                  className="block rounded-lg border border-border px-3 py-3 hover:bg-muted/40 transition-colors"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="font-medium">

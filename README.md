@@ -1,37 +1,33 @@
 # Fussball Scouting App
 
-Mobile-first Web-App für Fußball-Scouts: Spieler und Teams am Spielfeldrand bewerten, offline weiterarbeiten und Berichte als PDF/JSON exportieren.
+Mobile-first Web-App für Fußball-Scouts: Beobachtungen am Spielfeldrand erfassen, offline weiterarbeiten, am Desktop nachbereiten und auswerten.
 
-Zielgruppe sind Scouts im **deutschen Amateur- und Jugendbereich**. Stammdaten können von Transfermarkt, fussball.de und TheSportsDB importiert werden; eigene Notizen und Bewertungen bleiben im Mittelpunkt.
+Zielgruppe: Scouts im **deutschen Amateur- und Jugendbereich**. Stammdaten lassen sich importieren; Bewertungen und Notizen bleiben privat beim jeweiligen Scout.
+
+In-App-Hilfe unter **`/hilfe`** · Plan: [`docs/PLANNING.md`](docs/PLANNING.md)
 
 ---
 
 ## Features
 
-### Scouting am Platz
-- **Spielerberichte** mit Bewertungsraster (Technik, Taktik, Athletik, Mentalität, 1–10), Gesamtnote, Empfehlung und Freitext
-- **Teamberichte** als Gegner-Analyse oder Einschätzung des eigenen Teams
-- **Bezugstyp** je Beobachtung: Spiel, Training oder sonstige Beobachtung
-- **Kamera-Foto** direkt im Bericht (PWA)
-- Klare Listen- und Detailansichten mit Badges
+### Am Platz
+- **Spieler- und Teamberichte** mit Raster (1–10), Gesamtnote, Empfehlung, Freitext, optional Foto
+- **Bezug:** Spiel, Training oder sonstige Beobachtung
+- **Formationen & Phasen** am Spiel (Heim/Gast × offensiv/defensiv)
+- **Video/VEO-Link** und Zeitmarken am Spiel (kein Rohvideo-Upload)
+- Offline-fähig (PWA / IndexedDB)
 
-### Offline-first
-- Alle Erfassungen laufen lokal in **IndexedDB** (Dexie)
-- Ohne Netz weiter scoutingfähig
-- Sync nach Supabase, sobald Verbindung und Login vorhanden sind
+### Zuhause (Desktop)
+- Sidebar-Arbeitsplatz, Dashboards, Filter, Spielervergleich
+- Import (Transfermarkt, fussball.de, TheSportsDB, Namensliste)
+- PDF- und JSON-Export
+- Eigene **Bewertungsfelder** (Spieler & Team)
+- Dark Mode (persistiert)
 
-### Import von Stammdaten
-| Quelle | Wofür | Hinweis |
-|--------|--------|---------|
-| **Transfermarkt** | Jugend- und Vereinsskader (Name, Position, Geburtsdatum) | Empfohlen für U-Teams |
-| **fussball.de** | Mannschaften, ggf. öffentliche Kader | Jugendkader oft gesperrt → Namensliste-Fallback |
-| **TheSportsDB** | Bekannte Spieler/Vereine suchen | Eher Profi-/bekannte Namen |
-| **Manuell** | Spieler selbst anlegen oder Namensliste einfügen | Immer verfügbar |
-
-### Export & Sync
-- PDF- und JSON-Export pro Bericht
+### Privacy & Sync
+- **Nur eigene Daten** pro Scout (`ownerScoutId` + RLS)
+- Outbox-Sync mit Status, Retry bei Fehlern
 - Google-Login oder Magic Link (Supabase)
-- Outbox-Sync: lokale Änderungen werden nachgezogen
 
 ---
 
@@ -39,14 +35,14 @@ Zielgruppe sind Scouts im **deutschen Amateur- und Jugendbereich**. Stammdaten k
 
 | Bereich | Technologie |
 |---------|-------------|
-| Frontend | [Astro 7](https://astro.build) + React Islands + Tailwind CSS 4 |
+| Frontend | Astro 7 + React Islands + Tailwind CSS 4 + shadcn (Fusca) |
 | Offline / PWA | Dexie (IndexedDB), `@vite-pwa/astro` |
-| Backend / Auth | [Supabase](https://supabase.com) (Postgres, Auth, Storage) – Free Tier |
-| Schema | [Drizzle ORM](https://orm.drizzle.team) |
+| Backend / Auth | Supabase (Postgres, Auth, Storage) |
+| Schema | Drizzle ORM |
 | Export | jsPDF |
-| Hosting | [Vercel](https://vercel.com) (`@astrojs/vercel`) |
+| Hosting | Vercel (`@astrojs/vercel`) |
 
-Architektur und Meilensteine: Branch `cursor/scouting-app-planning-0911` → `docs/PLANNING.md`.
+Weitere Docs: [`docs/PLANNING.md`](docs/PLANNING.md) · [`docs/RADIUS.md`](docs/RADIUS.md)
 
 ---
 
@@ -63,78 +59,85 @@ npm run dev
 
 App: [http://localhost:4321](http://localhost:4321)
 
-**Ohne Supabase** läuft die App im Lokal-Modus: Spieler, Vereine, Berichte, Kamera und Export funktionieren. Login und geräteübergreifender Sync sind dann deaktiviert.
+| Befehl | Zweck |
+|--------|--------|
+| `npm run dev` | Entwicklungsserver |
+| `npm run build` | Produktionsbuild |
+| `npm run preview` | Build lokal prüfen (inkl. PWA) |
 
-PWA (Service Worker) nur im Produktions-Build:
-
-```bash
-npm run build && npm run preview
-```
+**Ohne Supabase:** reiner Lokal-Modus (Erfassung, Kamera, Export). Login und geräteübergreifender Sync sind dann aus.
 
 ---
 
 ## Umgebungsvariablen
 
-`.env` aus `.env.example` anlegen:
+`.env` aus [`.env.example`](.env.example):
 
 | Variable | Pflicht? | Beschreibung |
 |----------|----------|--------------|
 | `PUBLIC_SUPABASE_URL` | für Login/Sync | Supabase-Projekt-URL |
-| `PUBLIC_SUPABASE_ANON_KEY` | für Login/Sync | Publishable / Anon Key |
-| `SUPABASE_DB_URL` | nur Migrationen | DB-Connection (nie `PUBLIC_`, nie committen) |
+| `PUBLIC_SUPABASE_ANON_KEY` | für Login/Sync | Anon / Publishable Key |
+| `SUPABASE_DB_URL` | nur Migrationen | DB-URL (nie `PUBLIC_`, nie committen) |
 | `THESPORTSDB_API_KEY` | optional | Default-Hobby-Key `123` |
-| `API_FUSSBALL_TOKEN` | optional | Token von [api-fussball.de](https://api-fussball.de) |
-| `SPORTDB_API_KEY` | optional | Key von [sportdb.dev](https://sportdb.dev) (Transfermarkt-Proxy) |
+| `API_FUSSBALL_TOKEN` | optional | [api-fussball.de](https://api-fussball.de) |
+| `SPORTDB_API_KEY` | optional | [sportdb.dev](https://sportdb.dev) |
 
 ---
 
 ## Supabase (Login & Sync)
 
-1. Projekt auf [supabase.com](https://supabase.com) anlegen (Free Tier reicht).
-2. **Authentication → Providers:** Google OAuth aktivieren; Client-ID/Secret aus der [Google Cloud Console](https://console.cloud.google.com/auth/clients).
-3. **URL Configuration:** Site URL z. B. `http://localhost:4321`, Redirect `http://localhost:4321/auth/callback`.
-4. In Google Cloud als Redirect-URI eintragen:  
-   `https://<project-ref>.supabase.co/auth/v1/callback`
-5. Im **SQL Editor** den Inhalt von [`supabase/setup.sql`](supabase/setup.sql) ausführen (Tabellen, Auth-Trigger, RLS).
-6. `PUBLIC_SUPABASE_URL` und `PUBLIC_SUPABASE_ANON_KEY` in `.env` setzen.
+1. Projekt auf [supabase.com](https://supabase.com) anlegen.
+2. **Auth → Providers:** Google OAuth; Redirects in Google Cloud + Supabase setzen (`/auth/callback`).
+3. **SQL Editor:** zuerst [`supabase/setup.sql`](supabase/setup.sql), danach die Ops-Skripte unten.
+4. `PUBLIC_SUPABASE_*` in `.env` / Vercel setzen.
 
-Mit konfiguriertem Supabase ist Login Pflicht. Ohne Konfiguration bleibt der reine Offline-Modus.
-
-Schema-Änderungen:
+Mit konfiguriertem Supabase ist Login Pflicht.
 
 ```bash
 npm run db:generate   # Migration aus drizzle/schema.ts
-npm run db:push       # Schema direkt pushen (braucht SUPABASE_DB_URL)
+npm run db:push       # Schema pushen (braucht SUPABASE_DB_URL)
 npm run db:studio     # Drizzle Studio
 ```
 
-RLS-Policies: [`supabase/policies.sql`](supabase/policies.sql)
+### Wichtig nach jedem Deploy (SQL)
+
+Im Supabase SQL-Editor ausführen:
+
+1. [`supabase/rls_owner_scoped.sql`](supabase/rls_owner_scoped.sql) – Datentrennung pro Scout  
+2. [`supabase/match_formations.sql`](supabase/match_formations.sql) – Formationen/Phasen  
+3. [`supabase/match_video.sql`](supabase/match_video.sql) – Video-Link/Marken  
+4. [`supabase/attribute_definitions_owner.sql`](supabase/attribute_definitions_owner.sql) – Custom-Bewertungsfelder  
+
+Ohne diese Skripte können Sync, Privacy oder neue Match-Felder fehlschlagen.
 
 ---
 
-## Import nutzen
+## Import
 
 Unter **`/import`**:
 
-1. **Transfermarkt** – Vereins-URL einfügen, z. B.  
-   `https://www.transfermarkt.de/bfc-dynamo-u17/startseite/verein/35633`  
-   → Kader mit Namen, Positionen und Geburtsdaten übernehmen.
-2. **fussball.de** – Vereins-URL → Mannschaften; Kader nur wenn öffentlich freigegeben.
-3. **Spieler suchen** – TheSportsDB für bekannte Namen.
-4. **Namensliste** – eine Zeile pro Spieler (`Nachname, Vorname` oder `Vorname Nachname`), wenn keine Quelle liefert.
+1. **Transfermarkt** – Vereins-/Jugend-URL → Kader (Name, Position, Geburtsdatum)  
+2. **fussball.de** – Verein/Teams; Kader oft gesperrt → Namensliste  
+3. **Spieler** – TheSportsDB (eher bekannte Namen)  
+4. **API** – fussball.de API (braucht `API_FUSSBALL_TOKEN`)
 
-Deduplizierung **pro Scout** über `ownerScoutId` + `external_source` + `external_ref`.
+Deduplizierung **pro Scout** (`ownerScoutId` + externe Quelle/ID).
+
+---
+
+## Hilfe in der App
+
+- Seite **`/hilfe`**: Themen zu Sync, Privacy, Berichten, Import, Formationen, Video, Dashboard, FAQ  
+- **Einführung** (First-Run) jederzeit unter Hilfe erneut startbar  
+- Kurzlinks von der Übersicht und aus der Navigation  
 
 ---
 
 ## Deployment (Vercel)
 
-1. Repo mit Vercel verbinden (Adapter `@astrojs/vercel` ist vorkonfiguriert).
-2. Environment Variables aus `.env.example` setzen (mindestens Supabase-Public-Keys).
-3. In Supabase und Google Cloud die Produktiv-Domain als Redirect hinterlegen:  
-   `https://<deine-domain>/auth/callback`
-
-> Vercel Hobby ist für private/nicht-kommerzielle Nutzung gedacht. Für bezahlten Vereinseinsatz den Pro-Plan prüfen.
+1. Repo verbinden (`@astrojs/vercel` ist vorkonfiguriert).  
+2. Env-Vars setzen (mindestens `PUBLIC_SUPABASE_*`).  
+3. Produktiv-Redirects in Supabase/Google: `https://<domain>/auth/callback`
 
 ---
 
@@ -142,54 +145,36 @@ Deduplizierung **pro Scout** über `ownerScoutId` + `external_source` + `externa
 
 ```
 src/
-  components/     React-Islands (Formulare, Import, Kamera, Sync)
-  layouts/        App-Layout, Navigation, PWA
+  components/     React-Islands (Formulare, Import, Hilfe, Sync, …)
+  layouts/        App-Shell, Navigation, PWA
   lib/
-    local/        Dexie / IndexedDB, Repository
-    import/       Transfermarkt, fussball.de, TheSportsDB, Persistenz
-    sync/         Outbox-Sync nach Supabase
-    export/       PDF- und JSON-Export
-    auth/         Session / Login
-    supabase/     Client
-  pages/          Routen (Berichte, Spieler, Vereine, Import, API)
-drizzle/
-  schema.ts       Datenbankschema
-supabase/
-  setup.sql       Einmal-Setup (Tabellen + RLS)
-  migrations/     Generierte Migrationen
-  policies.sql    Row-Level-Security
+    help/         Hilfe- & Onboarding-Texte
+    local/        Dexie / Repository
+    import/       Adapter + Persistenz
+    sync/         Outbox-Sync
+    security/     Redirect-/Import-Härtung (je nach Branch)
+    dashboard/    Aggregationen
+  pages/          Routen inkl. /hilfe, /import, /api/import/*
+docs/             PLANNING, RADIUS, …
+supabase/         setup.sql + Ops-Migrationen
 ```
 
 ---
 
-## Status
+## Status (Kurz)
 
-| Meilenstein | Stand |
-|-------------|--------|
-| M0/M1 – Scaffold, Offline-DB, Berichte, Auth, Export | erledigt |
-| M2 – Import (Transfermarkt, fussball.de, TheSportsDB) | **erledigt (MVP+Feinschliff)** |
-| M3 – Sync Push + Pull (Geräte) | weitgehend |
-| **M3b – Sync-Retry-UI** | **erledigt** |
-| **M3.5 – Datentrennung pro Scout** | **erledigt (App)** – RLS-SQL in Supabase ausführen |
-| M4 – Dashboards & Spielervergleich | erledigt (MVP) |
-| M5 – Export PDF/JSON | erledigt |
-| M7 – Match-Phasen & Formationen | **erledigt (MVP)** – SQL `match_formations.sql` ausführen |
-| **M8 – VEO/Video-Link + Timecode** | **erledigt (Phase 1)** – SQL `match_video.sql` ausführen |
-| **M9 – Onboarding + FAQ/Hilfe** | **erledigt (MVP)** – `/hilfe`, First-Run |
-| **M6 – Custom-Bewertungsfelder** | **erledigt** – Spieler + Team (`/einstellungen/attribute`) |
+| Thema | Stand |
+|-------|--------|
+| Offline-Erfassung, Auth, Export | erledigt |
+| Import + Dedup pro Scout | erledigt |
+| Sync + Retry-UI | erledigt (App) |
+| Datentrennung Scout | erledigt (App) – RLS-SQL ausführen |
+| Dashboard / Vergleich | erledigt |
+| Formationen, VEO-Link, Custom-Felder | erledigt (SQL ausführen) |
+| Onboarding + Hilfe | erledigt – Inhalte werden laufend verfeinert |
+| UI-Radien (max. 16px außen) | in Arbeit / siehe `docs/RADIUS.md` |
 
-Aktueller Plan: `docs/PLANNING.md` (v3).
-
-### Wichtig nach Deploy (Privacy + Formationen + Video + Attribute)
-
-Im Supabase SQL-Editor ausführen:
-
-1. `supabase/rls_owner_scoped.sql` – Datentrennung pro Scout  
-2. `supabase/match_formations.sql` – Formations-/Phasen-Spalten am Match  
-3. `supabase/match_video.sql` – Video-Link- und Marken-Spalten am Match  
-4. `supabase/attribute_definitions_owner.sql` – eigene Custom-Bewertungsfelder
-
-Sonst können Sync bzw. neue Match-/Attribute-Felder fehlschlagen bzw. fremde Daten sichtbar bleiben.
+Ausführlich: [`docs/PLANNING.md`](docs/PLANNING.md).
 
 ### Qualität, Tests, Security
 
@@ -202,6 +187,6 @@ Sonst können Sync bzw. neue Match-/Attribute-Felder fehlschlagen bzw. fremde Da
 
 ## Lizenz & Hinweise
 
-Privates Scouting-Tool. Datenquellen (Transfermarkt, fussball.de, …) unterliegen deren Nutzungsbedingungen – Importe nur für den eigenen Scout-Workflow, höflich und sparsam anfragen.
+Privates Scouting-Tool. Datenquellen (Transfermarkt, fussball.de, …) unterliegen deren Nutzungsbedingungen – Importe nur für den eigenen Workflow, sparsam anfragen.
 
-Beiträge und Feedback gerne über Issues oder Pull Requests.
+Beiträge und Feedback über Issues oder Pull Requests.

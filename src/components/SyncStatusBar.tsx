@@ -111,7 +111,7 @@ export default function SyncStatusBar({
           type="button"
           onClick={() => setPanelOpen((o) => !o)}
           className={cn(
-            "rounded-full px-2 py-0.5 font-semibold",
+            "rounded-md px-2 py-0.5 font-semibold",
             stats.error > 0
               ? "bg-destructive text-destructive-foreground"
               : "bg-amber-500/90 text-foreground"

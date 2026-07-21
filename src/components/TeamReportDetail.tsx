@@ -170,7 +170,7 @@ export default function TeamReportDetail({ reportId }: Props) {
                     key={url}
                     src={url}
                     alt="Foto zum Bericht"
-                    className="w-28 h-28 object-cover rounded-xl border border-border"
+                    className="w-28 h-28 object-cover rounded-lg border border-border"
                   />
                 ))}
               </CardContent>
