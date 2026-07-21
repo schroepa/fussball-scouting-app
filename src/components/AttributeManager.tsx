@@ -148,11 +148,11 @@ export default function AttributeManager() {
           <CardTitle>Standard-Raster</CardTitle>
           <CardDescription>Fest vorgegeben, nicht löschbar.</CardDescription>
         </CardHeader>
-        <CardContent className="pt-4 space-y-2">
+        <CardContent className="pt-3 space-y-1.5">
           {defaults.map((d) => (
             <div
               key={d.id}
-              className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2"
+              className="surface-nested-inner flex items-center justify-between gap-2 border border-border px-3 py-2"
             >
               <div>
                 <div className="font-medium text-sm">{d.name}</div>
@@ -175,11 +175,11 @@ export default function AttributeManager() {
               : `${customs.length} Custom-Feld${customs.length === 1 ? "" : "er"}`}
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-4 space-y-2">
+        <CardContent className="pt-3 space-y-1.5">
           {customs.map((d) => (
             <div
               key={d.id}
-              className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-lg border border-border px-3 py-2"
+              className="surface-nested-inner flex flex-col sm:flex-row sm:items-center gap-2 border border-border px-3 py-2"
             >
               <div className="flex-1 min-w-0 space-y-1">
                 <Input

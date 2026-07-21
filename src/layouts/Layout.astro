@@ -38,8 +38,20 @@ const {
 } = Astro.props;
 
 const navItems = [
-  { key: "home", href: "/", label: "Übersicht", Icon: Home },
-  { key: "dashboard", href: "/dashboard", label: "Dashboard", Icon: ChartColumn },
+  {
+    key: "home",
+    href: "/",
+    label: "Übersicht",
+    description: "Start & Schnellzugriff",
+    Icon: Home,
+  },
+  {
+    key: "dashboard",
+    href: "/dashboard",
+    label: "Dashboard",
+    description: "Auswerten & vergleichen",
+    Icon: ChartColumn,
+  },
   { key: "reports", href: "/reports", label: "Berichte", Icon: ClipboardList },
   { key: "players", href: "/players", label: "Spieler", Icon: Users },
   { key: "import", href: "/import", label: "Import", Icon: Download },
@@ -61,7 +73,7 @@ const sidebarExtra = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#2f6b3a" />
+    <meta name="theme-color" content="#fafafa" />
     <meta
       name="description"
       content="Responsive Scouting-App: mobil am Platz erfassen, am Desktop auswerten."
@@ -87,22 +99,35 @@ const sidebarExtra = [
           else root.classList.remove("dark");
           root.style.colorScheme = mode;
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", mode === "dark" ? "#1c1b1f" : "#2f6b3a");
+          if (meta) meta.setAttribute("content", mode === "dark" ? "#2a302c" : "#fafafa");
         } catch (e) {}
       })();
     </script>
   </head>
   <body class="font-sans antialiased bg-background text-foreground min-h-dvh">
+    <a
+      href="#app-main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+    >
+      Zum Inhalt springen
+    </a>
+
     <AuthGate client:load requireAuth={requireAuth} />
     {requireAuth && showNav ? <OnboardingWizard client:load /> : null}
 
     {
       showNav ? (
-        <div class="min-h-dvh md:flex">
-          {/* Desktop sidebar */}
-          <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 border-r border-border bg-sidebar text-sidebar-foreground">
+        <div id="app-shell" class="min-h-dvh md:flex">
+          <aside
+            id="app-sidebar"
+            class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 border-r border-border bg-sidebar text-sidebar-foreground"
+            aria-label="Arbeitsplatz"
+          >
             <div class="flex h-16 items-center gap-2 px-5 border-b border-sidebar-border">
-              <div class="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center text-xs font-bold tracking-tight">
+              <div
+                class="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center text-xs font-bold tracking-tight"
+                aria-hidden="true"
+              >
                 FS
               </div>
               <div>
@@ -110,15 +135,22 @@ const sidebarExtra = [
                 <div class="text-xs text-muted-foreground">Desktop-Arbeitsplatz</div>
               </div>
             </div>
-            <nav class="flex-1 p-3 space-y-1 flex flex-col">
+            <nav
+              id="nav-sidebar"
+              class="flex-1 p-3 space-y-1 flex flex-col"
+              aria-label="Hauptnavigation"
+            >
               <div class="space-y-1 flex-1">
                 {
                   navItems.map((item) => {
                     const active = activeNav === item.key;
                     const Icon = item.Icon;
+                    const description =
+                      "description" in item ? item.description : undefined;
                     return (
                       <a
                         href={item.href}
+                        aria-current={active ? "page" : undefined}
                         class:list={[
                           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                           active
@@ -126,8 +158,22 @@ const sidebarExtra = [
                             : "text-sidebar-foreground hover:bg-sidebar-accent",
                         ]}
                       >
-                        <Icon className="size-4 shrink-0" />
-                        {item.label}
+                        <Icon className="size-4 shrink-0" aria-hidden="true" />
+                        <span class="min-w-0 flex flex-col items-start gap-0.5">
+                          <span>{item.label}</span>
+                          {description ? (
+                            <span
+                              class:list={[
+                                "text-[11px] font-normal leading-tight",
+                                active
+                                  ? "text-primary-foreground/80"
+                                  : "text-muted-foreground",
+                              ]}
+                            >
+                              {description}
+                            </span>
+                          ) : null}
+                        </span>
                       </a>
                     );
                   })
@@ -141,6 +187,7 @@ const sidebarExtra = [
                     return (
                       <a
                         href={item.href}
+                        aria-current={active ? "page" : undefined}
                         class:list={[
                           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                           active
@@ -148,7 +195,7 @@ const sidebarExtra = [
                             : "text-sidebar-foreground hover:bg-sidebar-accent",
                         ]}
                       >
-                        <Icon className="size-4 shrink-0" />
+                        <Icon className="size-4 shrink-0" aria-hidden="true" />
                         {item.label}
                       </a>
                     );
@@ -156,7 +203,7 @@ const sidebarExtra = [
                 }
               </div>
             </nav>
-            <div class="border-t border-sidebar-border p-3 space-y-2">
+            <div id="app-sidebar-footer" class="border-t border-sidebar-border p-3 space-y-2">
               <div class="rounded-lg bg-muted/60 px-3 py-2">
                 <SyncStatusBar client:load variant="sidebar" />
               </div>
@@ -167,37 +214,44 @@ const sidebarExtra = [
             </div>
           </aside>
 
-          {/* Main column */}
-          <div class="md:pl-64 flex-1 min-w-0 flex flex-col min-h-dvh">
-            {/* Mobile top bar */}
-            <header class="md:hidden sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-border bg-primary text-primary-foreground px-4 py-3 shadow-sm">
-              <a href="/" class="font-semibold tracking-tight flex items-center gap-2">
-                <span class="size-7 rounded-md bg-primary-foreground/15 grid place-items-center text-[10px] font-bold">FS</span>
-                <span>Scouting</span>
+          <div id="app-content-column" class="md:pl-64 flex-1 min-w-0 flex flex-col min-h-dvh">
+            <header
+              id="app-header-mobile"
+              class="md:hidden sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-border bg-background/95 backdrop-blur px-3 py-2.5"
+            >
+              <a href="/" class="font-semibold tracking-tight flex items-center gap-2 text-foreground min-h-11">
+                <span
+                  class="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center text-[10px] font-bold"
+                  aria-hidden="true"
+                >
+                  FS
+                </span>
+                <span class="text-sm">Scouting</span>
               </a>
-              <div class="flex items-center gap-2 min-w-0">
+              <div class="flex items-center gap-1.5 min-w-0" aria-label="Konto und Sync">
                 <ThemeToggle client:load variant="header" />
                 <a
                   href="/hilfe"
-                  class="rounded-md p-1.5 bg-white/10 hover:bg-white/20 text-primary-foreground"
+                  class="inline-flex size-9 items-center justify-center rounded-md border border-border bg-card text-foreground hover:bg-muted"
                   title="Hilfe"
                   aria-label="Hilfe"
                 >
-                  <CircleHelp className="size-4" />
+                  <CircleHelp className="size-4" aria-hidden="true" />
                 </a>
                 <SyncStatusBar client:load variant="header" />
                 <UserMenu client:load variant="header" />
               </div>
             </header>
 
-            {/* Desktop top bar */}
-            <header class="hidden md:flex sticky top-0 z-10 h-16 items-center justify-between border-b border-border bg-background/90 backdrop-blur px-6 lg:px-8">
+            <header
+              id="app-header-desktop"
+              class="hidden md:flex sticky top-0 z-10 h-16 items-center justify-between border-b border-border bg-background/90 backdrop-blur px-6 lg:px-8"
+            >
               <div>
                 <h1 class="text-lg font-semibold tracking-tight text-card-foreground">{title}</h1>
                 <p class="text-xs text-muted-foreground">Berichte nachbereiten und Stammdaten pflegen</p>
               </div>
-              <div class="flex items-center gap-3">
-                <ThemeToggle client:load variant="bar" />
+              <div class="flex items-center gap-3" aria-label="Schnellaktionen">
                 <a
                   href="/reports/new-player"
                   class="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -213,12 +267,15 @@ const sidebarExtra = [
               </div>
             </header>
 
-            <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-4 pb-24 md:px-6 md:py-6 lg:px-8 md:pb-8">
+            <main id="app-main" class="flex-1 w-full max-w-7xl mx-auto px-4 py-4 pb-24 md:px-6 md:py-6 lg:px-8 md:pb-8">
               <slot />
             </main>
 
-            {/* Mobile bottom nav */}
-            <nav class="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-border bg-card/95 backdrop-blur flex justify-around py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+            <nav
+              id="nav-mobile"
+              class="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-border bg-card/95 backdrop-blur flex justify-around pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+              aria-label="Mobile Navigation"
+            >
               {
                 navItems.map((item) => {
                   const active = activeNav === item.key;
@@ -226,12 +283,13 @@ const sidebarExtra = [
                   return (
                     <a
                       href={item.href}
+                      aria-current={active ? "page" : undefined}
                       class:list={[
-                        "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg text-[10px] font-medium min-w-[3.5rem]",
-                        active ? "text-primary" : "text-muted-foreground",
+                        "flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-lg text-[10px] font-medium min-w-[4rem] min-h-14",
+                        active ? "text-primary bg-primary/8" : "text-muted-foreground",
                       ]}
                     >
-                      <Icon className="size-5" />
+                      <Icon className="size-5" aria-hidden="true" />
                       {item.label}
                     </a>
                   );
@@ -241,7 +299,7 @@ const sidebarExtra = [
           </div>
         </div>
       ) : (
-        <main class="w-full max-w-lg mx-auto px-4 py-8 relative">
+        <main id="app-main" class="w-full max-w-lg mx-auto px-4 py-8 relative">
           <div class="absolute top-4 right-4">
             <ThemeToggle client:load variant="bar" />
           </div>

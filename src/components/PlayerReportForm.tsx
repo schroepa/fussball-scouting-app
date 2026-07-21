@@ -3,7 +3,13 @@ import RatingSlider from "./RatingSlider";
 import CameraCapture, { type CapturedPhoto } from "./CameraCapture";
 import PlayerPicker from "./PlayerPicker";
 import BezugstypSelector from "./BezugstypSelector";
-import { createPlayerReport, listAttributeDefinitions, saveMediaBlob } from "../lib/local/repository";
+import {
+  createPlayerReport,
+  getPlayerReport,
+  listAttributeDefinitions,
+  saveMediaBlob,
+  updatePlayerReport,
+} from "../lib/local/repository";
 import type {
   AttributeDefinition,
   Bezugstyp,
@@ -31,9 +37,22 @@ const EMPFEHLUNG_OPTIONS: Empfehlung[] = [
   "kein_potenzial",
 ];
 
-export default function PlayerReportForm() {
+interface Props {
+  reportId?: string;
+}
+
+function initialPlayerIdFromQuery(): string {
+  if (typeof window === "undefined") return "";
+  return new URLSearchParams(window.location.search).get("player")?.trim() ?? "";
+}
+
+export default function PlayerReportForm({ reportId }: Props) {
+  const isEdit = Boolean(reportId);
+  const [loading, setLoading] = useState(isEdit);
   const [attributes, setAttributes] = useState<AttributeDefinition[]>([]);
-  const [playerId, setPlayerId] = useState<string>("");
+  const [playerId, setPlayerId] = useState<string>(() =>
+    reportId ? "" : initialPlayerIdFromQuery()
+  );
   const [bezugstyp, setBezugstyp] = useState<Bezugstyp>("spiel");
   const [matchId, setMatchId] = useState<string>("");
   const [datum, setDatum] = useState(() => new Date().toISOString().slice(0, 10));
@@ -44,6 +63,7 @@ export default function PlayerReportForm() {
   const [schwaechen, setSchwaechen] = useState("");
   const [freitext, setFreitext] = useState("");
   const [empfehlung, setEmpfehlung] = useState<Empfehlung | "">("");
+  const [existingMedia, setExistingMedia] = useState<MediaRef[]>([]);
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
@@ -53,8 +73,34 @@ export default function PlayerReportForm() {
     (async () => {
       const defs = await listAttributeDefinitions("player");
       setAttributes(defs);
+
+      if (reportId) {
+        const report = await getPlayerReport(reportId);
+        if (report) {
+          setPlayerId(report.playerId);
+          setBezugstyp(report.bezugstyp);
+          setMatchId(report.matchId ?? "");
+          setDatum(new Date(report.datum).toISOString().slice(0, 10));
+          setPositionBeobachtet(report.positionBeobachtet ?? "");
+          const ratingsMap: Record<string, number> = {};
+          for (const r of report.ratings) {
+            ratingsMap[r.attributeKey] = r.value;
+          }
+          setRatings(ratingsMap);
+          setGesamtbewertung(report.gesamtbewertung);
+          setStaerken(report.staerken ?? "");
+          setSchwaechen(report.schwaechen ?? "");
+          setFreitext(report.freitextNotizen ?? "");
+          setEmpfehlung(report.empfehlung ?? "");
+          setExistingMedia(report.media);
+        }
+        setLoading(false);
+      } else {
+        const fromQuery = initialPlayerIdFromQuery();
+        if (fromQuery) setPlayerId(fromQuery);
+      }
     })();
-  }, []);
+  }, [reportId]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -71,36 +117,54 @@ export default function PlayerReportForm() {
 
     setSaving(true);
     try {
-      const media: MediaRef[] = [];
+      const newMedia: MediaRef[] = [];
       for (const photo of photos) {
         const ref = await saveMediaBlob(photo.blob, photo.blob.type || "image/jpeg");
-        media.push(ref);
+        newMedia.push(ref);
       }
 
       const ratingValues: RatingValue[] = Object.entries(ratings).map(
         ([attributeKey, value]) => ({ attributeKey, value })
       );
 
-      const { getCurrentSession } = await import("../lib/auth/session");
-      const session = await getCurrentSession();
+      if (isEdit && reportId) {
+        const updated = await updatePlayerReport(reportId, {
+          playerId,
+          bezugstyp,
+          matchId: bezugstyp === "spiel" ? matchId : undefined,
+          datum: new Date(datum).toISOString(),
+          positionBeobachtet: positionBeobachtet || undefined,
+          ratings: ratingValues,
+          gesamtbewertung,
+          staerken: staerken || undefined,
+          schwaechen: schwaechen || undefined,
+          freitextNotizen: freitext || undefined,
+          empfehlung: empfehlung || undefined,
+          media: [...existingMedia, ...newMedia],
+        });
+        setSavedId(updated?.id ?? reportId);
+      } else {
+        const { getCurrentSession } = await import("../lib/auth/session");
+        const session = await getCurrentSession();
 
-      const report = await createPlayerReport({
-        playerId,
-        scoutId: session.scout.id,
-        bezugstyp,
-        matchId: bezugstyp === "spiel" ? matchId : undefined,
-        datum: new Date(datum).toISOString(),
-        positionBeobachtet: positionBeobachtet || undefined,
-        ratings: ratingValues,
-        gesamtbewertung,
-        staerken: staerken || undefined,
-        schwaechen: schwaechen || undefined,
-        freitextNotizen: freitext || undefined,
-        empfehlung: empfehlung || undefined,
-        tags: [],
-        media,
-      });
-      setSavedId(report.id);
+        const report = await createPlayerReport({
+          playerId,
+          scoutId: session.scout.id,
+          bezugstyp,
+          matchId: bezugstyp === "spiel" ? matchId : undefined,
+          datum: new Date(datum).toISOString(),
+          positionBeobachtet: positionBeobachtet || undefined,
+          ratings: ratingValues,
+          gesamtbewertung,
+          staerken: staerken || undefined,
+          schwaechen: schwaechen || undefined,
+          freitextNotizen: freitext || undefined,
+          empfehlung: empfehlung || undefined,
+          tags: [],
+          media: newMedia,
+        });
+        setSavedId(report.id);
+      }
     } catch (err) {
       console.error(err);
       setError("Speichern fehlgeschlagen. Bitte erneut versuchen.");
@@ -109,31 +173,46 @@ export default function PlayerReportForm() {
     }
   };
 
+  if (loading) {
+    return <p className="text-muted-foreground text-sm">Lade…</p>;
+  }
+
   if (savedId) {
     return (
-      <Card className="max-w-xl mx-auto text-center">
+      <Card className="max-w-xl mx-auto text-center" role="status">
         <CardHeader>
-          <CardTitle>Bericht gespeichert</CardTitle>
+          <CardTitle>{isEdit ? "Bericht aktualisiert" : "Bericht gespeichert"}</CardTitle>
           <CardDescription>
-            Lokal gespeichert – Sync sobald wieder Netz da ist.
+            {isEdit
+              ? "Änderungen werden beim nächsten Sync hochgeladen."
+              : "Lokal gespeichert – Sync sobald wieder Netz da ist."}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2 justify-center pb-6">
           <Button render={<a href={`/reports/player/${savedId}`} />}>
             Bericht ansehen
           </Button>
-          <Button variant="outline" render={<a href="/reports/new-player" />}>
-            Weiteren Bericht anlegen
-          </Button>
+          {!isEdit && (
+            <Button variant="outline" render={<a href="/reports/new-player" />}>
+              Weiteren Bericht anlegen
+            </Button>
+          )}
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+    <form
+      id="form-player-report"
+      onSubmit={handleSubmit}
+      className="space-y-4 md:space-y-6"
+      aria-label={isEdit ? "Spielerbericht bearbeiten" : "Spielerbericht erfassen"}
+    >
       <div className="md:hidden">
-        <h2 className="text-xl font-semibold tracking-tight">Spielerbericht</h2>
+        <h2 className="text-xl font-semibold tracking-tight">
+          {isEdit ? "Spielerbericht bearbeiten" : "Spielerbericht"}
+        </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
           Schnell erfassen – später am Desktop verfeinern.
         </p>
@@ -145,7 +224,6 @@ export default function PlayerReportForm() {
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Kontext</CardTitle>
-              <CardDescription>Spieler, Bezug und Rahmendaten</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 pt-4">
               <PlayerPicker value={playerId} onChange={(id) => setPlayerId(id)} />
@@ -179,30 +257,26 @@ export default function PlayerReportForm() {
             </CardContent>
           </Card>
 
-          <Card size="sm" className="shadow-sm">
-            <CardHeader className="border-b">
-              <CardTitle>Empfehlung</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="grid grid-cols-1 gap-2">
-                {EMPFEHLUNG_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => setEmpfehlung(opt)}
-                    className={cn(
-                      "rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition-colors",
-                      empfehlung === opt
-                        ? "border-primary bg-primary/10 text-foreground"
-                        : "border-border bg-background text-muted-foreground hover:bg-muted/50"
-                    )}
-                  >
-                    {EMPFEHLUNG_LABELS[opt]}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-border p-3 space-y-2 shadow-sm">
+            <p className="text-sm font-semibold">Empfehlung</p>
+            <div className="grid grid-cols-1 gap-2">
+              {EMPFEHLUNG_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setEmpfehlung(opt)}
+                  className={cn(
+                    "rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                    empfehlung === opt
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-background text-muted-foreground hover:bg-muted/50"
+                  )}
+                >
+                  {EMPFEHLUNG_LABELS[opt]}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <Card size="sm" className="shadow-sm lg:block">
             <CardHeader className="border-b">
@@ -226,7 +300,7 @@ export default function PlayerReportForm() {
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Bewertungsraster</CardTitle>
-              <CardDescription>
+              <CardDescription className="hidden md:block">
                 1–10 · eigene Felder unter{" "}
                 <a
                   href="/einstellungen/attribute"
@@ -266,7 +340,7 @@ export default function PlayerReportForm() {
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Notizen</CardTitle>
-              <CardDescription>Zum Nachbereiten am Rechner gedacht</CardDescription>
+              <CardDescription className="hidden md:block">Zum Nachbereiten am Rechner gedacht</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -309,23 +383,23 @@ export default function PlayerReportForm() {
         </p>
       )}
 
-      <div className="sticky bottom-[4.5rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
+      <div className="sticky bottom-[5.5rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 max-w-7xl mx-auto">
           <Button
             type="button"
             variant="outline"
             className="sm:w-auto w-full"
-            render={<a href="/reports" />}
+            render={<a href={isEdit ? `/reports/player/${reportId}` : "/reports"} />}
           >
             Abbrechen
           </Button>
           <Button
             type="submit"
             disabled={saving}
-            className="sm:w-auto w-full sm:min-w-[12rem]"
+            className="sm:w-auto w-full sm:min-w-[12rem] min-h-11"
             size="lg"
           >
-            {saving ? "Speichere…" : "Bericht speichern"}
+            {saving ? "Speichere…" : isEdit ? "Bericht aktualisieren" : "Bericht speichern"}
           </Button>
         </div>
       </div>

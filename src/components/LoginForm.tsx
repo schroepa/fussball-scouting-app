@@ -16,13 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-function getNextPath(): string {
-  if (typeof window === "undefined") return "/";
-  const next = new URLSearchParams(window.location.search).get("next");
-  if (next && next.startsWith("/") && !next.startsWith("//")) return next;
-  return "/";
-}
+import { getSafeNextPathFromSearch } from "@/lib/security/safeRedirect";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -38,7 +32,9 @@ export default function LoginForm() {
     }
     getCurrentSession().then((session) => {
       if (session.isAuthenticated) {
-        window.location.replace(getNextPath());
+        window.location.replace(
+          getSafeNextPathFromSearch(window.location.search)
+        );
         return;
       }
       setChecking(false);
@@ -92,7 +88,7 @@ export default function LoginForm() {
   };
 
   return (
-    <Card size="sm" className="shadow-sm">
+    <Card size="sm" className="shadow-sm" id="panel-login">
       <CardHeader>
         <CardTitle>Anmelden</CardTitle>
         <CardDescription>
@@ -122,7 +118,7 @@ export default function LoginForm() {
             Postfach prüfen.
           </p>
         ) : (
-          <form onSubmit={handleMagicLink} className="space-y-3">
+          <form id="form-login-magic-link" onSubmit={handleMagicLink} className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="login-email">E-Mail</Label>
               <Input

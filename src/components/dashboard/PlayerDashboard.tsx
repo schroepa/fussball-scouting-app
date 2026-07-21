@@ -32,6 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { SimpleSelect } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 const EMPFEHLUNG_OPTIONS: Empfehlung[] = [
@@ -200,58 +202,43 @@ export default function PlayerDashboard() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <select
-              className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+            <SimpleSelect
               value={position}
-              onChange={(e) => setPosition(e.target.value)}
-            >
-              <option value="">Alle Positionen</option>
-              {positions.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-            <select
-              className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+              onValueChange={setPosition}
+              placeholder="Alle Positionen"
+              options={positions.map((p) => ({ value: p, label: p }))}
+            />
+            <SimpleSelect
               value={age}
-              onChange={(e) => setAge(e.target.value as AgeBucket | "")}
-            >
-              <option value="">Alle Alter</option>
-              {(Object.keys(AGE_BUCKET_LABELS) as AgeBucket[]).map((k) => (
-                <option key={k} value={k}>
-                  {AGE_BUCKET_LABELS[k]}
-                </option>
-              ))}
-            </select>
-            <select
-              className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+              onValueChange={(v) => setAge(v as AgeBucket | "")}
+              placeholder="Alle Alter"
+              options={(Object.keys(AGE_BUCKET_LABELS) as AgeBucket[]).map(
+                (k) => ({ value: k, label: AGE_BUCKET_LABELS[k] })
+              )}
+            />
+            <SimpleSelect
               value={liga}
-              onChange={(e) => setLiga(e.target.value)}
-            >
-              <option value="">Alle Ligen</option>
-              {ligen.map((l) => (
-                <option key={l} value={l}>
-                  {l}
-                </option>
-              ))}
-            </select>
+              onValueChange={setLiga}
+              placeholder="Alle Ligen"
+              options={ligen.map((l) => ({ value: l, label: l }))}
+            />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <label className="text-sm text-muted-foreground flex items-center gap-2">
               Min. Gesamt
-              <select
-                className="h-8 rounded-2xl border border-transparent bg-input/50 px-2 text-sm"
-                value={minGesamt}
-                onChange={(e) => setMinGesamt(Number(e.target.value))}
-              >
-                <option value={0}>–</option>
-                {[6, 7, 8, 9].map((n) => (
-                  <option key={n} value={n}>
-                    ≥ {n}
-                  </option>
-                ))}
-              </select>
+              <SimpleSelect
+                className="w-auto min-w-[5.5rem]"
+                size="sm"
+                value={String(minGesamt)}
+                onValueChange={(v) => setMinGesamt(Number(v))}
+                options={[
+                  { value: "0", label: "–" },
+                  ...[6, 7, 8, 9].map((n) => ({
+                    value: String(n),
+                    label: `≥ ${n}`,
+                  })),
+                ]}
+              />
             </label>
             <div className="flex flex-wrap gap-1.5">
               <Button
@@ -331,7 +318,7 @@ export default function PlayerDashboard() {
             {filtered.map((row) => (
               <li
                 key={row.player.id}
-                className="rounded-xl border border-border bg-card p-3 space-y-2"
+                className="rounded-lg border border-border bg-card p-3 space-y-2"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -407,14 +394,13 @@ export default function PlayerDashboard() {
                       className={cn(selected && "bg-primary/5")}
                     >
                       <TableCell>
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={selected}
                           disabled={
                             row.reportCount === 0 ||
                             (!selected && compareIds.length >= 2)
                           }
-                          onChange={() => toggleCompare(row.player.id)}
+                          onCheckedChange={() => toggleCompare(row.player.id)}
                           aria-label="Zum Vergleich wählen"
                         />
                       </TableCell>

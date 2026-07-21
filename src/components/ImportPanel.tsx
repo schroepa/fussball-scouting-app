@@ -6,18 +6,12 @@ import type {
 } from "../lib/import/types";
 import { persistImportResult } from "../lib/import/persist";
 import { syncAll } from "../lib/sync/syncManager";
+import { apiFetch } from "../lib/api/clientFetch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -26,6 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { SimpleSelect } from "@/components/ui/select";
+import { EmptyState } from "@/components/EmptyState";
 
 type Tab = "transfermarkt" | "scraper" | "spieler" | "fussballde";
 
@@ -103,7 +99,7 @@ function FeedbackBanner({
           {error}
         </p>
       ) : null}
-      {status ? <p className="text-sm text-primary">{status}</p> : null}
+      {status ? <p className="text-sm text-primary" role="status">{status}</p> : null}
     </div>
   );
 }
@@ -129,7 +125,7 @@ export default function ImportPanel() {
     setStatus(null);
     setResult(null);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/import/search?q=${encodeURIComponent(query.trim())}`
       );
       const data = (await res.json()) as ImportSearchResult & { error?: string };
@@ -153,9 +149,8 @@ export default function ImportPanel() {
     setStatus(null);
     setResult(null);
     try {
-      const res = await fetch("/api/import/fussballde-club", {
+      const res = await apiFetch("/api/import/fussballde-club", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ urlOrId: fussballUrl.trim() }),
       });
       const data = (await res.json()) as ImportSearchResult & { error?: string };
@@ -177,9 +172,8 @@ export default function ImportPanel() {
     setStatus(null);
     setResult(null);
     try {
-      const res = await fetch("/api/import/transfermarkt", {
+      const res = await apiFetch("/api/import/transfermarkt", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ urlOrId: tmUrl.trim() }),
       });
       const data = (await res.json()) as ScrapeResult;
@@ -214,9 +208,8 @@ export default function ImportPanel() {
       setStatus(null);
       setResult(null);
       try {
-        const res = await fetch("/api/import/transfermarkt", {
+        const res = await apiFetch("/api/import/transfermarkt", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ urlOrId: url }),
         });
         const data = (await res.json()) as ScrapeResult;
@@ -241,9 +234,8 @@ export default function ImportPanel() {
     setStatus(null);
     if (!opts?.teamId) setResult(null);
     try {
-      const res = await fetch("/api/import/fussballde-scrape", {
+      const res = await apiFetch("/api/import/fussballde-scrape", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           urlOrId: url,
           mode: opts?.teamId ? "squad" : "auto",
@@ -416,16 +408,13 @@ export default function ImportPanel() {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      <Card size="sm" className="shadow-sm hidden md:block">
-        <CardHeader>
-          <CardTitle>Import-Arbeitsplatz</CardTitle>
-          <CardDescription>
-            Links Quelle wählen, rechts Treffer prüfen und übernehmen – ideal am
-            Desktop nach dem Spieltag.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+    <div id="panel-import" className="space-y-4 md:space-y-6">
+      <div className="hidden md:block space-y-1">
+        <p className="text-sm text-muted-foreground">
+          Quelle wählen, Treffer prüfen und übernehmen – ideal am Desktop nach
+          dem Spieltag.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6">
         <div className="xl:col-span-5 space-y-4">
@@ -473,18 +462,18 @@ export default function ImportPanel() {
               <div className="flex flex-wrap items-end gap-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="season">Saison</Label>
-                  <select
+                  <SimpleSelect
                     id="season"
                     value={season}
-                    onChange={(e) => setSeason(e.target.value)}
-                    className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
-                  >
-                    <option value="2627">2026/27</option>
-                    <option value="2526">2025/26</option>
-                    <option value="2425">2024/25</option>
-                    <option value="2324">2023/24</option>
-                    <option value="2223">2022/23</option>
-                  </select>
+                    onValueChange={setSeason}
+                    options={[
+                      { value: "2627", label: "2026/27" },
+                      { value: "2526", label: "2025/26" },
+                      { value: "2425", label: "2024/25" },
+                      { value: "2324", label: "2023/24" },
+                      { value: "2223", label: "2022/23" },
+                    ]}
+                  />
                 </div>
                 <Button
                   type="button"
@@ -507,7 +496,7 @@ export default function ImportPanel() {
               </p>
 
               {teams.length > 0 && (
-                <div className="rounded-xl border border-border overflow-hidden">
+                <div className="rounded-lg border border-border overflow-hidden">
                   <div className="px-3 py-2 text-sm font-medium border-b border-border bg-muted/40">
                     Mannschaften ({teams.length})
                   </div>
@@ -533,7 +522,7 @@ export default function ImportPanel() {
                 </div>
               )}
 
-              <div className="rounded-xl border border-dashed border-border p-3 space-y-2">
+              <div className="rounded-lg border border-dashed border-border p-3 space-y-2">
                 <p className="text-sm font-medium">Namensliste (Fallback)</p>
                 <p className="text-xs text-muted-foreground">
                   Eine Zeile pro Spieler –{" "}
@@ -615,14 +604,14 @@ export default function ImportPanel() {
           </div>
 
           {!result ? (
-            <div className="rounded-xl border border-dashed border-border bg-muted/20 px-4 py-10 text-center text-sm text-muted-foreground">
-              Treffer erscheinen hier. Am Desktop kannst du Kader in der Tabelle
-              prüfen und einzeln oder komplett übernehmen.
-            </div>
+            <EmptyState
+              title="Treffer erscheinen hier"
+              description="Am Desktop kannst du Kader in der Tabelle prüfen und einzeln oder komplett übernehmen."
+            />
           ) : result.players.length === 0 &&
             result.clubs.length === 0 &&
             result.matches.length === 0 ? (
-            <div className="rounded-xl border border-border bg-card px-4 py-8 text-center space-y-2">
+            <div className="rounded-lg border border-border bg-card px-4 py-8 text-center space-y-2">
               <p className="text-sm font-medium text-foreground">
                 Keine Treffer in dieser Quelle
               </p>
@@ -658,7 +647,7 @@ export default function ImportPanel() {
                     {result.players.map((p) => (
                       <li
                         key={`${p.externalSource}:${p.externalRef}`}
-                        className="rounded-xl border border-border p-3 flex items-center gap-3"
+                        className="rounded-lg border border-border p-3 flex items-center gap-3"
                       >
                         {p.fotoUrl ? (
                           <img
@@ -692,7 +681,7 @@ export default function ImportPanel() {
                     ))}
                   </ul>
 
-                  <div className="hidden md:block rounded-xl border border-border overflow-hidden">
+                  <div className="hidden md:block rounded-lg border border-border overflow-hidden">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -746,7 +735,7 @@ export default function ImportPanel() {
                     {result.clubs.map((c) => (
                       <li
                         key={`${c.externalSource}:${c.externalRef}`}
-                        className="rounded-xl border border-border p-3 flex items-center gap-3"
+                        className="rounded-lg border border-border p-3 flex items-center gap-3"
                       >
                         {c.logoUrl ? (
                           <img
@@ -783,7 +772,7 @@ export default function ImportPanel() {
                   <h3 className="font-semibold tracking-tight">
                     Spiele ({result.matches.length})
                   </h3>
-                  <ul className="space-y-1 text-sm text-muted-foreground max-h-40 overflow-auto rounded-xl border border-border p-3">
+                  <ul className="space-y-1 text-sm text-muted-foreground max-h-40 overflow-auto rounded-lg border border-border p-3">
                     {result.matches.slice(0, 20).map((m) => (
                       <li key={`${m.externalSource}:${m.externalRef}`}>
                         {new Date(m.datum).toLocaleDateString("de-DE")}:{" "}

@@ -1,0 +1,10 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import TeamReportForm from "../../../../components/TeamReportForm";
+
+const { id } = Astro.params;
+---
+
+<Layout title="Teambericht bearbeiten" activeNav="reports">
+  <TeamReportForm reportId={id as string} client:load />
+</Layout>

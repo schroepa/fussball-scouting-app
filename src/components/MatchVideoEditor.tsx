@@ -87,7 +87,7 @@ export default function MatchVideoEditor({
 
   return (
     <div
-      className={`space-y-3 rounded-xl border border-border bg-muted/20 ${
+      className={`space-y-3 rounded-lg border border-border bg-muted/20 ${
         compact ? "p-3" : "p-4 md:p-5"
       }`}
     >

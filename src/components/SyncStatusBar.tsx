@@ -85,25 +85,20 @@ export default function SyncStatusBar({
         : null;
 
   return (
-    <div
-      className={cn(
-        "relative flex items-center gap-2 text-xs",
-        isHeader ? "text-primary-foreground/85" : "text-foreground"
-      )}
-    >
+    <div className="relative flex items-center gap-1.5 text-xs text-foreground">
       <span
         className={cn(
           "inline-flex items-center gap-1",
-          online
-            ? isHeader
-              ? "text-accent"
-              : "text-primary"
-            : "text-amber-500"
+          online ? "text-primary" : "text-amber-600 dark:text-amber-400"
         )}
         title={online ? "Online" : "Offline"}
       >
-        <span className="text-[10px]">●</span>
-        {online ? "Online" : "Offline"}
+        <span className="text-[10px]" aria-hidden>
+          ●
+        </span>
+        <span className={isHeader ? "sr-only sm:not-sr-only sm:inline" : undefined}>
+          {online ? "Online" : "Offline"}
+        </span>
       </span>
 
       {queueLabel ? (
@@ -111,7 +106,7 @@ export default function SyncStatusBar({
           type="button"
           onClick={() => setPanelOpen((o) => !o)}
           className={cn(
-            "rounded-full px-2 py-0.5 font-semibold",
+            "rounded-md px-2.5 py-1.5 font-semibold min-h-9",
             stats.error > 0
               ? "bg-destructive text-destructive-foreground"
               : "bg-amber-500/90 text-foreground"
@@ -128,12 +123,10 @@ export default function SyncStatusBar({
           onClick={() => void runSync(stats.error > 0)}
           disabled={syncing || !online}
           className={cn(
-            "inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium disabled:opacity-40",
-            isHeader
-              ? "bg-white/10 hover:bg-white/20"
-              : hasErrors
-                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium min-h-9 disabled:opacity-40",
+            hasErrors
+              ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
           )}
           title={
             stats.error > 0
@@ -145,20 +138,14 @@ export default function SyncStatusBar({
           {syncing ? "Sync…" : stats.error > 0 ? "Retry" : "Sync"}
         </button>
       ) : (
-        <span
-          className={
-            isHeader ? "text-primary-foreground/60" : "text-muted-foreground"
-          }
-        >
-          Lokal
-        </span>
+        <span className="text-muted-foreground">Lokal</span>
       )}
 
       {panelOpen && (lastResult || stats.total > 0) ? (
         <div
           role="status"
           className={cn(
-            "absolute z-50 w-72 rounded-lg border bg-card text-card-foreground px-3 py-2.5 shadow-lg text-[11px] leading-snug",
+            "absolute z-50 w-72 rounded-lg border border-border bg-card text-card-foreground px-3 py-2.5 shadow-lg text-[11px] leading-snug",
             isHeader ? "top-full right-0 mt-2" : "bottom-full left-0 mb-2"
           )}
         >
@@ -168,7 +155,7 @@ export default function SyncStatusBar({
             </p>
             <button
               type="button"
-              className="rounded p-0.5 text-muted-foreground hover:bg-muted"
+              className="rounded p-1.5 text-muted-foreground hover:bg-muted"
               onClick={() => setPanelOpen(false)}
               aria-label="Schließen"
             >
@@ -210,13 +197,13 @@ export default function SyncStatusBar({
               type="button"
               disabled={syncing || !online || !isSupabaseConfigured}
               onClick={() => void runSync(true)}
-              className="rounded-md bg-primary px-2 py-1 font-medium text-primary-foreground disabled:opacity-40"
+              className="rounded-md bg-primary px-2.5 py-1.5 font-medium text-primary-foreground disabled:opacity-40 min-h-9"
             >
               Erneut versuchen
             </button>
             <a
               href="/hilfe"
-              className="rounded-md border border-border px-2 py-1 font-medium hover:bg-muted"
+              className="inline-flex items-center rounded-md border border-border px-2.5 py-1.5 font-medium hover:bg-muted min-h-9"
             >
               Hilfe
             </a>

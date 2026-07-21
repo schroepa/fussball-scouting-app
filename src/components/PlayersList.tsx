@@ -4,6 +4,7 @@ import type { Club, Player, PlayerReport } from "../lib/types";
 import CreatePlayerForm from "./CreatePlayerForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Table,
   TableBody,
@@ -77,10 +78,17 @@ export default function PlayersList() {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-muted-foreground text-sm">
-          Noch keine Spieler gespeichert. Lege einen manuell an oder importiere
-          Kader.
-        </p>
+        <EmptyState
+          title={query.trim() ? "Keine Treffer für diesen Filter" : "Noch keine Spieler"}
+          description={query.trim() ? undefined : "Lege einen Spieler manuell an oder importiere einen Kader."}
+          action={
+            !query.trim() ? (
+              <Button variant="outline" size="sm" render={<a href="/import" />}>
+                Kader importieren
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         <>
           <ul className="space-y-2 md:hidden">
@@ -92,7 +100,7 @@ export default function PlayersList() {
               return (
                 <li
                   key={p.id}
-                  className="rounded-xl border border-border bg-card p-3 flex items-center justify-between gap-2"
+                  className="rounded-lg border border-border bg-card p-3 flex items-center justify-between gap-2"
                 >
                   <div className="min-w-0">
                     <div className="font-semibold text-card-foreground truncate">
@@ -111,12 +119,14 @@ export default function PlayersList() {
                     <a
                       href={`/dashboard/players/${p.id}`}
                       className="block text-xs text-primary font-medium hover:underline"
+                      aria-label={`Verlauf: ${p.vorname} ${p.nachname}`}
                     >
                       Verlauf
                     </a>
                     <a
-                      href="/reports/new-player"
+                      href={`/reports/new-player?player=${encodeURIComponent(p.id)}`}
                       className="block text-xs text-muted-foreground hover:underline"
+                      aria-label={`Bewerten: ${p.vorname} ${p.nachname}`}
                     >
                       Bewerten
                     </a>
@@ -165,12 +175,14 @@ export default function PlayersList() {
                         <a
                           href={`/dashboard/players/${p.id}`}
                           className="text-sm font-medium text-primary hover:underline"
+                          aria-label={`Verlauf: ${p.vorname} ${p.nachname}`}
                         >
                           Verlauf
                         </a>
                         <a
-                          href="/reports/new-player"
+                          href={`/reports/new-player?player=${encodeURIComponent(p.id)}`}
                           className="text-sm text-muted-foreground hover:underline"
+                          aria-label={`Bewerten: ${p.vorname} ${p.nachname}`}
                         >
                           Bewerten
                         </a>

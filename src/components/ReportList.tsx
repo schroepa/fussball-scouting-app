@@ -27,8 +27,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
-
 type FilterType = "alle" | "spieler" | "team";
 
 export default function ReportList() {
@@ -188,7 +186,7 @@ export default function ReportList() {
             ))}
           </ul>
 
-          {/* Desktop: table */}
+          {/* Desktop: ganze Zeile öffnet den Bericht */}
           <div className="hidden md:block rounded-xl border border-border bg-card overflow-hidden">
             <Table>
               <TableHeader>
@@ -197,33 +195,46 @@ export default function ReportList() {
                   <TableHead>Name</TableHead>
                   <TableHead>Datum</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Aktion</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredRows.map((row) => (
                   <TableRow key={row.id} className="hover:bg-muted/40">
-                    <TableCell className="font-medium capitalize">
-                      {row.kind}
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium">{row.title}</div>
-                      <div className="flex flex-wrap gap-1.5 mt-1">{row.badges}</div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground whitespace-nowrap">
-                      {new Date(row.datum).toLocaleDateString("de-DE")}
-                    </TableCell>
-                    <TableCell>
-                      <SyncStatusBadge status={row.syncStatus} />
-                    </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="font-medium capitalize p-0">
                       <a
                         href={row.href}
-                        className={cn(
-                          "text-sm font-medium text-primary hover:underline"
-                        )}
+                        className="block px-4 py-3 text-inherit no-underline"
+                        aria-label={`${row.kind === "spieler" ? "Spielerbericht" : "Teambericht"} öffnen: ${row.title}`}
                       >
-                        Öffnen
+                        {row.kind}
+                      </a>
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <a
+                        href={row.href}
+                        className="block px-4 py-3 text-inherit no-underline"
+                        tabIndex={-1}
+                      >
+                        <div className="font-medium">{row.title}</div>
+                        <div className="flex flex-wrap gap-1.5 mt-1">{row.badges}</div>
+                      </a>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground whitespace-nowrap p-0">
+                      <a
+                        href={row.href}
+                        className="block px-4 py-3 text-inherit no-underline"
+                        tabIndex={-1}
+                      >
+                        {new Date(row.datum).toLocaleDateString("de-DE")}
+                      </a>
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <a
+                        href={row.href}
+                        className="block px-4 py-3 text-inherit no-underline"
+                        tabIndex={-1}
+                      >
+                        <SyncStatusBadge status={row.syncStatus} />
                       </a>
                     </TableCell>
                   </TableRow>

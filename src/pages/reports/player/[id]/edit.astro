@@ -1,0 +1,10 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import PlayerReportForm from "../../../../components/PlayerReportForm";
+
+const { id } = Astro.params;
+---
+
+<Layout title="Spielerbericht bearbeiten" activeNav="reports">
+  <PlayerReportForm reportId={id as string} client:load />
+</Layout>

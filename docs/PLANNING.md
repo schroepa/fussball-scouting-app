@@ -72,6 +72,8 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | **M9** | **Onboarding + FAQ/Tutorial** | **erledigt (MVP)** | First-Run, `/hilfe`, FAQ |
 | **M6** | **Custom-Attribute-UI** | **erledigt** | Spieler + Team; Formulare + Sync |
 | **M3b** | **Sync-Retry-UI** | **erledigt** | Fehler-Badge, Panel, Retry |
+| **M10** | **Qualität / Security / Tests** | **erledigt (MVP)** | Semantik, Vitest+CI, E2E-Smoke, CSP, Rate-Limit, Import-Auth |
+| **M11** | **Berichte bearbeiten + UI-Feinschliff** | **erledigt** | Edit-Routen, Select, EmptyState, Radien ≤16px, Hilfe-Gruppen |
 
 ### Empfohlene Umsetzungsreihenfolge ab jetzt
 
@@ -82,6 +84,9 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 5. ~~**M3b Sync-Retry-UI**~~ – Fehler sichtbar + Retry
 6. ~~**M6 Custom-Felder**~~ – `/einstellungen/attribute`; SQL `attribute_definitions_owner.sql`
 7. ~~**Import-Feinschliff**~~ – leere Treffer, Sync-Meldungen, Hilfe
+8. ~~**M10 Qualität**~~ – Vitest, Playwright-Smoke, CSP, Rate-Limit (`docs/SECURITY.md`)
+9. ~~**M11 Edit + UI**~~ – Berichte bearbeiten, Radien, Select, Empty States
+10. **Später:** VEO Phase 2 (Event-Import), Cookie-SSR-Auth, optionale Team-Pools
 
 ## 7. M7 – Match-Phasen & Formationen
 

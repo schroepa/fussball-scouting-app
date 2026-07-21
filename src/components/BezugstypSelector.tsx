@@ -43,7 +43,7 @@ export default function BezugstypSelector({
               type="button"
               onClick={() => onBezugstypChange(value)}
               className={cn(
-                "rounded-xl border px-2 py-2.5 text-xs font-medium flex flex-col items-center gap-1.5 transition-colors md:text-sm md:py-3",
+                "rounded-lg border px-2 py-2.5 text-xs font-medium flex flex-col items-center gap-1.5 transition-colors md:text-sm md:py-3",
                 active
                   ? "border-primary bg-primary/10 text-foreground"
                   : "border-border bg-background text-muted-foreground hover:bg-muted/50"
