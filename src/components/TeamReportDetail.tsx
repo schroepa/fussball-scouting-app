@@ -97,6 +97,13 @@ export default function TeamReportDetail({ reportId }: Props) {
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
+            variant="outline"
+            render={<a href={`/reports/team/${report.id}/edit`} />}
+          >
+            Bearbeiten
+          </Button>
+          <Button
+            type="button"
             onClick={() => club && exportTeamReportPdf(report, club, match)}
             disabled={!club}
           >

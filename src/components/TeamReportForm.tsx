@@ -6,8 +6,11 @@ import BezugstypSelector from "./BezugstypSelector";
 import RatingSlider from "./RatingSlider";
 import {
   createTeamReport,
+  getPlayer,
+  getTeamReport,
   listAttributeDefinitions,
   saveMediaBlob,
+  updateTeamReport,
 } from "../lib/local/repository";
 import type {
   AttributeDefinition,
@@ -35,7 +38,13 @@ import { X } from "lucide-react";
 
 const BERICHTSART_OPTIONS: Berichtsart[] = ["gegner_analyse", "eigenes_team"];
 
-export default function TeamReportForm() {
+interface Props {
+  reportId?: string;
+}
+
+export default function TeamReportForm({ reportId }: Props) {
+  const isEdit = Boolean(reportId);
+  const [loading, setLoading] = useState(isEdit);
   const [attributes, setAttributes] = useState<AttributeDefinition[]>([]);
   const [berichtsart, setBerichtsart] = useState<Berichtsart>("gegner_analyse");
   const [clubId, setClubId] = useState<string>("");
@@ -50,14 +59,47 @@ export default function TeamReportForm() {
   const [schwaechen, setSchwaechen] = useState("");
   const [schluesselspieler, setSchluesselspieler] = useState<Player[]>([]);
   const [addingKeyPlayer, setAddingKeyPlayer] = useState(false);
+  const [existingMedia, setExistingMedia] = useState<MediaRef[]>([]);
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    void listAttributeDefinitions("team").then(setAttributes);
-  }, []);
+    (async () => {
+      const defs = await listAttributeDefinitions("team");
+      setAttributes(defs);
+
+      if (reportId) {
+        const report = await getTeamReport(reportId);
+        if (report) {
+          setBerichtsart(report.berichtsart);
+          setClubId(report.clubId);
+          setBezugstyp(report.bezugstyp);
+          setMatchId(report.matchId ?? "");
+          setDatum(new Date(report.datum).toISOString().slice(0, 10));
+          setFormation(report.formation ?? "");
+          const ratingsMap: Record<string, number> = {};
+          for (const r of report.ratings) {
+            ratingsMap[r.attributeKey] = r.value;
+          }
+          setRatings(ratingsMap);
+          setSpielstil(report.spielstil ?? "");
+          setStandardsituationen(report.standardsituationen ?? "");
+          setStaerken(report.staerken ?? "");
+          setSchwaechen(report.schwaechen ?? "");
+          setExistingMedia(report.media);
+          if (report.schluesselspielerIds.length > 0) {
+            const players = await Promise.all(
+              report.schluesselspielerIds.map((id) => getPlayer(id))
+            );
+            setSchluesselspieler(players.filter((p): p is Player => Boolean(p)));
+          }
+        }
+        setLoading(false);
+      }
+    })();
+  }, [reportId]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -74,36 +116,55 @@ export default function TeamReportForm() {
 
     setSaving(true);
     try {
-      const media: MediaRef[] = [];
+      const newMedia: MediaRef[] = [];
       for (const photo of photos) {
         const ref = await saveMediaBlob(photo.blob, photo.blob.type || "image/jpeg");
-        media.push(ref);
+        newMedia.push(ref);
       }
 
       const ratingValues: RatingValue[] = Object.entries(ratings).map(
         ([attributeKey, value]) => ({ attributeKey, value })
       );
 
-      const { getCurrentSession } = await import("../lib/auth/session");
-      const session = await getCurrentSession();
+      if (isEdit && reportId) {
+        const updated = await updateTeamReport(reportId, {
+          clubId,
+          berichtsart,
+          bezugstyp,
+          matchId: bezugstyp === "spiel" ? matchId : undefined,
+          datum: new Date(datum).toISOString(),
+          formation: formation || undefined,
+          spielstil: spielstil || undefined,
+          standardsituationen: standardsituationen || undefined,
+          staerken: staerken || undefined,
+          schwaechen: schwaechen || undefined,
+          schluesselspielerIds: schluesselspieler.map((p) => p.id),
+          ratings: ratingValues,
+          media: [...existingMedia, ...newMedia],
+        });
+        setSavedId(updated?.id ?? reportId);
+      } else {
+        const { getCurrentSession } = await import("../lib/auth/session");
+        const session = await getCurrentSession();
 
-      const report = await createTeamReport({
-        clubId,
-        scoutId: session.scout.id,
-        berichtsart,
-        bezugstyp,
-        matchId: bezugstyp === "spiel" ? matchId : undefined,
-        datum: new Date(datum).toISOString(),
-        formation: formation || undefined,
-        spielstil: spielstil || undefined,
-        standardsituationen: standardsituationen || undefined,
-        staerken: staerken || undefined,
-        schwaechen: schwaechen || undefined,
-        schluesselspielerIds: schluesselspieler.map((p) => p.id),
-        ratings: ratingValues,
-        media,
-      });
-      setSavedId(report.id);
+        const report = await createTeamReport({
+          clubId,
+          scoutId: session.scout.id,
+          berichtsart,
+          bezugstyp,
+          matchId: bezugstyp === "spiel" ? matchId : undefined,
+          datum: new Date(datum).toISOString(),
+          formation: formation || undefined,
+          spielstil: spielstil || undefined,
+          standardsituationen: standardsituationen || undefined,
+          staerken: staerken || undefined,
+          schwaechen: schwaechen || undefined,
+          schluesselspielerIds: schluesselspieler.map((p) => p.id),
+          ratings: ratingValues,
+          media: newMedia,
+        });
+        setSavedId(report.id);
+      }
     } catch (err) {
       console.error(err);
       setError("Speichern fehlgeschlagen. Bitte erneut versuchen.");
@@ -112,11 +173,15 @@ export default function TeamReportForm() {
     }
   };
 
+  if (loading) {
+    return <p className="text-muted-foreground text-sm">Lade…</p>;
+  }
+
   if (savedId) {
     return (
       <Card className="max-w-xl mx-auto text-center">
         <CardHeader>
-          <CardTitle>Team-Bericht gespeichert</CardTitle>
+          <CardTitle>{isEdit ? "Bericht aktualisiert" : "Team-Bericht gespeichert"}</CardTitle>
           <CardDescription>
             Lokal gespeichert – Sync sobald wieder Netz da ist.
           </CardDescription>
@@ -125,9 +190,11 @@ export default function TeamReportForm() {
           <Button render={<a href={`/reports/team/${savedId}`} />}>
             Bericht ansehen
           </Button>
-          <Button variant="outline" render={<a href="/reports/new-team" />}>
-            Weiteren Bericht anlegen
-          </Button>
+          {!isEdit && (
+            <Button variant="outline" render={<a href="/reports/new-team" />}>
+              Weiteren Bericht anlegen
+            </Button>
+          )}
         </CardContent>
       </Card>
     );
@@ -138,10 +205,12 @@ export default function TeamReportForm() {
       id="form-team-report"
       onSubmit={handleSubmit}
       className="space-y-4 md:space-y-6"
-      aria-label="Teambericht erfassen"
+      aria-label={isEdit ? "Teambericht bearbeiten" : "Teambericht erfassen"}
     >
       <div className="md:hidden">
-        <h2 className="text-xl font-semibold tracking-tight">Teambericht</h2>
+        <h2 className="text-xl font-semibold tracking-tight">
+          {isEdit ? "Teambericht bearbeiten" : "Teambericht"}
+        </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
           Gegner oder eigenes Team – kompakt am Platz.
         </p>
@@ -385,7 +454,7 @@ export default function TeamReportForm() {
             type="button"
             variant="outline"
             className="w-full sm:w-auto"
-            render={<a href="/reports" />}
+            render={<a href={isEdit ? `/reports/team/${reportId}` : "/reports"} />}
           >
             Abbrechen
           </Button>
@@ -395,7 +464,7 @@ export default function TeamReportForm() {
             className="w-full sm:w-auto sm:min-w-[12rem]"
             size="lg"
           >
-            {saving ? "Speichere…" : "Bericht speichern"}
+            {saving ? "Speichere…" : isEdit ? "Bericht aktualisieren" : "Bericht speichern"}
           </Button>
         </div>
       </div>

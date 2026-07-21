@@ -89,6 +89,13 @@ export default function PlayerReportDetail({ reportId }: Props) {
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
+            variant="outline"
+            render={<a href={`/reports/player/${report.id}/edit`} />}
+          >
+            Bearbeiten
+          </Button>
+          <Button
+            type="button"
             onClick={() =>
               player && exportPlayerReportPdf(report, player, attributes, match)
             }
