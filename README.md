@@ -169,12 +169,12 @@ supabase/
 | M0/M1 – Scaffold, Offline-DB, Berichte, Auth, Export | erledigt |
 | M2 – Import (Transfermarkt, fussball.de, TheSportsDB) | weitgehend |
 | M3 – Sync Push + Pull (Geräte) | weitgehend |
-| **M3.5 – Datentrennung pro Scout** | **in Arbeit** |
+| **M3.5 – Datentrennung pro Scout** | **erledigt (App)** – RLS-SQL in Supabase ausführen |
 | M4 – Dashboards & Spielervergleich | erledigt (MVP) |
 | M5 – Export PDF/JSON | erledigt |
 | M7 – Match-Phasen & Formationen | geplant |
 | M8 – VEO/Video-Link + Timecode | geplant |
-| M9 – Onboarding + FAQ/Hilfe | geplant |
+| **M9 – Onboarding + FAQ/Hilfe** | **in Arbeit** (`/hilfe`) |
 | M6 – UI für Custom-Bewertungsfelder | offen |
 
 Aktueller Plan: `docs/PLANNING.md` (v3).

@@ -64,22 +64,22 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | M0/M1 | Fundament + Team-Berichte | erledigt | Auth, Offline, Formulare, Bezugstyp/Berichtsart |
 | M2 | Import | weitgehend | Adapter; Dedup künftig owner-scoped |
 | M3 | Sync Push+Pull | weitgehend | Auto-Sync; Retry-UI noch offen |
-| **M3.5** | **Datentrennung Scout** | **als Nächstes** | RLS owner-scoped, `ownerScoutId`, lokale Purge, Listen filtern |
+| **M3.5** | **Datentrennung Scout** | **erledigt (App)** | RLS-SQL ausführen; `ownerScoutId`, Purge, Listen |
 | M4 | Dashboards | erledigt (MVP) | Spieler/Team/Vergleich/Verlauf |
 | M5 | Export | erledigt | PDF + JSON |
 | **M7** | **Match-Phasen & Formationen** | geplant | Heim/Gast, off/def, Phasen mit Zeit, Systemwechsel |
 | **M8** | **VEO / Video-Bezug** | geplant | Link + Timecode; später Events; keine Auto-Note |
-| **M9** | **Onboarding + FAQ/Tutorial** | geplant | Erste-Schritte, Kontext-Tipps, Sync-Hilfe |
+| **M9** | **Onboarding + FAQ/Tutorial** | **in Arbeit** | Erste-Schritte, `/hilfe`, Kontext-Tipps |
 | M6 | Custom-Attribute-UI | später | dynamische Felder |
 | M3b | Sync-Retry-UI | parallel/klein | klarere Fehler/Retry |
 
 ### Empfohlene Umsetzungsreihenfolge ab jetzt
 
-1. **M3.5 Privacy** – blockiert Feedback/Weitergabe  
-2. **M9 Onboarding/FAQ** – Scouts verstehen Sync, Desktop vs. mobil, Datenisolation  
-3. **M7 Match-Phasen/Formationen** – taktischer Mehrwert  
-4. **M8 VEO-Link + Timestamp** – Video-Studium  
-5. M3b Retry-UI, M6 Custom-Felder, Import-Feinschliff  
+1. ~~**M3.5 Privacy**~~ – App-seitig erledigt; **`supabase/rls_owner_scoped.sql` in Supabase ausführen**
+2. **M9 Onboarding/FAQ** – `/hilfe` + First-Run
+3. **M7 Match-Phasen/Formationen** – taktischer Mehrwert
+4. **M8 VEO-Link + Timestamp** – Video-Studium
+5. M3b Retry-UI, M6 Custom-Felder, Import-Feinschliff
 
 ## 7. M7 – Match-Phasen & Formationen (Skizze)
 
@@ -99,9 +99,10 @@ Am **Match** (nicht nur Freitext am Team-Bericht):
 
 ## 9. M9 – Onboarding & Hilfe
 
-- Kurzes First-Run-Onboarding (3–5 Screens): Rand → Sync → Desktop-Dashboard  
-- Seite `/hilfe` oder `/faq`: Sync, Geräte, Privacy („nur deine Daten“), Import, Formulare, Video-Link  
-- Kontext-Tipps in der UI (kurz, verlinkt zur Hilfe)
+- Kurzes First-Run-Onboarding (5 Screens): Willkommen → Rand → Sync → Desktop → Privacy  
+- Seite `/hilfe`: Sync, Geräte, Privacy („nur deine Daten“), Import, Formulare, FAQ  
+- Einführung jederzeit unter Hilfe erneut startbar  
+- Einstieg von Übersicht und Sidebar/Mobile-Header
 
 ## 10. Entscheidungen Abstimmungsrunde 3
 

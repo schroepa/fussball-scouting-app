@@ -1,6 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { ChartColumn, ClipboardList, Download, Users, Shield } from "lucide-react";
+import {
+  ChartColumn,
+  CircleHelp,
+  ClipboardList,
+  Download,
+  Users,
+  Shield,
+} from "lucide-react";
 ---
 
 <Layout title="Übersicht" activeNav="home">
@@ -116,6 +123,22 @@ import { ChartColumn, ClipboardList, Download, Users, Shield } from "lucide-reac
           Sidebar, sobald wieder Netz da ist.
         </p>
       </div>
+    </section>
+
+    <section>
+      <a
+        href="/hilfe"
+        class="flex items-start gap-3 rounded-xl border border-dashed border-border bg-muted/30 p-4 md:p-5 hover:bg-muted/50 transition-colors"
+      >
+        <CircleHelp className="size-6 shrink-0 mt-0.5 text-primary" />
+        <div>
+          <div class="font-semibold tracking-tight">Hilfe & Tutorial</div>
+          <p class="text-sm text-muted-foreground mt-1">
+            Sync, Datenschutz („nur deine Daten“), Import und Desktop –
+            nachlesen oder Einführung erneut starten.
+          </p>
+        </div>
+      </a>
     </section>
   </div>
 </Layout>

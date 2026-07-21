@@ -48,6 +48,14 @@ export default function UserMenu({
       >
         {shortName}
       </span>
+      {!isHeader ? (
+        <a
+          href="/hilfe"
+          className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+        >
+          Hilfe
+        </a>
+      ) : null}
       <button
         type="button"
         onClick={handleSignOut}
