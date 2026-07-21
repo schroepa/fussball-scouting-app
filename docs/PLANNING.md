@@ -69,14 +69,14 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | M5 | Export | erledigt | PDF + JSON |
 | **M7** | **Match-Phasen & Formationen** | geplant | Heim/Gast, off/def, Phasen mit Zeit, Systemwechsel |
 | **M8** | **VEO / Video-Bezug** | geplant | Link + Timecode; später Events; keine Auto-Note |
-| **M9** | **Onboarding + FAQ/Tutorial** | **in Arbeit** | Erste-Schritte, `/hilfe`, Kontext-Tipps |
+| **M9** | **Onboarding + FAQ/Tutorial** | **erledigt (MVP)** | First-Run, `/hilfe`, FAQ |
 | M6 | Custom-Attribute-UI | später | dynamische Felder |
 | M3b | Sync-Retry-UI | parallel/klein | klarere Fehler/Retry |
 
 ### Empfohlene Umsetzungsreihenfolge ab jetzt
 
 1. ~~**M3.5 Privacy**~~ – App-seitig erledigt; **`supabase/rls_owner_scoped.sql` in Supabase ausführen**
-2. **M9 Onboarding/FAQ** – `/hilfe` + First-Run
+2. ~~**M9 Onboarding/FAQ**~~ – `/hilfe` + First-Run
 3. **M7 Match-Phasen/Formationen** – taktischer Mehrwert
 4. **M8 VEO-Link + Timestamp** – Video-Studium
 5. M3b Retry-UI, M6 Custom-Felder, Import-Feinschliff

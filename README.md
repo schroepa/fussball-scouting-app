@@ -174,7 +174,7 @@ supabase/
 | M5 – Export PDF/JSON | erledigt |
 | M7 – Match-Phasen & Formationen | geplant |
 | M8 – VEO/Video-Link + Timecode | geplant |
-| **M9 – Onboarding + FAQ/Hilfe** | **in Arbeit** (`/hilfe`) |
+| **M9 – Onboarding + FAQ/Hilfe** | **erledigt (MVP)** – `/hilfe`, First-Run |
 | M6 – UI für Custom-Bewertungsfelder | offen |
 
 Aktueller Plan: `docs/PLANNING.md` (v3).
