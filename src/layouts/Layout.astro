@@ -3,6 +3,7 @@ import "../styles/global.css";
 import SyncStatusBar from "../components/SyncStatusBar";
 import UserMenu from "../components/UserMenu";
 import AuthGate from "../components/AuthGate";
+import ThemeToggle from "../components/ThemeToggle";
 import {
   ChartColumn,
   CircleHelp,
@@ -70,6 +71,26 @@ const sidebarExtra = [
     <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title} · Fussball Scouting</title>
+    <script is:inline>
+      (function () {
+        try {
+          var key = "fusca_color_mode";
+          var stored = localStorage.getItem(key);
+          var mode =
+            stored === "light" || stored === "dark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          var root = document.documentElement;
+          if (mode === "dark") root.classList.add("dark");
+          else root.classList.remove("dark");
+          root.style.colorScheme = mode;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", mode === "dark" ? "#1c1b1f" : "#2f6b3a");
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="font-sans antialiased bg-background text-foreground min-h-dvh">
     <AuthGate client:load requireAuth={requireAuth} />
@@ -139,8 +160,9 @@ const sidebarExtra = [
               <div class="rounded-lg bg-muted/60 px-3 py-2">
                 <SyncStatusBar client:load variant="sidebar" />
               </div>
-              <div class="px-1">
+              <div class="flex items-center justify-between gap-2 px-1">
                 <UserMenu client:load variant="sidebar" />
+                <ThemeToggle client:load variant="sidebar" />
               </div>
             </div>
           </aside>
@@ -154,6 +176,7 @@ const sidebarExtra = [
                 <span>Scouting</span>
               </a>
               <div class="flex items-center gap-2 min-w-0">
+                <ThemeToggle client:load variant="header" />
                 <a
                   href="/hilfe"
                   class="rounded-md p-1.5 bg-white/10 hover:bg-white/20 text-primary-foreground"
@@ -174,6 +197,7 @@ const sidebarExtra = [
                 <p class="text-xs text-muted-foreground">Berichte nachbereiten und Stammdaten pflegen</p>
               </div>
               <div class="flex items-center gap-3">
+                <ThemeToggle client:load variant="bar" />
                 <a
                   href="/reports/new-player"
                   class="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -217,7 +241,10 @@ const sidebarExtra = [
           </div>
         </div>
       ) : (
-        <main class="w-full max-w-lg mx-auto px-4 py-8">
+        <main class="w-full max-w-lg mx-auto px-4 py-8 relative">
+          <div class="absolute top-4 right-4">
+            <ThemeToggle client:load variant="bar" />
+          </div>
           <slot />
         </main>
       )

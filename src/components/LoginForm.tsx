@@ -47,14 +47,14 @@ export default function LoginForm() {
 
   if (!isSupabaseConfigured) {
     return (
-      <Card size="sm" className="border-amber-300/60 bg-amber-50 text-amber-900 shadow-sm">
+      <Card size="sm" className="border-amber-500/40 bg-amber-500/10 text-amber-950 dark:text-amber-100 shadow-sm">
         <CardHeader>
           <CardTitle>Supabase ist noch nicht konfiguriert</CardTitle>
-          <CardDescription className="text-amber-800/80">
+          <CardDescription className="text-amber-900/80 dark:text-amber-100/80">
             Trage{" "}
-            <code className="rounded bg-amber-100 px-1">PUBLIC_SUPABASE_URL</code> und{" "}
-            <code className="rounded bg-amber-100 px-1">PUBLIC_SUPABASE_ANON_KEY</code>{" "}
-            in der lokalen <code className="rounded bg-amber-100 px-1">.env</code> ein
+            <code className="rounded bg-amber-500/20 px-1">PUBLIC_SUPABASE_URL</code> und{" "}
+            <code className="rounded bg-amber-500/20 px-1">PUBLIC_SUPABASE_ANON_KEY</code>{" "}
+            in der lokalen <code className="rounded bg-amber-500/20 px-1">.env</code> ein
             (siehe README), dann Dev-Server neu starten.
           </CardDescription>
         </CardHeader>

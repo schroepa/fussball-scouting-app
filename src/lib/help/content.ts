@@ -197,6 +197,7 @@ export const helpSections: HelpSection[] = [
     paragraphs: [
       "Warum sieht ein anderer Scout meine Spieler? Das sollte nach dem Privacy-Update nicht mehr passieren. Stelle sicher, dass die App aktuell ist und der andere Account neu angemeldet/synchronisiert hat. Server-seitig müssen die owner-scoped RLS-Policies aktiv sein.",
       "Kann ich die Einführung erneut ansehen? Ja – auf der Hilfeseite unter „Einführung erneut starten“.",
+      "Wo stelle ich den Dark Mode um? Über das Mond-/Sonnen-Icon oben rechts (mobil) bzw. in der Sidebar und der Desktop-Leiste. Die Wahl wird gespeichert.",
       "Wo speichern sich Fotos? Lokal und bei Sync in deinem Storage-Konto; sie hängen an deinen Berichten.",
     ],
   },

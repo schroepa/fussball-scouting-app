@@ -56,5 +56,5 @@ export default function AuthCallback() {
     );
   }
 
-  return <p className="text-slate-500 text-center">Anmeldung wird abgeschlossen…</p>;
+  return <p className="text-muted-foreground text-center">Anmeldung wird abgeschlossen…</p>;
 }
