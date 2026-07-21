@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { importViaSportDbOrTransfermarkt } from "../../../lib/import/sportDb";
-import { requireApiUser } from "../../../lib/security/apiAuth";
+import { guardImportApi } from "../../../lib/security/importApiGuard";
 import { validateImportUrlOrId } from "../../../lib/security/importHosts";
 
 export const prerender = false;
@@ -13,8 +13,8 @@ export const prerender = false;
  * Versuch über SportDB.dev wenn SPORTDB_API_KEY gesetzt ist.
  */
 export const POST: APIRoute = async ({ request }) => {
-  const auth = await requireApiUser(request);
-  if (!auth.ok) return auth.response;
+  const guard = await guardImportApi(request);
+  if (guard) return guard;
 
   let body: { urlOrId?: string };
   try {

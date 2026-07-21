@@ -5,7 +5,7 @@ import {
   scrapeTeamSquad,
   type SquadImportResult,
 } from "../../../lib/import/fussballDeScraper";
-import { requireApiUser } from "../../../lib/security/apiAuth";
+import { guardImportApi } from "../../../lib/security/importApiGuard";
 import { validateImportUrlOrId } from "../../../lib/security/importHosts";
 
 export const prerender = false;
@@ -23,8 +23,8 @@ export const prerender = false;
  * Leichter HTML-Scraper für Vereinsmannschaften + Kader (wenn öffentlich).
  */
 export const POST: APIRoute = async ({ request }) => {
-  const auth = await requireApiUser(request);
-  if (!auth.ok) return auth.response;
+  const guard = await guardImportApi(request);
+  if (guard) return guard;
 
   let body: {
     urlOrId?: string;
