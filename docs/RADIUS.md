@@ -31,4 +31,7 @@ Cards setzen den Radius zusätzlich über `[data-slot="card"] { border-radius: v
 1. Äußere Container: Card-Primitive oder max. 16px
 2. Inhalt mit Border: `rounded-md`
 3. Keine echten `rounded-full`-Rechtecke (nur Avatare/Progress)
-4. Buttons/Inputs: `rounded-lg` (8px)
+4. Buttons/Inputs/Selects: shadcn/Base-UI – **kein natives `<select>`**
+5. Checkboxen: `ui/checkbox` (Base UI), kein `input[type=checkbox]`
+
+Ausnahme: native `input type="date"` / `type="file"` (Kamera) bleiben bewusst – OS-Picker am Platz.
