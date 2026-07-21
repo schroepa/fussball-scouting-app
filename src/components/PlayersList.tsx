@@ -4,6 +4,7 @@ import type { Club, Player, PlayerReport } from "../lib/types";
 import CreatePlayerForm from "./CreatePlayerForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Table,
   TableBody,
@@ -77,10 +78,17 @@ export default function PlayersList() {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-muted-foreground text-sm">
-          Noch keine Spieler gespeichert. Lege einen manuell an oder importiere
-          Kader.
-        </p>
+        <EmptyState
+          title={query.trim() ? "Keine Treffer für diesen Filter" : "Noch keine Spieler"}
+          description={query.trim() ? undefined : "Lege einen Spieler manuell an oder importiere einen Kader."}
+          action={
+            !query.trim() ? (
+              <Button variant="outline" size="sm" render={<a href="/import" />}>
+                Kader importieren
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         <>
           <ul className="space-y-2 md:hidden">

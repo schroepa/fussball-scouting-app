@@ -179,11 +179,13 @@ export default function TeamReportForm({ reportId }: Props) {
 
   if (savedId) {
     return (
-      <Card className="max-w-xl mx-auto text-center">
+      <Card className="max-w-xl mx-auto text-center" role="status">
         <CardHeader>
           <CardTitle>{isEdit ? "Bericht aktualisiert" : "Team-Bericht gespeichert"}</CardTitle>
           <CardDescription>
-            Lokal gespeichert – Sync sobald wieder Netz da ist.
+            {isEdit
+              ? "Änderungen werden beim nächsten Sync hochgeladen."
+              : "Lokal gespeichert – Sync sobald wieder Netz da ist."}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2 justify-center pb-6">
@@ -221,7 +223,6 @@ export default function TeamReportForm({ reportId }: Props) {
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Kontext</CardTitle>
-              <CardDescription>Art, Verein und Bezug</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 pt-4">
               <div className="space-y-1.5">
@@ -361,7 +362,7 @@ export default function TeamReportForm({ reportId }: Props) {
             <Card size="sm" className="shadow-sm">
               <CardHeader className="border-b">
                 <CardTitle>Bewertungsraster</CardTitle>
-                <CardDescription>
+                <CardDescription className="hidden md:block">
                   1–10 · eigene Felder unter{" "}
                   <a
                     href="/einstellungen/attribute"
@@ -394,7 +395,7 @@ export default function TeamReportForm({ reportId }: Props) {
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Analyse</CardTitle>
-              <CardDescription>
+              <CardDescription className="hidden md:block">
                 Spielstil und Standards – am Desktop mit mehr Schreibfläche
               </CardDescription>
             </CardHeader>
@@ -448,7 +449,7 @@ export default function TeamReportForm({ reportId }: Props) {
         </p>
       )}
 
-      <div className="sticky bottom-[5.25rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
+      <div className="sticky bottom-[5.5rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
           <Button
             type="button"
@@ -461,7 +462,7 @@ export default function TeamReportForm({ reportId }: Props) {
           <Button
             type="submit"
             disabled={saving}
-            className="w-full sm:w-auto sm:min-w-[12rem]"
+            className="w-full sm:w-auto sm:min-w-[12rem] min-h-11"
             size="lg"
           >
             {saving ? "Speichere…" : isEdit ? "Bericht aktualisieren" : "Bericht speichern"}

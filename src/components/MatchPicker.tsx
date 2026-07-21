@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MatchFormationsEditor from "./MatchFormationsEditor";
 import MatchVideoEditor from "./MatchVideoEditor";
-import { selectClassName } from "@/lib/ui";
+import { Select } from "@/components/ui/select";
 
 interface MatchPickerProps {
   value: string | undefined;
@@ -169,8 +169,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
       ) : (
         <div className="space-y-2">
           {matches.length > 0 && !creating && (
-            <select
-              className={selectClassName}
+            <Select
               value={value ?? ""}
               onChange={(e) => e.target.value && onChange(e.target.value)}
             >
@@ -180,7 +179,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
                   {formatMatch(m)}
                 </option>
               ))}
-            </select>
+            </Select>
           )}
           {!creating ? (
             <Button

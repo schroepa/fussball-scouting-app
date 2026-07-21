@@ -106,7 +106,7 @@ export default function SyncStatusBar({
           type="button"
           onClick={() => setPanelOpen((o) => !o)}
           className={cn(
-            "rounded-md px-2 py-1 font-semibold min-h-8",
+            "rounded-md px-2.5 py-1.5 font-semibold min-h-9",
             stats.error > 0
               ? "bg-destructive text-destructive-foreground"
               : "bg-amber-500/90 text-foreground"
@@ -123,7 +123,7 @@ export default function SyncStatusBar({
           onClick={() => void runSync(stats.error > 0)}
           disabled={syncing || !online}
           className={cn(
-            "inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 font-medium min-h-8 disabled:opacity-40",
+            "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium min-h-9 disabled:opacity-40",
             hasErrors
               ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
               : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -155,7 +155,7 @@ export default function SyncStatusBar({
             </p>
             <button
               type="button"
-              className="rounded p-0.5 text-muted-foreground hover:bg-muted"
+              className="rounded p-1.5 text-muted-foreground hover:bg-muted"
               onClick={() => setPanelOpen(false)}
               aria-label="Schließen"
             >
@@ -197,13 +197,13 @@ export default function SyncStatusBar({
               type="button"
               disabled={syncing || !online || !isSupabaseConfigured}
               onClick={() => void runSync(true)}
-              className="rounded-md bg-primary px-2 py-1 font-medium text-primary-foreground disabled:opacity-40"
+              className="rounded-md bg-primary px-2.5 py-1.5 font-medium text-primary-foreground disabled:opacity-40 min-h-9"
             >
               Erneut versuchen
             </button>
             <a
               href="/hilfe"
-              className="rounded-md border border-border px-2 py-1 font-medium hover:bg-muted"
+              className="inline-flex items-center rounded-md border border-border px-2.5 py-1.5 font-medium hover:bg-muted min-h-9"
             >
               Hilfe
             </a>

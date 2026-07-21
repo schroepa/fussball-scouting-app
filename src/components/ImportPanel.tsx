@@ -20,7 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { selectClassName } from "@/lib/ui";
+import { Select } from "@/components/ui/select";
+import { EmptyState } from "@/components/EmptyState";
 
 type Tab = "transfermarkt" | "scraper" | "spieler" | "fussballde";
 
@@ -98,7 +99,7 @@ function FeedbackBanner({
           {error}
         </p>
       ) : null}
-      {status ? <p className="text-sm text-primary">{status}</p> : null}
+      {status ? <p className="text-sm text-primary" role="status">{status}</p> : null}
     </div>
   );
 }
@@ -461,18 +462,17 @@ export default function ImportPanel() {
               <div className="flex flex-wrap items-end gap-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="season">Saison</Label>
-                  <select
+                  <Select
                     id="season"
                     value={season}
                     onChange={(e) => setSeason(e.target.value)}
-                    className={selectClassName}
                   >
                     <option value="2627">2026/27</option>
                     <option value="2526">2025/26</option>
                     <option value="2425">2024/25</option>
                     <option value="2324">2023/24</option>
                     <option value="2223">2022/23</option>
-                  </select>
+                  </Select>
                 </div>
                 <Button
                   type="button"
@@ -603,10 +603,10 @@ export default function ImportPanel() {
           </div>
 
           {!result ? (
-            <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-10 text-center text-sm text-muted-foreground">
-              Treffer erscheinen hier. Am Desktop kannst du Kader in der Tabelle
-              prüfen und einzeln oder komplett übernehmen.
-            </div>
+            <EmptyState
+              title="Treffer erscheinen hier"
+              description="Am Desktop kannst du Kader in der Tabelle prüfen und einzeln oder komplett übernehmen."
+            />
           ) : result.players.length === 0 &&
             result.clubs.length === 0 &&
             result.matches.length === 0 ? (

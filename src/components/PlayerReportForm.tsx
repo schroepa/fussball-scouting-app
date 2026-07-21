@@ -169,11 +169,13 @@ export default function PlayerReportForm({ reportId }: Props) {
 
   if (savedId) {
     return (
-      <Card className="max-w-xl mx-auto text-center">
+      <Card className="max-w-xl mx-auto text-center" role="status">
         <CardHeader>
           <CardTitle>{isEdit ? "Bericht aktualisiert" : "Bericht gespeichert"}</CardTitle>
           <CardDescription>
-            Lokal gespeichert – Sync sobald wieder Netz da ist.
+            {isEdit
+              ? "Änderungen werden beim nächsten Sync hochgeladen."
+              : "Lokal gespeichert – Sync sobald wieder Netz da ist."}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2 justify-center pb-6">
@@ -212,7 +214,6 @@ export default function PlayerReportForm({ reportId }: Props) {
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Kontext</CardTitle>
-              <CardDescription>Spieler, Bezug und Rahmendaten</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 pt-4">
               <PlayerPicker value={playerId} onChange={(id) => setPlayerId(id)} />
@@ -246,30 +247,26 @@ export default function PlayerReportForm({ reportId }: Props) {
             </CardContent>
           </Card>
 
-          <Card size="sm" className="shadow-sm">
-            <CardHeader className="border-b">
-              <CardTitle>Empfehlung</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="grid grid-cols-1 gap-2">
-                {EMPFEHLUNG_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => setEmpfehlung(opt)}
-                    className={cn(
-                      "rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-colors",
-                      empfehlung === opt
-                        ? "border-primary bg-primary/10 text-foreground"
-                        : "border-border bg-background text-muted-foreground hover:bg-muted/50"
-                    )}
-                  >
-                    {EMPFEHLUNG_LABELS[opt]}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-border p-3 space-y-2 shadow-sm">
+            <p className="text-sm font-semibold">Empfehlung</p>
+            <div className="grid grid-cols-1 gap-2">
+              {EMPFEHLUNG_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setEmpfehlung(opt)}
+                  className={cn(
+                    "rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                    empfehlung === opt
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-background text-muted-foreground hover:bg-muted/50"
+                  )}
+                >
+                  {EMPFEHLUNG_LABELS[opt]}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <Card size="sm" className="shadow-sm lg:block">
             <CardHeader className="border-b">
@@ -293,7 +290,7 @@ export default function PlayerReportForm({ reportId }: Props) {
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Bewertungsraster</CardTitle>
-              <CardDescription>
+              <CardDescription className="hidden md:block">
                 1–10 · eigene Felder unter{" "}
                 <a
                   href="/einstellungen/attribute"
@@ -333,7 +330,7 @@ export default function PlayerReportForm({ reportId }: Props) {
           <Card size="sm" className="shadow-sm">
             <CardHeader className="border-b">
               <CardTitle>Notizen</CardTitle>
-              <CardDescription>Zum Nachbereiten am Rechner gedacht</CardDescription>
+              <CardDescription className="hidden md:block">Zum Nachbereiten am Rechner gedacht</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -376,7 +373,7 @@ export default function PlayerReportForm({ reportId }: Props) {
         </p>
       )}
 
-      <div className="sticky bottom-[5.25rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
+      <div className="sticky bottom-[5.5rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 max-w-7xl mx-auto">
           <Button
             type="button"
@@ -389,7 +386,7 @@ export default function PlayerReportForm({ reportId }: Props) {
           <Button
             type="submit"
             disabled={saving}
-            className="sm:w-auto w-full sm:min-w-[12rem]"
+            className="sm:w-auto w-full sm:min-w-[12rem] min-h-11"
             size="lg"
           >
             {saving ? "Speichere…" : isEdit ? "Bericht aktualisieren" : "Bericht speichern"}

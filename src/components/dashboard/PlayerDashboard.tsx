@@ -32,8 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { selectClassName } from "@/lib/ui";
 
 const EMPFEHLUNG_OPTIONS: Empfehlung[] = [
   "unbedingt_beobachten",
@@ -201,8 +201,7 @@ export default function PlayerDashboard() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <select
-              className={selectClassName}
+            <Select
               value={position}
               onChange={(e) => setPosition(e.target.value)}
             >
@@ -212,9 +211,8 @@ export default function PlayerDashboard() {
                   {p}
                 </option>
               ))}
-            </select>
-            <select
-              className={selectClassName}
+            </Select>
+            <Select
               value={age}
               onChange={(e) => setAge(e.target.value as AgeBucket | "")}
             >
@@ -224,9 +222,8 @@ export default function PlayerDashboard() {
                   {AGE_BUCKET_LABELS[k]}
                 </option>
               ))}
-            </select>
-            <select
-              className={selectClassName}
+            </Select>
+            <Select
               value={liga}
               onChange={(e) => setLiga(e.target.value)}
             >
@@ -236,13 +233,13 @@ export default function PlayerDashboard() {
                   {l}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <label className="text-sm text-muted-foreground flex items-center gap-2">
               Min. Gesamt
-              <select
-                className={cn(selectClassName, "h-8 w-auto")}
+              <Select
+                className="h-8 w-auto"
                 value={minGesamt}
                 onChange={(e) => setMinGesamt(Number(e.target.value))}
               >
@@ -252,7 +249,7 @@ export default function PlayerDashboard() {
                     ≥ {n}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <div className="flex flex-wrap gap-1.5">
               <Button
