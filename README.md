@@ -171,17 +171,20 @@ supabase/         setup.sql + Ops-Migrationen
 | Datentrennung Scout | erledigt (App) – RLS-SQL ausführen |
 | Dashboard / Vergleich | erledigt |
 | Formationen, VEO-Link, Custom-Felder | erledigt (SQL ausführen) |
-| Onboarding + Hilfe | erledigt – Inhalte werden laufend verfeinert |
-| UI-Radien (max. 16px außen) | in Arbeit / siehe `docs/RADIUS.md` |
+| Onboarding + Hilfe | erledigt |
+| Berichte bearbeiten | erledigt (`/reports/.../edit`) |
+| UI-Radien (max. 16px außen) | erledigt – `docs/RADIUS.md` |
+| Qualität / Security / Tests | erledigt (Vitest + Playwright-Smoke, CSP, Rate-Limit) |
 
 Ausführlich: [`docs/PLANNING.md`](docs/PLANNING.md).
 
 ### Qualität, Tests, Security
 
 - Unit-Tests: `npm test` (Vitest)
+- E2E-Smoke: `npm run test:e2e` (Playwright)
 - CI: `.github/workflows/ci.yml`
-- Konventionen (IDs/Semantik): `docs/CONVENTIONS.md`
-- Security-Checkliste: `docs/SECURITY.md`
+- Konventionen: `docs/CONVENTIONS.md` · Radien: `docs/RADIUS.md`
+- Security: `docs/SECURITY.md`
 
 ---
 

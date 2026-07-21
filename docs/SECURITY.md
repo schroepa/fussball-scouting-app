@@ -40,8 +40,12 @@ Lebende Checkliste für die Fussball-Scouting-App. Privacy (Scout-only Daten) un
 - **CSP-Nonces** für Theme-Inline-Script + Islands (Phase 2 CSP-Hardening)
 - Cookie-basiertes SSR Auth-Gate (Phase 2, s.o.)
 - Regelmäßige Dependency-Audits (`npm audit`) in CI
-- Optional: E2E-Smoke (Login, Offline-Speichern) mit Playwright
 - Rate-Limiter auf Redis/Shared-Store für Multi-Instanz-Deployments
+
+## Tests
+
+- Unit: `npm test` (Vitest)
+- E2E-Smoke: `npm run test:e2e` (Playwright – Übersicht, Login, Hilfe)
 
 ## Meldewege
 
