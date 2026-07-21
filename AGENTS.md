@@ -21,6 +21,11 @@ Pro-Account nutzen für Blocks/Themes/MCP:
 5. MCP-Workflow-Instructions liegen unter `.github/instructions/shadcn-studio.instructions.md`
    und als Cursor-Rule unter `.cursor/rules/shadcn-studio.mdc`.
 
+## Roadmap (Kurz)
+
+Siehe `docs/PLANNING.md` v3. Reihenfolge: **M3.5 Privacy** → M9 Hilfe → M7 Formationen → M8 VEO-Link.  
+Nach Privacy-Deploy: `supabase/rls_owner_scoped.sql` im Supabase SQL-Editor ausführen.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build
