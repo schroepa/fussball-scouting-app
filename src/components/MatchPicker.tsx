@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { createMatch, listMatches } from "../lib/local/repository";
 import type { Match } from "../lib/types";
 import { matchHasFormations, summarizeMatchFormations } from "../lib/match/formations";
+import { matchHasVideo, summarizeMatchVideo } from "../lib/match/video";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MatchFormationsEditor from "./MatchFormationsEditor";
+import MatchVideoEditor from "./MatchVideoEditor";
 
 interface MatchPickerProps {
   value: string | undefined;
@@ -17,10 +19,12 @@ function formatMatch(m: Match): string {
   return `${m.heimClubName} vs. ${m.gastClubName} (${date})`;
 }
 
+type Panel = "none" | "formations" | "video";
+
 export default function MatchPicker({ value, onChange }: MatchPickerProps) {
   const [matches, setMatches] = useState<Match[]>([]);
   const [creating, setCreating] = useState(false);
-  const [editFormations, setEditFormations] = useState(false);
+  const [panel, setPanel] = useState<Panel>("none");
   const [heim, setHeim] = useState("");
   const [gast, setGast] = useState("");
   const [datum, setDatum] = useState(() => new Date().toISOString().slice(0, 10));
@@ -43,7 +47,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
   );
 
   useEffect(() => {
-    setEditFormations(false);
+    setPanel("none");
   }, [value]);
 
   const handleCreate = async () => {
@@ -54,6 +58,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
       datum: new Date(datum).toISOString(),
       wettbewerb: wettbewerb.trim() || undefined,
       phases: [],
+      videoMarkers: [],
     });
     await reload();
     onChange(match.id);
@@ -61,7 +66,7 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
     setHeim("");
     setGast("");
     setWettbewerb("");
-    setEditFormations(true);
+    setPanel("formations");
   };
 
   return (
@@ -83,32 +88,82 @@ export default function MatchPicker({ value, onChange }: MatchPickerProps) {
             </Button>
           </div>
 
-          {matchHasFormations(selected) && !editFormations ? (
-            <p className="text-xs text-muted-foreground px-1">
-              {summarizeMatchFormations(selected)}
-            </p>
+          {panel === "none" ? (
+            <div className="space-y-1.5 px-0.5">
+              {matchHasFormations(selected) ? (
+                <p className="text-xs text-muted-foreground">
+                  {summarizeMatchFormations(selected)}
+                </p>
+              ) : null}
+              {matchHasVideo(selected) ? (
+                <p className="text-xs text-muted-foreground">
+                  {summarizeMatchVideo(selected)}
+                </p>
+              ) : null}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPanel("formations")}
+                >
+                  Formationen & Phasen
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPanel("video")}
+                >
+                  Video / VEO
+                </Button>
+              </div>
+            </div>
           ) : null}
 
-          {!editFormations ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-full sm:w-auto"
-              onClick={() => setEditFormations(true)}
-            >
-              Formationen & Phasen
-            </Button>
-          ) : (
-            <MatchFormationsEditor
-              match={selected}
-              compact
-              onSaved={async (m) => {
-                await reload();
-                onChange(m.id);
-              }}
-            />
-          )}
+          {panel === "formations" ? (
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="px-0 h-auto"
+                onClick={() => setPanel("none")}
+              >
+                ← Zurück
+              </Button>
+              <MatchFormationsEditor
+                match={selected}
+                compact
+                onSaved={async (m) => {
+                  await reload();
+                  onChange(m.id);
+                }}
+              />
+            </div>
+          ) : null}
+
+          {panel === "video" ? (
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="px-0 h-auto"
+                onClick={() => setPanel("none")}
+              >
+                ← Zurück
+              </Button>
+              <MatchVideoEditor
+                match={selected}
+                compact
+                onSaved={async (m) => {
+                  await reload();
+                  onChange(m.id);
+                }}
+              />
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="space-y-2">

@@ -188,6 +188,7 @@ export async function createMatch(
     ...input,
     ownerScoutId,
     phases: input.phases ?? [],
+    videoMarkers: input.videoMarkers ?? [],
     id: newId(),
     syncStatus: "pending",
     updatedAt: now,

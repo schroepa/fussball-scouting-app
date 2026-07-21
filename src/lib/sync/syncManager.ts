@@ -14,6 +14,7 @@ import type {
   TeamReport,
 } from "../types";
 import { parsePhasesFromRemote } from "../match/formations";
+import { parseVideoMarkersFromRemote } from "../match/video";
 
 export interface SyncResult {
   ok: boolean;
@@ -197,6 +198,9 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       formation_gast_off: m.formationGastOff ?? null,
       formation_gast_def: m.formationGastDef ?? null,
       phases: m.phases ?? [],
+      video_url: m.videoUrl ?? null,
+      video_ref: m.videoRef ?? null,
+      video_markers: m.videoMarkers ?? [],
       external_source: m.externalSource ?? null,
       external_ref: m.externalRef ?? null,
       created_by: m.ownerScoutId ?? session.scout.id,
@@ -384,6 +388,9 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
       formationGastOff: (row.formation_gast_off as string | null) ?? undefined,
       formationGastDef: (row.formation_gast_def as string | null) ?? undefined,
       phases: parsePhasesFromRemote(row.phases),
+      videoUrl: (row.video_url as string | null) ?? undefined,
+      videoRef: (row.video_ref as string | null) ?? undefined,
+      videoMarkers: parseVideoMarkersFromRemote(row.video_markers),
       externalSource: (row.external_source as string | null) ?? undefined,
       externalRef: (row.external_ref as string | null) ?? undefined,
       ownerScoutId: (row.created_by as string | null) ?? session.scout.id,

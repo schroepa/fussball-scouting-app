@@ -83,6 +83,17 @@ export interface MatchPhase {
   notiz?: string;
 }
 
+/** Zeitmarke für Video-/VEO-Studium (M8). */
+export interface MatchVideoMarker {
+  id: string;
+  /** Spielminute (optional). */
+  abMinute?: number;
+  /** Freier Timecode, z. B. 00:12:34 oder VEO-Marker. */
+  timecode?: string;
+  label?: string;
+  notiz?: string;
+}
+
 /** Ein Spiel (optional als Bezug für Berichte). */
 export interface Match {
   id: string;
@@ -100,6 +111,12 @@ export interface Match {
   formationGastDef?: string;
   /** Systemwechsel / Phasen chronologisch nach abMinute. */
   phases?: MatchPhase[];
+  /** Externer Video-Link (VEO o. Ä.) – kein Rohvideo-Upload. */
+  videoUrl?: string;
+  /** Kurzbezeichnung / VEO-Referenz. */
+  videoRef?: string;
+  /** Zeitmarken / Szenen für Video-Studium. */
+  videoMarkers?: MatchVideoMarker[];
   externalSource?: string;
   externalRef?: string;
   /** Scout, dem dieses Spiel gehört (Datentrennung). */

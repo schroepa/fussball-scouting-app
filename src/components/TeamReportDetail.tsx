@@ -4,6 +4,7 @@ import { getClub, getMatch, getMediaBlobUrl, getTeamReport } from "../lib/local/
 import type { Club, Match, Player, TeamReport } from "../lib/types";
 import { BerichtsartBadge, BezugstypBadge, SyncStatusBadge } from "./ReportBadges";
 import MatchFormationsSummary from "./MatchFormationsSummary";
+import MatchVideoSummary from "./MatchVideoSummary";
 import { downloadJson } from "../lib/export/json";
 import { exportTeamReportPdf } from "../lib/export/pdf";
 import { Button } from "@/components/ui/button";
@@ -127,6 +128,7 @@ export default function TeamReportDetail({ reportId }: Props) {
           </Card>
 
           <MatchFormationsSummary match={match} />
+          <MatchVideoSummary match={match} />
 
           {keyPlayers.length > 0 && (
             <Card size="sm" className="shadow-sm">

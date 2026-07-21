@@ -7,6 +7,7 @@ export type HelpSectionId =
   | "mobil-desktop"
   | "berichte"
   | "formationen"
+  | "video"
   | "import"
   | "dashboard"
   | "faq";
@@ -108,7 +109,7 @@ export const helpSections: HelpSection[] = [
     paragraphs: [
       "Spielfeldrand: schlanke Formulare, Bottom-Navigation, schnelle Erfassung.",
       "Nachbearbeitung Zuhause: Sidebar, breitere Tabellen, Dashboard und Export.",
-      "Video-Studium (geplant): VEO-/Video-Link und Timecodes am Spiel bzw. Bericht – ohne Rohvideo-Upload.",
+      "Video-Studium: Am Spiel einen VEO-/Video-Link und Zeitmarken hinterlegen – ohne Rohvideo-Upload.",
     ],
   },
   {
@@ -146,6 +147,20 @@ export const helpSections: HelpSection[] = [
     paragraphs: [
       "Unter Import suchst du Vereine/Spieler und übernimmst Stammdaten. Deduplizierung gilt pro Scout: was du schon importiert hast, wird nicht doppelt angelegt.",
       "Jugendkader auf fussball.de sind oft gesperrt – dann Namensliste einfügen oder manuell anlegen.",
+    ],
+  },
+  {
+    id: "video",
+    title: "Video / VEO",
+    summary: "Link und Zeitmarken am Spiel – kein Upload.",
+    paragraphs: [
+      "Am ausgewählten Spiel unter „Video / VEO“ hinterlegst du einen Link (VEO, YouTube, Drive, …) und optional eine Bezeichnung.",
+      "Zeitmarken mit Spielminute und/oder Timecode helfen beim Nachstudium. Rohvideos werden nicht in der Cloud gespeichert.",
+    ],
+    bullets: [
+      "Nur Link/Referenz, kein Storage-Verbrauch durch Videodateien",
+      "Marken erscheinen in der Berichtsdetailansicht",
+      "Später optional: Event-Import aus VEO-Export – nie automatische Gesamtnote",
     ],
   },
   {

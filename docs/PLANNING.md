@@ -68,7 +68,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | M4 | Dashboards | erledigt (MVP) | Spieler/Team/Vergleich/Verlauf |
 | M5 | Export | erledigt | PDF + JSON |
 | **M7** | **Match-Phasen & Formationen** | **erledigt (MVP)** | Heim/Gast × off/def, Phasen, Editor am Spiel |
-| **M8** | **VEO / Video-Bezug** | geplant | Link + Timecode; später Events; keine Auto-Note |
+| **M8** | **VEO / Video-Bezug** | **erledigt (MVP Phase 1)** | Link + Ref + Zeitmarken am Match |
 | **M9** | **Onboarding + FAQ/Tutorial** | **erledigt (MVP)** | First-Run, `/hilfe`, FAQ |
 | M6 | Custom-Attribute-UI | später | dynamische Felder |
 | M3b | Sync-Retry-UI | parallel/klein | klarere Fehler/Retry |
@@ -78,7 +78,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 1. ~~**M3.5 Privacy**~~ – App-seitig erledigt; **`supabase/rls_owner_scoped.sql` in Supabase ausführen**
 2. ~~**M9 Onboarding/FAQ**~~ – `/hilfe` + First-Run
 3. ~~**M7 Match-Phasen/Formationen**~~ – Editor am Spiel; **`supabase/match_formations.sql` ausführen**
-4. **M8 VEO-Link + Timestamp** – Video-Studium
+4. ~~**M8 VEO-Link + Timestamp**~~ – Phase 1; **`supabase/match_video.sql` ausführen**
 5. M3b Retry-UI, M6 Custom-Felder, Import-Feinschliff
 
 ## 7. M7 – Match-Phasen & Formationen
@@ -90,12 +90,13 @@ Am **Match** (zusätzlich zur optionalen Kurznotiz `TeamReport.formation`):
 - UI: Chips + Editor im MatchPicker; Zusammenfassung in Berichtsdetails
 - SQL: `supabase/match_formations.sql`
 
-## 8. M8 – VEO (Skizze)
+## 8. M8 – VEO / Video-Bezug
 
-- Phase 1: `videoUrl` / `veoRef` + Timestamps in Notizen/Events  
+- Phase 1 (erledigt): `videoUrl`, `videoRef`, `videoMarkers[]` am Match; UI im MatchPicker; Anzeige in Berichten  
 - Phase 2: Event-Import wenn Export/API klar  
 - Phase 3 (optional): Assistenz – **nie** automatische Gesamtbewertung  
 - Kein Upload von VEO-Rohvideo in Supabase Storage  
+- SQL: `supabase/match_video.sql`
 
 ## 9. M9 – Onboarding & Hilfe
 

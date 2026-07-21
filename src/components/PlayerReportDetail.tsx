@@ -10,6 +10,7 @@ import type { AttributeDefinition, Match, Player, PlayerReport } from "../lib/ty
 import { EMPFEHLUNG_LABELS } from "../lib/types";
 import { BezugstypBadge, SyncStatusBadge } from "./ReportBadges";
 import MatchFormationsSummary from "./MatchFormationsSummary";
+import MatchVideoSummary from "./MatchVideoSummary";
 import { downloadJson } from "../lib/export/json";
 import { exportPlayerReportPdf } from "../lib/export/pdf";
 import { Button } from "@/components/ui/button";
@@ -150,6 +151,7 @@ export default function PlayerReportDetail({ reportId }: Props) {
           </Card>
 
           <MatchFormationsSummary match={match} />
+          <MatchVideoSummary match={match} />
 
           {photoUrls.length > 0 && (
             <Card size="sm" className="shadow-sm">
