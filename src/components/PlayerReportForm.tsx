@@ -309,7 +309,7 @@ export default function PlayerReportForm() {
         </p>
       )}
 
-      <div className="sticky bottom-[4.5rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
+      <div className="sticky bottom-[5.25rem] md:bottom-0 z-10 -mx-4 px-4 py-3 md:mx-0 md:px-0 bg-background/95 backdrop-blur border-t border-border md:border-0 md:bg-transparent md:backdrop-blur-none md:static md:pt-0">
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 max-w-7xl mx-auto">
           <Button
             type="button"

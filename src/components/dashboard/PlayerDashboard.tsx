@@ -33,6 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { selectClassName } from "@/lib/ui";
 
 const EMPFEHLUNG_OPTIONS: Empfehlung[] = [
   "unbedingt_beobachten",
@@ -201,7 +202,7 @@ export default function PlayerDashboard() {
               onChange={(e) => setQuery(e.target.value)}
             />
             <select
-              className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+              className={selectClassName}
               value={position}
               onChange={(e) => setPosition(e.target.value)}
             >
@@ -213,7 +214,7 @@ export default function PlayerDashboard() {
               ))}
             </select>
             <select
-              className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+              className={selectClassName}
               value={age}
               onChange={(e) => setAge(e.target.value as AgeBucket | "")}
             >
@@ -225,7 +226,7 @@ export default function PlayerDashboard() {
               ))}
             </select>
             <select
-              className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+              className={selectClassName}
               value={liga}
               onChange={(e) => setLiga(e.target.value)}
             >
@@ -241,7 +242,7 @@ export default function PlayerDashboard() {
             <label className="text-sm text-muted-foreground flex items-center gap-2">
               Min. Gesamt
               <select
-                className="h-8 rounded-2xl border border-transparent bg-input/50 px-2 text-sm"
+                className={cn(selectClassName, "h-8 w-auto")}
                 value={minGesamt}
                 onChange={(e) => setMinGesamt(Number(e.target.value))}
               >

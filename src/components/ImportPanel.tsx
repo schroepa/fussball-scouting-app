@@ -12,13 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Table,
   TableBody,
   TableCell,
@@ -26,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { selectClassName } from "@/lib/ui";
 
 type Tab = "transfermarkt" | "scraper" | "spieler" | "fussballde";
 
@@ -417,15 +411,12 @@ export default function ImportPanel() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <Card size="sm" className="shadow-sm hidden md:block">
-        <CardHeader>
-          <CardTitle>Import-Arbeitsplatz</CardTitle>
-          <CardDescription>
-            Links Quelle wählen, rechts Treffer prüfen und übernehmen – ideal am
-            Desktop nach dem Spieltag.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="hidden md:block space-y-1">
+        <p className="text-sm text-muted-foreground">
+          Quelle wählen, Treffer prüfen und übernehmen – ideal am Desktop nach
+          dem Spieltag.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6">
         <div className="xl:col-span-5 space-y-4">
@@ -477,7 +468,7 @@ export default function ImportPanel() {
                     id="season"
                     value={season}
                     onChange={(e) => setSeason(e.target.value)}
-                    className="h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm"
+                    className={selectClassName}
                   >
                     <option value="2627">2026/27</option>
                     <option value="2526">2025/26</option>

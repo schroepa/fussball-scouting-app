@@ -52,7 +52,7 @@
   --font-source-serif-4: var(--font-geist-sans);
   --font-jetbrains-mono: var(--font-geist-mono);
 
-  --radius: 0.75rem;
+  --radius: 0.5rem;
   --color-pitch: var(--primary);
 
   --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
@@ -207,33 +207,34 @@
     line-height: 1.65;
   }
 
+  /* Page titles come from Layout; keep prose headings calmer so they don't fight chrome */
   h1 {
     font-family: var(--font-heading);
-    font-size: 2.25rem;
-    line-height: 1.2;
-    letter-spacing: -0.025em;
-    font-weight: 700;
-  }
-
-  h2 {
-    font-family: var(--font-heading);
-    font-size: 1.875rem;
+    font-size: 1.5rem;
     line-height: 1.25;
     letter-spacing: -0.02em;
     font-weight: 600;
   }
 
-  h3 {
+  h2 {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     line-height: 1.3;
     letter-spacing: -0.015em;
     font-weight: 600;
   }
 
+  h3 {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+
   h4 {
     font-family: var(--font-heading);
-    font-size: 1.25rem;
+    font-size: 1rem;
     line-height: 1.4;
     letter-spacing: -0.01em;
     font-weight: 600;
@@ -241,8 +242,8 @@
 
   h5 {
     font-family: var(--font-heading);
-    font-size: 1.125rem;
-    line-height: 1.5;
+    font-size: 0.9375rem;
+    line-height: 1.45;
     letter-spacing: -0.01em;
     font-weight: 600;
   }
