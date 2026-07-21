@@ -1,14 +1,13 @@
 # Radius-System
 
-Werkzeug-UI: eher eckig als „pillig“. Verschachtelte Radien folgen der Konzentrizitätsregel.
+Werkzeug-UI: eher eckig als „pillig“. **Äußere Surfaces max. 16px.**
 
 ## Regel
 
 ```
 R_außen ≈ R_innen + Padding
+R_außen ≤ 16px
 ```
-
-Beispiel: Card `rounded-xl` (12px) + Content-Padding `0.75rem` (12px) → innere Rows `rounded-md` (6px) liegen nah an der Idealform (`6 + 12 = 18`, optisch abgestimmt durch geringeres Card-Spacing `sm`).
 
 ## Tokens (`global.css`)
 
@@ -17,17 +16,19 @@ Beispiel: Card `rounded-xl` (12px) + Content-Padding `0.75rem` (12px) → innere
 | `--radius-sm` | 4px | feine Chips |
 | `--radius-md` | 6px | **innere** Rows / nested Surfaces |
 | `--radius-lg` | 8px | Buttons, Inputs, Selects |
-| `--radius-xl` | 12px | **äußere** Cards / Panels |
-| `--radius-2xl`…`4xl` | 12px (gekappt) | Alt-Klassen dürfen nicht aufblasen |
+| `--radius-outer` / `--radius-xl` | **16px** | **äußere** Cards / Panels (Maximum) |
+| `--radius-2xl`…`4xl` | **16px** (gekappt) | verhindert alte 31px-Pills (`0.75rem × 2.6`) |
+
+Cards setzen den Radius zusätzlich über `[data-slot="card"] { border-radius: var(--radius-outer) }`.
 
 ## Utilities
 
-- `.surface-nested-outer` → `rounded-xl`
-- `.surface-nested-inner` → `rounded-md`
+- `.surface-nested-outer` → `var(--radius-outer)` (16px)
+- `.surface-nested-inner` → `rounded-md` (6px)
 
-## Checkliste bei neuen UI-Flächen
+## Checkliste
 
-1. Äußere Container: `rounded-xl` (oder Card-Primitive)
-2. Inhalt mit eigenem Border: `rounded-md`, Padding der Parent-Card beachten
-3. Keine `rounded-full` / `rounded-3xl` für Rechteck-Surfaces (außer echte Pills/Avatare)
-4. Buttons/Inputs immer `rounded-lg`
+1. Äußere Container: Card-Primitive oder max. 16px
+2. Inhalt mit Border: `rounded-md`
+3. Keine echten `rounded-full`-Rechtecke (nur Avatare/Progress)
+4. Buttons/Inputs: `rounded-lg` (8px)
