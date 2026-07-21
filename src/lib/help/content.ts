@@ -6,6 +6,7 @@ export type HelpSectionId =
   | "offline-sync"
   | "mobil-desktop"
   | "berichte"
+  | "attribute"
   | "formationen"
   | "video"
   | "import"
@@ -124,6 +125,16 @@ export const helpSections: HelpSection[] = [
       "PDF- und JSON-Export in der Berichtsdetailansicht",
       "Listen filtern und Berichte nachbereiten",
       "Formationen Heim/Gast × off/def und Phasen am Spiel (nicht nur Freitext am Team-Bericht)",
+      "Eigene Bewertungsfelder unter Einstellungen → Bewertungsfelder",
+    ],
+  },
+  {
+    id: "attribute",
+    title: "Bewertungsfelder",
+    summary: "Standard-Raster und eigene Kategorien.",
+    paragraphs: [
+      "Jeder Spielerbericht nutzt Technik, Taktik, Athletik und Mentalität. Unter Bewertungsfelder legst du zusätzliche Skalen an (z. B. Kopfballspiel) – sie erscheinen automatisch im Formular.",
+      "Custom-Felder gehören nur dir und synchronisieren geräteübergreifend.",
     ],
   },
   {

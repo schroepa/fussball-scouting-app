@@ -3,6 +3,9 @@ import { getCurrentSession } from "../auth/session";
 import { db } from "../local/db";
 import { purgeForeignLocalData } from "../local/repository";
 import type {
+  AttributeDefinition,
+  AttributeAppliesTo,
+  AttributeType,
   Bezugstyp,
   Berichtsart,
   Club,
@@ -255,6 +258,8 @@ export async function pushPendingChanges(): Promise<SyncResult> {
     }))
   );
 
+  track(await syncCustomAttributes(session.scout.id));
+
   if (failed === 0) {
     return {
       ok: true,
@@ -458,6 +463,8 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
     }))
   );
 
+  track(await pullCustomAttributes(session.scout.id));
+
   if (failed === 0) {
     return {
       ok: true,
@@ -526,6 +533,109 @@ async function reassignPendingReportsToScout(scoutId: string): Promise<void> {
         })
       ),
   ]);
+}
+
+async function syncCustomAttributes(
+  scoutId: string
+): Promise<{ synced: number; failed: number; error?: string }> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { synced: 0, failed: 0 };
+
+  const pending = (await db.attributeDefinitions.toArray()).filter(
+    (a) =>
+      a.istCustom &&
+      (a.syncStatus === "pending" || a.syncStatus === "error") &&
+      (!a.ownerScoutId || a.ownerScoutId === scoutId)
+  );
+  if (pending.length === 0) return { synced: 0, failed: 0 };
+
+  let synced = 0;
+  let failed = 0;
+  let firstError: string | undefined;
+
+  for (const a of pending) {
+    const { error } = await supabase.from("attribute_definitions").upsert(
+      {
+        id: a.id,
+        gilt_fuer: a.giltFuer,
+        key: a.key,
+        name: a.name,
+        typ: a.typ,
+        skala_min: a.skalaMin ?? null,
+        skala_max: a.skalaMax ?? null,
+        auswahl_optionen: a.auswahlOptionen ?? null,
+        gruppe: a.gruppe ?? null,
+        ist_custom: true,
+        reihenfolge: a.reihenfolge,
+        created_by: a.ownerScoutId ?? scoutId,
+        created_at: a.createdAt ?? new Date().toISOString(),
+      },
+      { onConflict: "id" }
+    );
+    if (error) {
+      failed += 1;
+      if (!firstError) firstError = `attribute_definitions: ${error.message}`;
+      await db.attributeDefinitions.update(a.id, { syncStatus: "error" });
+      continue;
+    }
+    await db.attributeDefinitions.update(a.id, { syncStatus: "synced" });
+    synced += 1;
+  }
+
+  return { synced, failed, error: firstError };
+}
+
+async function pullCustomAttributes(
+  scoutId: string
+): Promise<{ pulled: number; failed: number; error?: string }> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { pulled: 0, failed: 0 };
+
+  const { data, error } = await supabase
+    .from("attribute_definitions")
+    .select("*")
+    .eq("ist_custom", true)
+    .eq("created_by", scoutId);
+
+  if (error) {
+    return {
+      pulled: 0,
+      failed: 1,
+      error: `attribute_definitions: ${error.message}`,
+    };
+  }
+
+  let pulled = 0;
+  for (const row of data ?? []) {
+    const id = String(row.id);
+    const local = await db.attributeDefinitions.get(id);
+    if (local && (local.syncStatus === "pending" || local.syncStatus === "error")) {
+      continue;
+    }
+    const mapped: AttributeDefinition = {
+      id,
+      giltFuer: row.gilt_fuer as AttributeAppliesTo,
+      key: String(row.key),
+      name: String(row.name),
+      typ: row.typ as AttributeType,
+      skalaMin: (row.skala_min as number | null) ?? undefined,
+      skalaMax: (row.skala_max as number | null) ?? undefined,
+      auswahlOptionen: Array.isArray(row.auswahl_optionen)
+        ? (row.auswahl_optionen as string[])
+        : undefined,
+      gruppe: (row.gruppe as string | null) ?? undefined,
+      istCustom: true,
+      reihenfolge: Number(row.reihenfolge ?? 100),
+      ownerScoutId: (row.created_by as string | null) ?? scoutId,
+      syncStatus: "synced",
+      updatedAt: iso(row.created_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    };
+    await db.attributeDefinitions.put(mapped);
+    pulled += 1;
+  }
+
+  return { pulled, failed: 0 };
 }
 
 async function syncTable<T extends { id: string; syncStatus: string }>(

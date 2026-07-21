@@ -3,8 +3,7 @@ import RatingSlider from "./RatingSlider";
 import CameraCapture, { type CapturedPhoto } from "./CameraCapture";
 import PlayerPicker from "./PlayerPicker";
 import BezugstypSelector from "./BezugstypSelector";
-import { db, ensureSeeded } from "../lib/local/db";
-import { createPlayerReport, saveMediaBlob } from "../lib/local/repository";
+import { createPlayerReport, listAttributeDefinitions, saveMediaBlob } from "../lib/local/repository";
 import type {
   AttributeDefinition,
   Bezugstyp,
@@ -52,11 +51,7 @@ export default function PlayerReportForm() {
 
   useEffect(() => {
     (async () => {
-      await ensureSeeded();
-      const defs = await db.attributeDefinitions
-        .where("giltFuer")
-        .equals("player")
-        .sortBy("reihenfolge");
+      const defs = await listAttributeDefinitions("player");
       setAttributes(defs);
     })();
   }, []);
@@ -232,7 +227,13 @@ export default function PlayerReportForm() {
             <CardHeader className="border-b">
               <CardTitle>Bewertungsraster</CardTitle>
               <CardDescription>
-                1–10 · am Desktop nebeneinander zum schnellen Nachjustieren
+                1–10 · eigene Felder unter{" "}
+                <a
+                  href="/einstellungen/attribute"
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  Bewertungsfelder
+                </a>
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-4">

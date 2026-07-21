@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { db } from "../lib/local/db";
 import {
   getMatch,
   getMediaBlobUrl,
   getPlayerReport,
   getPlayer,
+  listAttributeDefinitions,
 } from "../lib/local/repository";
 import type { AttributeDefinition, Match, Player, PlayerReport } from "../lib/types";
 import { EMPFEHLUNG_LABELS } from "../lib/types";
@@ -43,7 +43,7 @@ export default function PlayerReportDetail({ reportId }: Props) {
       setReport(r);
       const [p, defs] = await Promise.all([
         getPlayer(r.playerId),
-        db.attributeDefinitions.where("giltFuer").equals("player").toArray(),
+        listAttributeDefinitions("player"),
       ]);
       setPlayer(p);
       setAttributes(defs);

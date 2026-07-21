@@ -200,6 +200,11 @@ export interface AttributeDefinition {
   gruppe?: string;
   istCustom: boolean;
   reihenfolge: number;
+  /** Nur bei eigenen Custom-Feldern (Datentrennung). */
+  ownerScoutId?: string;
+  syncStatus?: SyncStatus;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 export interface Scout {

@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 import { db, ensureSeeded, type LocalMediaBlob } from "./db";
 import { getCurrentSession } from "../auth/session";
 import type {
+  AttributeDefinition,
+  AttributeAppliesTo,
   Club,
   Match,
   MediaRef,
@@ -9,6 +11,7 @@ import type {
   PlayerReport,
   TeamReport,
 } from "../types";
+import { slugifyAttributeKey } from "../attributeKey";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -383,6 +386,8 @@ export async function getSyncQueueStats(): Promise<SyncQueueStats> {
     prE,
     trP,
     trE,
+    attrP,
+    attrE,
   ] = await Promise.all([
     db.clubs.where("syncStatus").equals("pending").toArray(),
     db.clubs.where("syncStatus").equals("error").toArray(),
@@ -394,6 +399,8 @@ export async function getSyncQueueStats(): Promise<SyncQueueStats> {
     db.playerReports.where("syncStatus").equals("error").toArray(),
     db.teamReports.where("syncStatus").equals("pending").toArray(),
     db.teamReports.where("syncStatus").equals("error").toArray(),
+    db.attributeDefinitions.where("syncStatus").equals("pending").toArray(),
+    db.attributeDefinitions.where("syncStatus").equals("error").toArray(),
   ]);
 
   const own = <T extends { ownerScoutId?: string; scoutId?: string }>(
@@ -411,13 +418,15 @@ export async function getSyncQueueStats(): Promise<SyncQueueStats> {
     own(playersP, "owner") +
     own(matchesP, "owner") +
     own(prP, "scout") +
-    own(trP, "scout");
+    own(trP, "scout") +
+    own(attrP, "owner");
   const error =
     own(clubsE, "owner") +
     own(playersE, "owner") +
     own(matchesE, "owner") +
     own(prE, "scout") +
-    own(trE, "scout");
+    own(trE, "scout") +
+    own(attrE, "owner");
 
   return { pending, error, total: pending + error };
 }
@@ -453,12 +462,13 @@ export async function resetSyncErrorsToPending(): Promise<number> {
     }
   };
 
-  const [clubsE, playersE, matchesE, prE, trE] = await Promise.all([
+  const [clubsE, playersE, matchesE, prE, trE, attrE] = await Promise.all([
     db.clubs.where("syncStatus").equals("error").toArray(),
     db.players.where("syncStatus").equals("error").toArray(),
     db.matches.where("syncStatus").equals("error").toArray(),
     db.playerReports.where("syncStatus").equals("error").toArray(),
     db.teamReports.where("syncStatus").equals("error").toArray(),
+    db.attributeDefinitions.where("syncStatus").equals("error").toArray(),
   ]);
 
   await resetTable(clubsE, (id, c) => db.clubs.update(id, c), "owner");
@@ -466,8 +476,98 @@ export async function resetSyncErrorsToPending(): Promise<number> {
   await resetTable(matchesE, (id, c) => db.matches.update(id, c), "owner");
   await resetTable(prE, (id, c) => db.playerReports.update(id, c), "scout");
   await resetTable(trE, (id, c) => db.teamReports.update(id, c), "scout");
+  await resetTable(attrE, (id, c) => db.attributeDefinitions.update(id, c), "owner");
 
   return reset;
+}
+
+export async function listAttributeDefinitions(
+  giltFuer?: AttributeAppliesTo
+): Promise<AttributeDefinition[]> {
+  await ensureSeeded();
+  const scoutId = await currentScoutId();
+  const all = await db.attributeDefinitions.orderBy("reihenfolge").toArray();
+  return all.filter((d) => {
+    if (giltFuer && d.giltFuer !== giltFuer) return false;
+    if (!d.istCustom) return true;
+    return !d.ownerScoutId || d.ownerScoutId === scoutId;
+  });
+}
+
+export async function createCustomAttribute(input: {
+  name: string;
+  giltFuer?: AttributeAppliesTo;
+  gruppe?: string;
+  skalaMin?: number;
+  skalaMax?: number;
+}): Promise<AttributeDefinition> {
+  await ensureSeeded();
+  const scoutId = await currentScoutId();
+  const name = input.name.trim();
+  if (!name) throw new Error("Name erforderlich");
+
+  const giltFuer = input.giltFuer ?? "player";
+  let key = slugifyAttributeKey(name);
+  const existingKeys = new Set(
+    (await listAttributeDefinitions(giltFuer)).map((d) => d.key)
+  );
+  if (existingKeys.has(key)) {
+    let n = 2;
+    while (existingKeys.has(`${key}_${n}`)) n += 1;
+    key = `${key}_${n}`;
+  }
+
+  const siblings = await listAttributeDefinitions(giltFuer);
+  const maxOrder = siblings.reduce((m, d) => Math.max(m, d.reihenfolge), 0);
+  const now = nowIso();
+  const def: AttributeDefinition = {
+    id: newId(),
+    giltFuer,
+    key,
+    name,
+    typ: "skala",
+    skalaMin: input.skalaMin ?? 1,
+    skalaMax: input.skalaMax ?? 10,
+    gruppe: input.gruppe?.trim() || undefined,
+    istCustom: true,
+    reihenfolge: maxOrder + 1,
+    ownerScoutId: scoutId,
+    syncStatus: "pending",
+    updatedAt: now,
+    createdAt: now,
+  };
+  await db.attributeDefinitions.add(def);
+  return def;
+}
+
+export async function updateCustomAttribute(
+  id: string,
+  patch: Partial<Pick<AttributeDefinition, "name" | "gruppe" | "skalaMin" | "skalaMax" | "reihenfolge">>
+): Promise<AttributeDefinition | undefined> {
+  const existing = await db.attributeDefinitions.get(id);
+  if (!existing || !existing.istCustom) return undefined;
+  const scoutId = await currentScoutId();
+  if (existing.ownerScoutId && existing.ownerScoutId !== scoutId) return undefined;
+
+  const updated: AttributeDefinition = {
+    ...existing,
+    ...patch,
+    name: patch.name?.trim() || existing.name,
+    gruppe: patch.gruppe !== undefined ? patch.gruppe.trim() || undefined : existing.gruppe,
+    syncStatus: "pending",
+    updatedAt: nowIso(),
+  };
+  await db.attributeDefinitions.put(updated);
+  return updated;
+}
+
+export async function deleteCustomAttribute(id: string): Promise<boolean> {
+  const existing = await db.attributeDefinitions.get(id);
+  if (!existing || !existing.istCustom) return false;
+  const scoutId = await currentScoutId();
+  if (existing.ownerScoutId && existing.ownerScoutId !== scoutId) return false;
+  await db.attributeDefinitions.delete(id);
+  return true;
 }
 
 /**
@@ -593,6 +693,14 @@ export async function purgeForeignLocalData(scoutId: string): Promise<{
         await db.matches.delete(m.id);
         removed += 1;
       }
+    }
+  }
+
+  for (const a of await db.attributeDefinitions.toArray()) {
+    if (!a.istCustom) continue;
+    if (a.ownerScoutId && a.ownerScoutId !== scoutId) {
+      await db.attributeDefinitions.delete(a.id);
+      removed += 1;
     }
   }
 

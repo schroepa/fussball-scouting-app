@@ -61,6 +61,19 @@ export class ScoutingDB extends Dexie {
       scouts: "id, email",
       mediaBlobs: "key",
     });
+
+    this.version(3).stores({
+      clubs: "id, name, ownerScoutId, syncStatus, updatedAt",
+      players: "id, nachname, aktuellerClubId, ownerScoutId, syncStatus, updatedAt",
+      matches: "id, datum, heimClubId, gastClubId, ownerScoutId, syncStatus, updatedAt",
+      playerReports:
+        "id, playerId, scoutId, bezugstyp, matchId, datum, syncStatus, updatedAt",
+      teamReports:
+        "id, clubId, scoutId, berichtsart, bezugstyp, matchId, datum, syncStatus, updatedAt",
+      attributeDefinitions: "id, giltFuer, key, reihenfolge, ownerScoutId, syncStatus",
+      scouts: "id, email",
+      mediaBlobs: "key",
+    });
   }
 }
 
@@ -71,9 +84,11 @@ let seeded = false;
 /** Legt die Standard-Bewertungskategorien beim ersten Start lokal an. */
 export async function ensureSeeded(): Promise<void> {
   if (seeded) return;
-  const count = await db.attributeDefinitions.count();
-  if (count === 0) {
-    await db.attributeDefinitions.bulkAdd(DEFAULT_ATTRIBUTES);
+  for (const def of DEFAULT_ATTRIBUTES) {
+    const existing = await db.attributeDefinitions.get(def.id);
+    if (!existing) {
+      await db.attributeDefinitions.add(def);
+    }
   }
   seeded = true;
 }

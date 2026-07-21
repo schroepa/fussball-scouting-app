@@ -176,19 +176,20 @@ supabase/
 | M7 – Match-Phasen & Formationen | **erledigt (MVP)** – SQL `match_formations.sql` ausführen |
 | **M8 – VEO/Video-Link + Timecode** | **erledigt (Phase 1)** – SQL `match_video.sql` ausführen |
 | **M9 – Onboarding + FAQ/Hilfe** | **erledigt (MVP)** – `/hilfe`, First-Run |
-| M6 – UI für Custom-Bewertungsfelder | offen |
+| **M6 – Custom-Bewertungsfelder** | **erledigt (MVP)** – `/einstellungen/attribute` |
 
 Aktueller Plan: `docs/PLANNING.md` (v3).
 
-### Wichtig nach Deploy (Privacy + Formationen + Video)
+### Wichtig nach Deploy (Privacy + Formationen + Video + Attribute)
 
 Im Supabase SQL-Editor ausführen:
 
 1. `supabase/rls_owner_scoped.sql` – Datentrennung pro Scout  
 2. `supabase/match_formations.sql` – Formations-/Phasen-Spalten am Match  
-3. `supabase/match_video.sql` – Video-Link- und Marken-Spalten am Match
+3. `supabase/match_video.sql` – Video-Link- und Marken-Spalten am Match  
+4. `supabase/attribute_definitions_owner.sql` – eigene Custom-Bewertungsfelder
 
-Sonst können Sync bzw. neue Match-Felder fehlschlagen bzw. fremde Daten sichtbar bleiben.
+Sonst können Sync bzw. neue Match-/Attribute-Felder fehlschlagen bzw. fremde Daten sichtbar bleiben.
 
 ---
 

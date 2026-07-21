@@ -24,7 +24,7 @@ Pro-Account nutzen für Blocks/Themes/MCP:
 ## Roadmap (Kurz)
 
 Siehe `docs/PLANNING.md` v3. Reihenfolge: Privacy → Hilfe → Formationen → **VEO** (Phase 1).  
-Ops: `rls_owner_scoped.sql`, `match_formations.sql`, `match_video.sql` im SQL-Editor ausführen.
+Ops: `rls_owner_scoped.sql`, `match_formations.sql`, `match_video.sql`, `attribute_definitions_owner.sql`.
 
 ## Documentation
 

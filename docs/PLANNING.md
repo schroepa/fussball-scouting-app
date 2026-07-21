@@ -70,7 +70,7 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 | **M7** | **Match-Phasen & Formationen** | **erledigt (MVP)** | Heim/Gast × off/def, Phasen, Editor am Spiel |
 | **M8** | **VEO / Video-Bezug** | **erledigt (MVP Phase 1)** | Link + Ref + Zeitmarken am Match |
 | **M9** | **Onboarding + FAQ/Tutorial** | **erledigt (MVP)** | First-Run, `/hilfe`, FAQ |
-| M6 | Custom-Attribute-UI | später | dynamische Felder |
+| **M6** | **Custom-Attribute-UI** | **erledigt (MVP)** | Spieler-Felder anlegen, Formular + Sync |
 | **M3b** | **Sync-Retry-UI** | **erledigt** | Fehler-Badge, Panel, Retry |
 
 ### Empfohlene Umsetzungsreihenfolge ab jetzt
@@ -80,7 +80,8 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 3. ~~**M7 Match-Phasen/Formationen**~~ – Editor am Spiel; **`supabase/match_formations.sql` ausführen**
 4. ~~**M8 VEO-Link + Timestamp**~~ – Phase 1; **`supabase/match_video.sql` ausführen**
 5. ~~**M3b Sync-Retry-UI**~~ – Fehler sichtbar + Retry
-6. M6 Custom-Felder, Import-Feinschliff
+6. ~~**M6 Custom-Felder**~~ – `/einstellungen/attribute`; SQL `attribute_definitions_owner.sql`
+7. Import-Feinschliff (optional)
 
 ## 7. M7 – Match-Phasen & Formationen
 
