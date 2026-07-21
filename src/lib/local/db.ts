@@ -20,11 +20,8 @@ export interface LocalMediaBlob {
 
 /**
  * Lokale, geräteseitige Datenbank (IndexedDB via Dexie).
- *
- * Jede Schreibaktion landet zuerst hier – die App funktioniert dadurch
- * vollständig offline. Datensätze mit `syncStatus: "pending"` werden vom
- * Sync-Manager (siehe src/lib/sync/syncManager.ts) bei Netzverbindung zur
- * zentralen Supabase-Datenbank hochgeladen.
+ * Datensätze mit `syncStatus: "pending"` werden vom Sync-Manager hochgeladen.
+ * Stammdaten sind owner-scoped (`ownerScoutId`).
  */
 export class ScoutingDB extends Dexie {
   clubs!: EntityTable<Club, "id">;
@@ -43,6 +40,19 @@ export class ScoutingDB extends Dexie {
       clubs: "id, name, syncStatus, updatedAt",
       players: "id, nachname, aktuellerClubId, syncStatus, updatedAt",
       matches: "id, datum, heimClubId, gastClubId, syncStatus, updatedAt",
+      playerReports:
+        "id, playerId, scoutId, bezugstyp, matchId, datum, syncStatus, updatedAt",
+      teamReports:
+        "id, clubId, scoutId, berichtsart, bezugstyp, matchId, datum, syncStatus, updatedAt",
+      attributeDefinitions: "id, giltFuer, key, reihenfolge",
+      scouts: "id, email",
+      mediaBlobs: "key",
+    });
+
+    this.version(2).stores({
+      clubs: "id, name, ownerScoutId, syncStatus, updatedAt",
+      players: "id, nachname, aktuellerClubId, ownerScoutId, syncStatus, updatedAt",
+      matches: "id, datum, heimClubId, gastClubId, ownerScoutId, syncStatus, updatedAt",
       playerReports:
         "id, playerId, scoutId, bezugstyp, matchId, datum, syncStatus, updatedAt",
       teamReports:

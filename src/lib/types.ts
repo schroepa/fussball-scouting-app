@@ -41,6 +41,8 @@ export interface Club {
   logoUrl?: string;
   externalSource?: string;
   externalRef?: string;
+  /** Scout, dem dieser Verein gehört (Datentrennung). */
+  ownerScoutId?: string;
   customFields?: Record<string, unknown>;
   syncStatus: SyncStatus;
   updatedAt: string;
@@ -62,6 +64,8 @@ export interface Player {
   fotoBlob?: Blob;
   externalSource?: string;
   externalRef?: string;
+  /** Scout, dem dieser Spieler gehört (Datentrennung). */
+  ownerScoutId?: string;
   customFields?: Record<string, unknown>;
   syncStatus: SyncStatus;
   updatedAt: string;
@@ -80,6 +84,8 @@ export interface Match {
   spielort?: string;
   externalSource?: string;
   externalRef?: string;
+  /** Scout, dem dieses Spiel gehört (Datentrennung). */
+  ownerScoutId?: string;
   syncStatus: SyncStatus;
   updatedAt: string;
   createdAt: string;

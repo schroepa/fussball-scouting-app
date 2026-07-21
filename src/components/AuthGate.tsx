@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getCurrentSession } from "../lib/auth/session";
+import { purgeForeignLocalData } from "../lib/local/repository";
 import { isSupabaseConfigured } from "../lib/supabase/client";
 
 interface AuthGateProps {
@@ -9,9 +10,7 @@ interface AuthGateProps {
 
 /**
  * Leitet auf /login weiter, sobald Supabase konfiguriert ist und der Scout
- * noch nicht angemeldet ist. Offline: eine vorhandene Session bleibt in
- * localStorage erhalten, sodass bereits eingeloggte Scouts die App weiterhin
- * nutzen können.
+ * noch nicht angemeldet ist. Nach Login: fremde lokale Daten entfernen.
  */
 export default function AuthGate({ requireAuth = true }: AuthGateProps) {
   const [checking, setChecking] = useState(requireAuth && isSupabaseConfigured);
@@ -33,7 +32,13 @@ export default function AuthGate({ requireAuth = true }: AuthGateProps) {
         window.location.replace(`/login?next=${next}`);
         return;
       }
-      setChecking(false);
+      try {
+        await purgeForeignLocalData(session.scout.id);
+        window.dispatchEvent(new Event("scouting:synced"));
+      } catch (err) {
+        console.warn("Lokale Datenbereinigung fehlgeschlagen", err);
+      }
+      if (!cancelled) setChecking(false);
     })();
 
     return () => {
@@ -44,8 +49,8 @@ export default function AuthGate({ requireAuth = true }: AuthGateProps) {
   if (!checking) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50">
-      <p className="text-slate-500 text-sm">Prüfe Anmeldung…</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+      <p className="text-muted-foreground text-sm">Prüfe Anmeldung…</p>
     </div>
   );
 }

@@ -169,10 +169,20 @@ supabase/
 | M0/M1 – Scaffold, Offline-DB, Berichte, Auth, Export | erledigt |
 | M2 – Import (Transfermarkt, fussball.de, TheSportsDB) | weitgehend |
 | M3 – Sync Push + Pull (Geräte) | weitgehend |
+| **M3.5 – Datentrennung pro Scout** | **in Arbeit** |
 | M4 – Dashboards & Spielervergleich | erledigt (MVP) |
+| M5 – Export PDF/JSON | erledigt |
+| M7 – Match-Phasen & Formationen | geplant |
+| M8 – VEO/Video-Link + Timecode | geplant |
+| M9 – Onboarding + FAQ/Hilfe | geplant |
 | M6 – UI für Custom-Bewertungsfelder | offen |
 
-Aktiver Entwicklungsbranch: `cursor/scouting-app-mvp-0911`
+Aktueller Plan: `docs/PLANNING.md` (v3).
+
+### Wichtig nach Deploy (Privacy)
+
+Im Supabase SQL-Editor einmal ausführen: `supabase/rls_owner_scoped.sql`  
+Sonst können andere Scouts weiterhin fremde Daten per Sync pullen.
 
 ---
 

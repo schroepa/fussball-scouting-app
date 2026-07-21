@@ -1,17 +1,13 @@
 -- Row Level Security (RLS) Policies für die Fussball-Scouting-App.
 --
--- Nach dem Anlegen der Tabellen (supabase/migrations/*.sql, per
--- `npm run db:push` oder manuell im Supabase SQL-Editor) dieses Skript
--- EINMALIG im Supabase SQL-Editor ausführen.
+-- WICHTIG (Juli 2026): Datentrennung pro Scout.
+-- Für bestehende Projekte bitte zusätzlich ausführen:
+--   supabase/rls_owner_scoped.sql
+-- Das ersetzt die alten „alle Authenticated sehen alles“-Policies.
 --
 -- Grundprinzip (siehe docs/PLANNING.md):
--- - Alle Scouts sind gleichberechtigte Nutzer und sehen sich gegenseitig
---   erfasste Stammdaten und Berichte (geteiltes Team-Wissen).
--- - Stammdaten (Vereine, Spieler, Spiele, Bewertungs-Kategorien) können von
---   jedem eingeloggten Scout angelegt und bearbeitet werden (niedriges
---   Konfliktrisiko, gemeinsame Datenbasis).
--- - Scouting-Berichte gehören genau einem Scout: jeder darf alle Berichte
---   LESEN, aber nur seine eigenen erstellen/bearbeiten/löschen.
+-- - Jeder Scout sieht nur eigene Stammdaten (created_by) und eigene Berichte (scout_id).
+-- - attribute_definitions bleiben als Vorlagen für alle lesbar.
 
 -- 1) Automatisch einen `scouts`-Eintrag anlegen, wenn sich ein neuer Nutzer
 --    über Supabase Auth registriert (Google OAuth oder Magic Link).

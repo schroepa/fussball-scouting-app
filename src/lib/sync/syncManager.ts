@@ -1,6 +1,7 @@
 import { getSupabaseClient, isSupabaseConfigured } from "../supabase/client";
 import { getCurrentSession } from "../auth/session";
 import { db } from "../local/db";
+import { purgeForeignLocalData } from "../local/repository";
 import type {
   Bezugstyp,
   Berichtsart,
@@ -28,6 +29,11 @@ type LocalRow = { id: string; syncStatus: SyncStatus; updatedAt: string };
  * ziehen. Ohne Pull bleiben Geräte mit getrennten IndexedDBs isoliert.
  */
 export async function syncAll(): Promise<SyncResult> {
+  const session = await getCurrentSession();
+  if (session.isAuthenticated) {
+    await purgeForeignLocalData(session.scout.id);
+  }
+
   const push = await pushPendingChanges();
   if (!push.ok && push.message.includes("nicht konfiguriert")) {
     return { ...push, pulled: 0 };
@@ -148,6 +154,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       external_source: c.externalSource ?? null,
       external_ref: c.externalRef ?? null,
       custom_fields: c.customFields ?? {},
+      created_by: c.ownerScoutId ?? session.scout.id,
       updated_at: c.updatedAt,
       created_at: c.createdAt,
     }))
@@ -168,6 +175,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       external_source: p.externalSource ?? null,
       external_ref: p.externalRef ?? null,
       custom_fields: p.customFields ?? {},
+      created_by: p.ownerScoutId ?? session.scout.id,
       updated_at: p.updatedAt,
       created_at: p.createdAt,
     }))
@@ -185,6 +193,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       spielort: m.spielort ?? null,
       external_source: m.externalSource ?? null,
       external_ref: m.externalRef ?? null,
+      created_by: m.ownerScoutId ?? session.scout.id,
       updated_at: m.updatedAt,
       created_at: m.createdAt,
     }))
@@ -319,6 +328,7 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
       logoUrl: (row.logo_url as string | null) ?? undefined,
       externalSource: (row.external_source as string | null) ?? undefined,
       externalRef: (row.external_ref as string | null) ?? undefined,
+      ownerScoutId: (row.created_by as string | null) ?? session.scout.id,
       customFields:
         (row.custom_fields as Record<string, unknown> | null) ?? undefined,
       syncStatus: "synced",
@@ -344,6 +354,7 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
       fotoUrl: (row.foto_url as string | null) ?? undefined,
       externalSource: (row.external_source as string | null) ?? undefined,
       externalRef: (row.external_ref as string | null) ?? undefined,
+      ownerScoutId: (row.created_by as string | null) ?? session.scout.id,
       customFields:
         (row.custom_fields as Record<string, unknown> | null) ?? undefined,
       syncStatus: "synced",
@@ -364,6 +375,7 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
       spielort: (row.spielort as string | null) ?? undefined,
       externalSource: (row.external_source as string | null) ?? undefined,
       externalRef: (row.external_ref as string | null) ?? undefined,
+      ownerScoutId: (row.created_by as string | null) ?? session.scout.id,
       syncStatus: "synced",
       updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
       createdAt: iso(row.created_at) ?? new Date().toISOString(),
