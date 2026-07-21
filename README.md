@@ -169,6 +169,7 @@ supabase/
 | M0/M1 – Scaffold, Offline-DB, Berichte, Auth, Export | erledigt |
 | M2 – Import (Transfermarkt, fussball.de, TheSportsDB) | weitgehend |
 | M3 – Sync Push + Pull (Geräte) | weitgehend |
+| **M3b – Sync-Retry-UI** | **erledigt** |
 | **M3.5 – Datentrennung pro Scout** | **erledigt (App)** – RLS-SQL in Supabase ausführen |
 | M4 – Dashboards & Spielervergleich | erledigt (MVP) |
 | M5 – Export PDF/JSON | erledigt |

@@ -99,7 +99,7 @@ export const helpSections: HelpSection[] = [
     bullets: [
       "Grün / ok: alles synchron",
       "Ausstehend: lokale Änderungen warten auf Upload",
-      "Bei Fehlern später erneut syncen (Retry-UI folgt noch)",
+      "Fehler: roter Badge und „Retry“ / „Erneut versuchen“ in der Sync-Leiste",
     ],
   },
   {

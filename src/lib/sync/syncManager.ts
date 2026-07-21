@@ -22,6 +22,8 @@ export interface SyncResult {
   pulled: number;
   failed: number;
   message: string;
+  /** Kurze Fehlertexte aus Push/Pull (für Retry-UI). */
+  errors?: string[];
 }
 
 type LocalRow = { id: string; syncStatus: SyncStatus; updatedAt: string };
@@ -52,6 +54,7 @@ export async function syncAll(): Promise<SyncResult> {
   const pulled = pull.pulled;
   const failed = push.failed + pull.failed;
   const ok = push.ok && pull.ok;
+  const errors = [...(push.errors ?? []), ...(pull.errors ?? [])];
 
   let message: string;
   if (!ok) {
@@ -65,7 +68,7 @@ export async function syncAll(): Promise<SyncResult> {
     message = parts.join(", ") + ".";
   }
 
-  return { ok, synced, pulled, failed, message };
+  return { ok, synced, pulled, failed, message, errors };
 }
 
 /**
@@ -262,6 +265,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
         synced === 0
           ? "Keine lokalen Änderungen zum Hochladen."
           : `${synced} Datensätze hochgeladen.`,
+      errors: [],
     };
   }
 
@@ -273,6 +277,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
     message: `${synced} hochgeladen, ${failed} fehlgeschlagen${
       errors[0] ? `: ${errors[0]}` : "."
     }`,
+    errors,
   };
 }
 
@@ -463,6 +468,7 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
         pulled === 0
           ? "Keine neuen Daten vom Server."
           : `${pulled} Datensätze heruntergeladen.`,
+      errors: [],
     };
   }
 
@@ -474,6 +480,7 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
     message: `Pull: ${pulled} ok, ${failed} Fehler${
       errors[0] ? `: ${errors[0]}` : "."
     }`,
+    errors,
   };
 }
 

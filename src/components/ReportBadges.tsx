@@ -44,7 +44,7 @@ export function SyncStatusBadge({ status }: { status: SyncStatus }) {
       className: "border-primary/30 text-foreground bg-primary/10",
     },
     error: {
-      label: "Sync-Fehler – erneut tippen",
+      label: "Sync fehlgeschlagen – Retry oben",
       className: "border-destructive/40 text-destructive bg-destructive/10",
     },
   };

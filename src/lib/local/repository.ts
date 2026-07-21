@@ -364,7 +364,13 @@ export async function getTeamReport(
   return report;
 }
 
-export async function countPending(): Promise<number> {
+export interface SyncQueueStats {
+  pending: number;
+  error: number;
+  total: number;
+}
+
+export async function getSyncQueueStats(): Promise<SyncQueueStats> {
   const scoutId = await currentScoutId();
   const [
     clubsP,
@@ -400,18 +406,68 @@ export async function countPending(): Promise<number> {
         : r.scoutId === scoutId
     ).length;
 
-  return (
+  const pending =
     own(clubsP, "owner") +
-    own(clubsE, "owner") +
     own(playersP, "owner") +
-    own(playersE, "owner") +
     own(matchesP, "owner") +
-    own(matchesE, "owner") +
     own(prP, "scout") +
+    own(trP, "scout");
+  const error =
+    own(clubsE, "owner") +
+    own(playersE, "owner") +
+    own(matchesE, "owner") +
     own(prE, "scout") +
-    own(trP, "scout") +
-    own(trE, "scout")
-  );
+    own(trE, "scout");
+
+  return { pending, error, total: pending + error };
+}
+
+export async function countPending(): Promise<number> {
+  const stats = await getSyncQueueStats();
+  return stats.total;
+}
+
+/** Setzt alle eigenen Sync-Fehler zurück auf pending (für manuellen Retry). */
+export async function resetSyncErrorsToPending(): Promise<number> {
+  const scoutId = await currentScoutId();
+  let reset = 0;
+
+  const resetTable = async <
+    T extends { id: string; syncStatus: string; ownerScoutId?: string; scoutId?: string },
+  >(
+    rows: T[],
+    update: (id: string, changes: Partial<T>) => Promise<number>,
+    kind: "owner" | "scout"
+  ) => {
+    for (const row of rows) {
+      const owned =
+        kind === "owner"
+          ? !row.ownerScoutId || row.ownerScoutId === scoutId
+          : row.scoutId === scoutId;
+      if (!owned) continue;
+      await update(row.id, {
+        syncStatus: "pending",
+        updatedAt: new Date().toISOString(),
+      } as Partial<T>);
+      reset += 1;
+    }
+  };
+
+  const [clubsE, playersE, matchesE, prE, trE] = await Promise.all([
+    db.clubs.where("syncStatus").equals("error").toArray(),
+    db.players.where("syncStatus").equals("error").toArray(),
+    db.matches.where("syncStatus").equals("error").toArray(),
+    db.playerReports.where("syncStatus").equals("error").toArray(),
+    db.teamReports.where("syncStatus").equals("error").toArray(),
+  ]);
+
+  await resetTable(clubsE, (id, c) => db.clubs.update(id, c), "owner");
+  await resetTable(playersE, (id, c) => db.players.update(id, c), "owner");
+  await resetTable(matchesE, (id, c) => db.matches.update(id, c), "owner");
+  await resetTable(prE, (id, c) => db.playerReports.update(id, c), "scout");
+  await resetTable(trE, (id, c) => db.teamReports.update(id, c), "scout");
+
+  return reset;
 }
 
 /**
