@@ -28,7 +28,6 @@ export default function ThemeToggle({
     return () => window.removeEventListener("fusca:themechange", onChange);
   }, []);
 
-  const isHeader = variant === "header";
   const isDark = mode === "dark";
 
   return (
@@ -36,12 +35,8 @@ export default function ThemeToggle({
       type="button"
       onClick={() => setMode(toggleColorMode())}
       className={cn(
-        "inline-flex items-center justify-center rounded-md transition-colors",
-        isHeader
-          ? "size-8 bg-white/10 hover:bg-white/20 text-primary-foreground"
-          : variant === "sidebar"
-            ? "size-8 border border-border hover:bg-muted text-foreground"
-            : "size-8 border border-border bg-card hover:bg-muted text-foreground"
+        "inline-flex size-9 items-center justify-center rounded-md border border-border bg-card text-foreground transition-colors hover:bg-muted",
+        variant === "sidebar" && "size-8"
       )}
       title={isDark ? "Hellmodus" : "Dunkelmodus"}
       aria-label={isDark ? "Hellmodus aktivieren" : "Dunkelmodus aktivieren"}

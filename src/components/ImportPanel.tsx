@@ -13,13 +13,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Table,
   TableBody,
   TableCell,
@@ -415,15 +408,12 @@ export default function ImportPanel() {
 
   return (
     <div id="panel-import" className="space-y-4 md:space-y-6">
-      <Card size="sm" className="shadow-sm hidden md:block">
-        <CardHeader>
-          <CardTitle>Import-Arbeitsplatz</CardTitle>
-          <CardDescription>
-            Links Quelle wählen, rechts Treffer prüfen und übernehmen – ideal am
-            Desktop nach dem Spieltag.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="hidden md:block space-y-1">
+        <p className="text-sm text-muted-foreground">
+          Quelle wählen, Treffer prüfen und übernehmen – ideal am Desktop nach
+          dem Spieltag.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6">
         <div className="xl:col-span-5 space-y-4">

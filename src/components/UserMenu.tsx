@@ -39,10 +39,8 @@ export default function UserMenu({
     >
       <span
         className={cn(
-          "truncate text-sm",
-          isHeader
-            ? "hidden sm:inline text-primary-foreground/80 max-w-[8rem]"
-            : "text-foreground max-w-[9rem]"
+          "truncate text-sm text-muted-foreground",
+          isHeader ? "hidden sm:inline max-w-[6rem]" : "max-w-[9rem] text-foreground"
         )}
         title={scout.email}
       >
@@ -59,12 +57,7 @@ export default function UserMenu({
       <button
         type="button"
         onClick={handleSignOut}
-        className={cn(
-          "rounded-md px-2 py-1 text-xs font-medium",
-          isHeader
-            ? "bg-white/10 hover:bg-white/20 text-primary-foreground"
-            : "border border-border hover:bg-muted"
-        )}
+        className="rounded-md border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted min-h-8"
         title="Abmelden"
       >
         Logout
