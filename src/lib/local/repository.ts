@@ -326,6 +326,27 @@ export async function getPlayerReport(
   return report;
 }
 
+export async function updatePlayerReport(
+  id: string,
+  patch: Partial<
+    Omit<PlayerReport, "id" | "createdAt" | "scoutId" | "syncStatus">
+  >
+): Promise<PlayerReport | undefined> {
+  const existing = await getPlayerReport(id);
+  if (!existing) return undefined;
+  const updated: PlayerReport = {
+    ...existing,
+    ...patch,
+    id: existing.id,
+    scoutId: existing.scoutId,
+    createdAt: existing.createdAt,
+    syncStatus: "pending",
+    updatedAt: nowIso(),
+  };
+  await db.playerReports.put(updated);
+  return updated;
+}
+
 export async function listPlayerReportsForPlayer(
   playerId: string
 ): Promise<PlayerReport[]> {
@@ -366,6 +387,27 @@ export async function getTeamReport(
   const scoutId = await currentScoutId();
   if (report.scoutId !== scoutId) return undefined;
   return report;
+}
+
+export async function updateTeamReport(
+  id: string,
+  patch: Partial<
+    Omit<TeamReport, "id" | "createdAt" | "scoutId" | "syncStatus">
+  >
+): Promise<TeamReport | undefined> {
+  const existing = await getTeamReport(id);
+  if (!existing) return undefined;
+  const updated: TeamReport = {
+    ...existing,
+    ...patch,
+    id: existing.id,
+    scoutId: existing.scoutId,
+    createdAt: existing.createdAt,
+    syncStatus: "pending",
+    updatedAt: nowIso(),
+  };
+  await db.teamReports.put(updated);
+  return updated;
 }
 
 export interface SyncQueueStats {
