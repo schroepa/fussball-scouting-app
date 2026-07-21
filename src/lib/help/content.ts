@@ -13,12 +13,29 @@ export type HelpSectionId =
   | "dashboard"
   | "faq";
 
+export type HelpGroupId = "einstieg" | "erfassen" | "auswerten" | "faq";
+
+export interface HelpLink {
+  href: string;
+  label: string;
+}
+
+export interface HelpFaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface HelpSection {
   id: HelpSectionId;
+  group: HelpGroupId;
   title: string;
   summary: string;
   paragraphs: string[];
   bullets?: string[];
+  tip?: string;
+  links?: HelpLink[];
+  /** Nur für die FAQ-Sektion; ersetzt paragraphs/bullets in der UI. */
+  faqs?: HelpFaqItem[];
 }
 
 export interface OnboardingStep {
@@ -27,6 +44,13 @@ export interface OnboardingStep {
   body: string;
   ctaHint?: string;
 }
+
+export const HELP_GROUP_LABELS: Record<HelpGroupId, string> = {
+  einstieg: "Einstieg",
+  erfassen: "Erfassen",
+  auswerten: "Auswerten",
+  faq: "FAQ",
+};
 
 export const ONBOARDING_STORAGE_KEY = "fusca_onboarding_v1_done";
 
@@ -63,142 +87,217 @@ export const onboardingSteps: OnboardingStep[] = [
 export const helpSections: HelpSection[] = [
   {
     id: "erste-schritte",
+    group: "einstieg",
     title: "Erste Schritte",
     summary: "Anmelden, ersten Bericht schreiben, Sync prüfen.",
     paragraphs: [
-      "Melde dich mit Google oder Magic Link an. Ohne Login funktioniert die App lokal auf einem Gerät; geräteübergreifender Sync braucht eine Anmeldung.",
-      "Starte mit einem Spielerbericht oder importiere zuerst einen Kader, damit du Spieler nicht manuell anlegen musst.",
+      "Melde dich mit Google oder Magic Link an. Ohne konfiguriertes Supabase läuft die App im Lokal-Modus auf einem Gerät – geräteübergreifender Sync braucht Login.",
+      "Praktischer Einstieg: Kader importieren, dann einen Spielerbericht am Platz anlegen. Am Desktop nachbereiten und im Dashboard vergleichen.",
     ],
     bullets: [
       "Übersicht → Spielerbericht oder Teambericht",
-      "Sync-Status in der Sidebar (Desktop) bzw. oben rechts (Mobil)",
-      "Hilfe jederzeit über die Navigation oder den Menüpunkt „Hilfe“",
+      "Sync-Status: Sidebar (Desktop) bzw. Header (Mobil)",
+      "Einführung jederzeit über „Einführung starten“ auf dieser Seite",
+    ],
+    tip: "Am Platz: PWA auf dem Homescreen – volle Bildschirmfläche, schneller Start.",
+    links: [
+      { href: "/reports/new-player", label: "Spielerbericht" },
+      { href: "/import", label: "Import" },
     ],
   },
   {
     id: "privacy",
+    group: "einstieg",
     title: "Datenschutz & Sichtbarkeit",
     summary: "Jeder Scout sieht nur die eigenen Beobachtungen.",
     paragraphs: [
       "Spieler, Vereine, Spiele und Berichte gehören dem Scout, der sie angelegt hat. Andere Scouts können deine Einträge weder lesen noch bearbeiten.",
-      "Derselbe reale Spieler (z. B. von Transfermarkt) kann bei zwei Scouts als getrennte Datensätze existieren – inkl. eigener Notizen und Bewertungen.",
+      "Derselbe reale Spieler (z. B. von Transfermarkt) kann bei zwei Scouts als getrennte Datensätze existieren – inklusive eigener Notizen und Bewertungen.",
     ],
     bullets: [
       "Kein gemeinsamer Pool aller Scouts im Team",
       "Nach Login werden fremde lokale Rest-Daten bereinigt",
-      "Feedback-Test: zweiter Account darf deine Testspieler nicht sehen",
+      "Server-seitig: owner-scoped RLS muss in Supabase aktiv sein",
     ],
+    tip: "Kurz gesagt: Was du beobachtest, bleibt bei dir.",
   },
   {
     id: "offline-sync",
+    group: "einstieg",
     title: "Offline & Sync",
     summary: "Am Rand ohne Netz arbeiten, später nachziehen.",
     paragraphs: [
-      "Alle Erfassungen landen zuerst in der lokalen Datenbank (IndexedDB). Ohne Internet bleibst du arbeitsfähig.",
-      "Sobald Verbindung und Login bestehen, synchronisiert die App automatisch (beim Start, online gehen, nach Import). Der Sync-Status zeigt ausstehende bzw. fehlgeschlagene Uploads.",
+      "Alle Erfassungen landen zuerst lokal (IndexedDB). Ohne Internet bleibst du arbeitsfähig.",
+      "Mit Verbindung und Login synchronisiert die App automatisch (Start, Online-Werden, nach Import). Die Sync-Leiste zeigt Warteschlange und Fehler.",
     ],
     bullets: [
-      "Grün / ok: alles synchron",
-      "Ausstehend: lokale Änderungen warten auf Upload",
-      "Fehler: roter Badge und „Retry“ / „Erneut versuchen“ in der Sync-Leiste",
+      "Online / lokal: Statuspunkt in der Sync-Leiste",
+      "Ausstehend: Änderungen warten auf Upload",
+      "Fehler: Badge + „Retry“ / „Erneut versuchen“",
+      "Hilfe-Link im Sync-Panel bei wiederkehrenden Problemen",
     ],
+    tip: "Nach dem Spieltag einmal Sync prüfen – bevor du das zweite Gerät öffnest.",
   },
   {
     id: "mobil-desktop",
+    group: "einstieg",
     title: "Mobil vs. Desktop",
-    summary: "Drei Nutzungskontexte – eine App.",
+    summary: "Drei Kontexte – eine App.",
     paragraphs: [
-      "Spielfeldrand: schlanke Formulare, Bottom-Navigation, schnelle Erfassung.",
-      "Nachbearbeitung Zuhause: Sidebar, breitere Tabellen, Dashboard und Export.",
-      "Video-Studium: Am Spiel einen VEO-/Video-Link und Zeitmarken hinterlegen – ohne Rohvideo-Upload.",
+      "Spielfeldrand: schlanke Formulare, Bottom-Navigation, große Tap-Ziele.",
+      "Nachbearbeitung Zuhause: Sidebar, Tabellen, Dashboard, Import und Export.",
+      "Video-Studium: am Spiel VEO-/Video-Link und Zeitmarken – ohne Rohvideo-Upload.",
+    ],
+    bullets: [
+      "Dark Mode: Mond-/Sonnen-Icon im Header oder in der Sidebar",
+      "Desktop-Leiste: Schnellzugriff auf neue Berichte",
     ],
   },
   {
     id: "berichte",
+    group: "erfassen",
     title: "Spieler- & Teamberichte",
-    summary: "Raster, Bezugstyp, Foto, Export.",
+    summary: "Raster, Bezug, Foto, Export.",
     paragraphs: [
-      "Spielerberichte nutzen das Bewertungsraster (Technik, Taktik, Athletik, Mentalität), Gesamtnote, Empfehlung und Freitext. Optional kannst du direkt ein Foto machen.",
-      "Teamberichte dienen der Gegner-Analyse oder der Einschätzung des eigenen Teams. Wähle den Bezug (Spiel, Training, sonstige Beobachtung).",
+      "Spielerberichte: Technik, Taktik, Athletik, Mentalität (plus eigene Felder), Gesamtnote, Empfehlung, Freitext, optional Foto.",
+      "Teamberichte: Gegner-Analyse oder eigenes Team; Bezug Spiel / Training / sonstige Beobachtung.",
     ],
     bullets: [
-      "PDF- und JSON-Export in der Berichtsdetailansicht",
+      "PDF- und JSON-Export in der Detailansicht",
+      "Bezug „Spiel“ → Formationen und Video am Match pflegen",
       "Listen filtern und Berichte nachbereiten",
-      "Formationen Heim/Gast × off/def und Phasen am Spiel (nicht nur Freitext am Team-Bericht)",
-      "Eigene Bewertungsfelder unter Einstellungen → Bewertungsfelder",
+    ],
+    links: [
+      { href: "/reports/new-player", label: "Neuer Spielerbericht" },
+      { href: "/reports/new-team", label: "Neuer Teambericht" },
+      { href: "/reports", label: "Alle Berichte" },
     ],
   },
   {
     id: "attribute",
+    group: "erfassen",
     title: "Bewertungsfelder",
     summary: "Standard-Raster und eigene Kategorien.",
     paragraphs: [
-      "Jeder Spielerbericht nutzt Technik, Taktik, Athletik und Mentalität. Teamberichte haben Organisation, Pressing, Umschalten und Standards. Unter Bewertungsfelder (Tabs Spieler/Team) legst du zusätzliche Skalen an.",
-      "Custom-Felder gehören nur dir und synchronisieren geräteübergreifend.",
+      "Standard Spieler: Technik, Taktik, Athletik, Mentalität. Standard Team: Organisation, Pressing, Umschalten, Standards.",
+      "Unter Bewertungsfelder legst du zusätzliche Skalen (1–10) an – getrennt für Spieler und Team. Custom-Felder gehören nur dir und synchronisieren geräteübergreifend.",
     ],
+    tip: "Eigene Felder erscheinen in Formularen und im Dashboard (Radar, Vergleich, Verlauf).",
+    links: [{ href: "/einstellungen/attribute", label: "Bewertungsfelder öffnen" }],
   },
   {
     id: "formationen",
+    group: "erfassen",
     title: "Formationen & Phasen",
-    summary: "Systeme und Systemwechsel am Spiel.",
+    summary: "Systeme und Wechsel am Spiel.",
     paragraphs: [
-      "Wenn der Bericht den Bezug „Spiel“ hat, kannst du am ausgewählten Spiel unter „Formationen & Phasen“ Basis-Systeme für Heim und Gast (offensiv/defensiv) setzen.",
-      "Phasen markieren Systemwechsel ab einer Minute – ideal am Platz per Chip, Zuhause detailliert nachpflegen.",
+      "Beim Bezug „Spiel“ kannst du am Match unter „Formationen & Phasen“ Basis-Systeme für Heim und Gast (offensiv/defensiv) setzen.",
+      "Phasen markieren Systemwechsel ab einer Minute – am Platz per Chip, zu Hause detailliert nachpflegen.",
     ],
     bullets: [
       "Chips für gängige Systeme (4-3-3, 4-2-3-1, …) plus Freitext",
       "Phasen mit optionaler Notiz",
-      "Anzeige in der Berichtsdetailansicht",
-    ],
-  },
-  {
-    id: "import",
-    title: "Import",
-    summary: "Kader von Transfermarkt, fussball.de oder manuell.",
-    paragraphs: [
-      "Unter Import wählst du eine Quelle, prüfst die Treffer und übernimmst sie. Deduplizierung gilt pro Scout: derselbe externe Spieler wird bei dir nicht doppelt angelegt – bei einem anderen Scout kann er als eigener Datensatz existieren.",
-      "Jugendkader auf fussball.de sind oft gesperrt – dann Namensliste einfügen oder manuell anlegen.",
-    ],
-    bullets: [
-      "Transfermarkt: empfohlen für Jugend-/Vereinsskader",
-      "fussball.de: Verein/Teams; Kader oft nur per Namensliste",
-      "Spieler-Tab: TheSportsDB (eher bekannte/Profi-Namen)",
-      "API-Tab fussball.de braucht API_FUSSBALL_TOKEN in der .env",
-      "Nach Übernehmen: Sync-Status in der Leiste prüfen",
+      "Zusammenfassung in der Berichtsdetailansicht",
     ],
   },
   {
     id: "video",
+    group: "erfassen",
     title: "Video / VEO",
-    summary: "Link und Zeitmarken am Spiel – kein Upload.",
+    summary: "Link und Zeitmarken – kein Upload.",
     paragraphs: [
-      "Am ausgewählten Spiel unter „Video / VEO“ hinterlegst du einen Link (VEO, YouTube, Drive, …) und optional eine Bezeichnung.",
-      "Zeitmarken mit Spielminute und/oder Timecode helfen beim Nachstudium. Rohvideos werden nicht in der Cloud gespeichert.",
+      "Am Spiel unter „Video / VEO“ hinterlegst du einen Link (VEO, YouTube, Drive, …) und optional eine Bezeichnung.",
+      "Zeitmarken mit Spielminute und/oder Timecode helfen beim Nachstudium. Rohvideos werden nicht in der App-Cloud gespeichert.",
     ],
     bullets: [
-      "Nur Link/Referenz, kein Storage-Verbrauch durch Videodateien",
-      "Marken erscheinen in der Berichtsdetailansicht",
-      "Später optional: Event-Import aus VEO-Export – nie automatische Gesamtnote",
+      "Nur Link/Referenz – spart Storage",
+      "Marken in der Berichtsdetailansicht",
+      "Später optional: Event-Import – nie automatische Gesamtnote",
     ],
   },
   {
-    id: "dashboard",
-    title: "Dashboard",
-    summary: "Auswerten, filtern, vergleichen.",
+    id: "import",
+    group: "erfassen",
+    title: "Import",
+    summary: "Kader übernehmen statt tippen.",
     paragraphs: [
-      "Im Dashboard siehst du Aggregationen deiner Spieler- und Teamberichte, Trends und einen Spielervergleich. Es erscheinen nur Daten, die du selbst erfasst hast.",
-      "Radar, Verlauf und Vergleich nutzen dein Bewertungsraster inklusive eigener Custom-Felder.",
+      "Unter Import Quelle wählen, Treffer prüfen, übernehmen. Deduplizierung gilt pro Scout: derselbe externe Spieler wird bei dir nicht doppelt angelegt.",
+      "Jugendkader auf fussball.de sind oft gesperrt – dann Namensliste oder manuell.",
+    ],
+    bullets: [
+      "Transfermarkt: empfohlen für Jugend-/Vereinsskader",
+      "fussball.de: Teams; Kader oft per Namensliste",
+      "Spieler-Tab: TheSportsDB (bekannte Namen)",
+      "API-Tab: braucht API_FUSSBALL_TOKEN",
+      "Nach Übernehmen: Sync-Leiste prüfen",
+    ],
+    tip: "Nur öffentliche Scout-Quellen – Importe sparsam und für den eigenen Workflow.",
+    links: [{ href: "/import", label: "Zum Import" }],
+  },
+  {
+    id: "dashboard",
+    group: "auswerten",
+    title: "Dashboard",
+    summary: "Filtern, vergleichen, Trends.",
+    paragraphs: [
+      "Im Dashboard siehst du Aggregationen deiner Spieler- und Teamberichte. Es erscheinen nur Daten, die du selbst erfasst hast.",
+      "Radar, Verlauf und Vergleich nutzen dein Raster inklusive Custom-Felder.",
+    ],
+    links: [
+      { href: "/dashboard", label: "Dashboard" },
+      { href: "/dashboard/compare", label: "Spieler vergleichen" },
     ],
   },
   {
     id: "faq",
+    group: "faq",
     title: "Häufige Fragen",
-    summary: "Kurze Antworten auf typische Feedback-Fragen.",
-    paragraphs: [
-      "Warum sieht ein anderer Scout meine Spieler? Das sollte nach dem Privacy-Update nicht mehr passieren. Stelle sicher, dass die App aktuell ist und der andere Account neu angemeldet/synchronisiert hat. Server-seitig müssen die owner-scoped RLS-Policies aktiv sein.",
-      "Kann ich die Einführung erneut ansehen? Ja – auf der Hilfeseite unter „Einführung erneut starten“.",
-      "Wo stelle ich den Dark Mode um? Über das Mond-/Sonnen-Icon oben rechts (mobil) bzw. in der Sidebar und der Desktop-Leiste. Die Wahl wird gespeichert.",
-      "Wo speichern sich Fotos? Lokal und bei Sync in deinem Storage-Konto; sie hängen an deinen Berichten.",
+    summary: "Kurze Antworten auf typische Fragen.",
+    paragraphs: [],
+    faqs: [
+      {
+        question: "Warum sieht ein anderer Scout meine Spieler?",
+        answer:
+          "Das sollte nach dem Privacy-Update nicht mehr passieren. App aktualisieren, anderen Account neu anmelden und syncen. Server-seitig müssen die owner-scoped RLS-Policies in Supabase aktiv sein (siehe README).",
+      },
+      {
+        question: "Kann ich die Einführung erneut ansehen?",
+        answer:
+          "Ja – auf dieser Hilfeseite oben rechts „Einführung starten“.",
+      },
+      {
+        question: "Wo stelle ich den Dark Mode um?",
+        answer:
+          "Über das Mond-/Sonnen-Icon im Header (Mobil), in der Sidebar oder der Desktop-Leiste. Die Wahl wird gespeichert.",
+      },
+      {
+        question: "Wo landen Fotos?",
+        answer:
+          "Zuerst lokal am Gerät; bei Sync in deinem Storage, gebunden an deine Berichte – nicht sichtbar für andere Scouts.",
+      },
+      {
+        question: "Sync zeigt Fehler – was tun?",
+        answer:
+          "Online prüfen, dann „Retry“ / „Erneut versuchen“ in der Sync-Leiste. Bleibt der Fehler: einmal ab- und neu anmelden; bei Import-Problemen Token/URL prüfen.",
+      },
+      {
+        question: "Warum fehlen Formationen oder Video-Felder nach dem Deploy?",
+        answer:
+          "Die SQL-Skripte match_formations.sql, match_video.sql und ggf. attribute_definitions_owner.sql müssen im Supabase SQL-Editor ausgeführt worden sein.",
+      },
     ],
   },
 ];
+
+export function helpSectionsByGroup(): {
+  group: HelpGroupId;
+  label: string;
+  sections: HelpSection[];
+}[] {
+  const order: HelpGroupId[] = ["einstieg", "erfassen", "auswerten", "faq"];
+  return order.map((group) => ({
+    group,
+    label: HELP_GROUP_LABELS[group],
+    sections: helpSections.filter((s) => s.group === group),
+  }));
+}
