@@ -11,6 +11,7 @@ export type HelpSectionId =
   | "video"
   | "import"
   | "dashboard"
+  | "trainer"
   | "faq";
 
 export type HelpGroupId = "einstieg" | "erfassen" | "auswerten" | "faq";
@@ -246,6 +247,26 @@ export const helpSections: HelpSection[] = [
     links: [
       { href: "/dashboard", label: "Dashboard" },
       { href: "/dashboard/compare", label: "Spieler vergleichen" },
+    ],
+  },
+  {
+    id: "trainer",
+    group: "einstieg",
+    title: "Trainerbereich",
+    summary: "Kader, Entwicklung, Freigaben, Aufstellung.",
+    paragraphs: [
+      "Unter Profil & Rollen kannst du die Rolle Trainer aktivieren (auch parallel zu Scout). Dann erscheint die Trainer-Navigation.",
+      "Kader pflegt deine Mannschaft(en) mit Jahrgang und Einwilligung. Freigaben laufen gezielt per Code – kein Marktplatz. Aufstellung ist ein Positions-Board (Zeichenwerkzeug folgt in V2).",
+    ],
+    bullets: [
+      "Mehrere Teams mit Umschalter",
+      "Einwilligung steuert, ob Freigaben möglich sind",
+      "Widerruf der Einwilligung beendet aktive Freigaben",
+      "SQL: supabase/trainer_v1.sql",
+    ],
+    links: [
+      { href: "/einstellungen/profil", label: "Profil & Rollen" },
+      { href: "/kader", label: "Kader" },
     ],
   },
   {

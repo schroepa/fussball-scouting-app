@@ -1,11 +1,13 @@
 # Fussball Scouting App – Plan v3
 
-> Stand: Juli 2026 (Abstimmungsrunde 3). Lebende Planungsgrundlage für Feature-Umfang, Datenmodell, Architektur und Tech-Stack.
+> Stand: August 2026. Lebende Planungsgrundlage für Feature-Umfang, Datenmodell, Architektur und Tech-Stack.  
+> Trainerbereich: siehe `docs/TRAINERBEREICH.md` und `docs/Fusca-Trainerbereich-Konzept.md`.
 
 ## 1. Rahmenbedingungen
 
-- **Nutzer:** Ausschließlich Scouts (MVP). Keine Trainer-/Admin-Rollen im ersten Schritt; Datenmodell lässt das später zu.
-- **Datentrennung (neu, verbindlich):** Jeder Scout sieht **nur eigene** Beobachtungen – eigene Spieler, Vereine, Spiele und Berichte. Kein gemeinsames Team-Wissen über Account-Grenzen hinweg (Feedback: Testspieler eines Scouts dürfen bei anderen nicht erscheinen).
+- **Nutzer:** Scouts (MVP erledigt) + **Trainerbereich V1** (Rollen Mehrfachauswahl Scout/Trainer).
+- **Datentrennung (verbindlich):** Stammdaten und Berichte bleiben owner-scoped. Austausch nur über **gezielte Freigabe** (Einladung), kein Marktplatz/Suche.
+- **Datentrennung (Scout-MVP):** Jeder Scout sieht **nur eigene** Beobachtungen – eigene Spieler, Vereine, Spiele und Berichte. Kein gemeinsames Team-Wissen über Account-Grenzen hinweg (Feedback: Testspieler eines Scouts dürfen bei anderen nicht erscheinen).
 - **Drei Nutzungskontexte:**
   1. **Spielfeldrand** – schnell, offline, wenige Taps
   2. **Nachbearbeitung Zuhause** – strukturieren, vergleichen, exportieren (Desktop)
@@ -86,7 +88,8 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 7. ~~**Import-Feinschliff**~~ – leere Treffer, Sync-Meldungen, Hilfe
 8. ~~**M10 Qualität**~~ – Vitest, Playwright-Smoke, CSP, Rate-Limit (`docs/SECURITY.md`)
 9. ~~**M11 Edit + UI**~~ – Berichte bearbeiten, Radien, Select, Empty States
-10. **Später:** VEO Phase 2 (Event-Import), Cookie-SSR-Auth, optionale Team-Pools
+10. **M12 Trainerbereich V1** – Rollen, Teams/Kader, Entwicklung, Freigaben, Positions-Board (`docs/TRAINERBEREICH.md`)
+11. **Später:** Trainer V2 (Matching, Taktik-Zeichnen), VEO Phase 2, Cookie-SSR-Auth
 
 ## 7. M7 – Match-Phasen & Formationen
 
@@ -119,8 +122,18 @@ Am **Match** (zusätzlich zur optionalen Kurznotiz `TeamReport.formation`):
 - ✅ Nächste Features: Privacy → Hilfe → Formationen → VEO-Link  
 - ✅ VEO als Link/Bezug, nicht als Storage-fressende Auto-Analyse zuerst  
 
-## 11. Offene Punkte
+## 11. M12 – Trainerbereich V1
+
+- Rollen: `scout` / `trainer` (Mehrfach), Modus-Umschalter, Trainer-Profilfelder
+- Entities: `teams`, `squad_memberships`, `player_shares`, `tactical_formations`
+- Spieler: optional `jahrgang`; Einwilligung am Kadereintrag
+- UI: `/kader`, `/entwicklung`, `/freigaben`, `/aufstellung`, `/einstellungen/profil`
+- SQL: `supabase/trainer_v1.sql`
+- V2 bewusst ausgelassen: Doppelgänger-Matching, Bewegungspfade, Spiel-Teilnahme-Ist
+
+## 12. Offene Punkte
 
 - VEO: welcher konkrete Export/API-Zugang steht zur Verfügung?
-- Sollen „Beobachtungs-Pools“ später bewusst team-geteilt werden können (Opt-in), oder dauerhaft 1:1 Scout↔Daten?
 - App-Name / Domain für PWA?
+- Rechtliche Formulierung Eltern-Einwilligung (Text, nicht nur Datenfeld)
+- Wireframes Freigabe-Journey / Trainer-Onboarding

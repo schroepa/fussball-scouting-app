@@ -1,0 +1,13 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ProfileSettings from "../../components/ProfileSettings";
+---
+
+<Layout title="Profil & Rollen" activeNav="profil">
+  <h1 class="md:hidden text-xl font-semibold tracking-tight mb-4">Profil &amp; Rollen</h1>
+  <p class="text-sm text-muted-foreground mb-5 max-w-xl">
+    Rollen als Mehrfachauswahl. Mit Trainer-Rolle erscheint die Trainer-Navigation
+    (Kader, Entwicklung, Freigaben, Aufstellung).
+  </p>
+  <ProfileSettings client:load />
+</Layout>

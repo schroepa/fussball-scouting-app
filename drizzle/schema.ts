@@ -23,6 +23,10 @@ export const scouts = pgTable("scouts", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   authProvider: text("auth_provider"),
+  roles: jsonb("roles").notNull().default(["scout"]),
+  primaryMode: text("primary_mode"),
+  trainerClubName: text("trainer_club_name"),
+  trainerAgeGroups: jsonb("trainer_age_groups").notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -45,6 +49,7 @@ export const players = pgTable("players", {
   vorname: text("vorname").notNull(),
   nachname: text("nachname").notNull(),
   geburtsdatum: text("geburtsdatum"),
+  jahrgang: integer("jahrgang"),
   nationalitaet: text("nationalitaet"),
   positionen: jsonb("positionen").notNull().default([]),
   starkerFuss: text("starker_fuss"),
@@ -145,4 +150,57 @@ export const attributeDefinitions = pgTable("attribute_definitions", {
   reihenfolge: integer("reihenfolge").notNull().default(100),
   createdBy: uuid("created_by").references(() => scouts.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const teams = pgTable("teams", {
+  id: uuid("id").primaryKey(),
+  name: text("name").notNull(),
+  clubId: uuid("club_id").references(() => clubs.id),
+  clubName: text("club_name").notNull().default(""),
+  ageGroup: text("age_group").notNull(),
+  season: text("season"),
+  createdBy: uuid("created_by").notNull().references(() => scouts.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const squadMemberships = pgTable("squad_memberships", {
+  id: uuid("id").primaryKey(),
+  teamId: uuid("team_id").notNull().references(() => teams.id),
+  playerId: uuid("player_id").notNull().references(() => players.id),
+  consentStatus: text("consent_status").notNull().default("ausstehend"),
+  jerseyNumber: integer("jersey_number"),
+  notes: text("notes"),
+  createdBy: uuid("created_by").notNull().references(() => scouts.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const playerShares = pgTable("player_shares", {
+  id: uuid("id").primaryKey(),
+  playerId: uuid("player_id").notNull().references(() => players.id),
+  createdBy: uuid("created_by").notNull().references(() => scouts.id),
+  inviteCode: text("invite_code").notNull(),
+  inviteExpiresAt: timestamp("invite_expires_at", { withTimezone: true }).notNull(),
+  acceptedBy: uuid("accepted_by").references(() => scouts.id),
+  role: text("role").notNull().default("viewer"),
+  status: text("status").notNull().default("pending"),
+  sharePii: boolean("share_pii").notNull().default(false),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const tacticalFormations = pgTable("tactical_formations", {
+  id: uuid("id").primaryKey(),
+  name: text("name").notNull(),
+  teamId: uuid("team_id").references(() => teams.id),
+  gameId: uuid("game_id").references(() => matches.id),
+  templateKey: text("template_key"),
+  positionsOff: jsonb("positions_off").notNull().default([]),
+  positionsDef: jsonb("positions_def").notNull().default([]),
+  createdBy: uuid("created_by").notNull().references(() => scouts.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

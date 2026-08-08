@@ -5,7 +5,11 @@ import type {
   Match,
   Player,
   PlayerReport,
+  PlayerShare,
   Scout,
+  SquadMembership,
+  TacticalFormation,
+  Team,
   TeamReport,
 } from "../types";
 import { DEFAULT_ATTRIBUTES } from "../attributeDefinitions";
@@ -32,6 +36,10 @@ export class ScoutingDB extends Dexie {
   attributeDefinitions!: EntityTable<AttributeDefinition, "id">;
   scouts!: EntityTable<Scout, "id">;
   mediaBlobs!: EntityTable<LocalMediaBlob, "key">;
+  teams!: EntityTable<Team, "id">;
+  squadMemberships!: EntityTable<SquadMembership, "id">;
+  playerShares!: EntityTable<PlayerShare, "id">;
+  tacticalFormations!: EntityTable<TacticalFormation, "id">;
 
   constructor() {
     super("fussball-scouting-db");
@@ -73,6 +81,25 @@ export class ScoutingDB extends Dexie {
       attributeDefinitions: "id, giltFuer, key, reihenfolge, ownerScoutId, syncStatus",
       scouts: "id, email",
       mediaBlobs: "key",
+    });
+
+    this.version(4).stores({
+      clubs: "id, name, ownerScoutId, syncStatus, updatedAt",
+      players: "id, nachname, aktuellerClubId, ownerScoutId, jahrgang, syncStatus, updatedAt",
+      matches: "id, datum, heimClubId, gastClubId, ownerScoutId, syncStatus, updatedAt",
+      playerReports:
+        "id, playerId, scoutId, bezugstyp, matchId, datum, syncStatus, updatedAt",
+      teamReports:
+        "id, clubId, scoutId, berichtsart, bezugstyp, matchId, datum, syncStatus, updatedAt",
+      attributeDefinitions: "id, giltFuer, key, reihenfolge, ownerScoutId, syncStatus",
+      scouts: "id, email",
+      mediaBlobs: "key",
+      teams: "id, name, ageGroup, ownerScoutId, syncStatus, updatedAt",
+      squadMemberships:
+        "id, teamId, playerId, consentStatus, ownerScoutId, syncStatus, updatedAt",
+      playerShares:
+        "id, playerId, ownerScoutId, inviteCode, acceptedByScoutId, status, syncStatus, updatedAt",
+      tacticalFormations: "id, teamId, name, ownerScoutId, syncStatus, updatedAt",
     });
   }
 }

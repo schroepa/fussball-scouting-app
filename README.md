@@ -107,6 +107,7 @@ Im Supabase SQL-Editor ausführen:
 2. [`supabase/match_formations.sql`](supabase/match_formations.sql) – Formationen/Phasen  
 3. [`supabase/match_video.sql`](supabase/match_video.sql) – Video-Link/Marken  
 4. [`supabase/attribute_definitions_owner.sql`](supabase/attribute_definitions_owner.sql) – Custom-Bewertungsfelder  
+5. [`supabase/trainer_v1.sql`](supabase/trainer_v1.sql) – Trainerbereich (Rollen, Teams, Kader, Freigaben, Aufstellung)  
 
 Ohne diese Skripte können Sync, Privacy oder neue Match-Felder fehlschlagen.
 

@@ -1,4 +1,5 @@
 import { getSupabaseClient, isSupabaseConfigured } from "../supabase/client";
+import { mergeScoutWithProfile } from "../trainer/mode";
 import type { Scout } from "../types";
 
 const LOCAL_SCOUT_KEY = "scouting_local_scout";
@@ -11,12 +12,17 @@ const LOCAL_SCOUT_KEY = "scouting_local_scout";
  */
 function getOrCreateLocalScout(): Scout {
   if (typeof window === "undefined") {
-    return { id: "local-scout", name: "Lokaler Scout", email: "" };
+    return {
+      id: "local-scout",
+      name: "Lokaler Scout",
+      email: "",
+      roles: ["scout"],
+    };
   }
   const raw = window.localStorage.getItem(LOCAL_SCOUT_KEY);
   if (raw) {
     try {
-      return JSON.parse(raw) as Scout;
+      return mergeScoutWithProfile(JSON.parse(raw) as Scout);
     } catch {
       // fällt durch und wird neu erzeugt
     }
@@ -26,9 +32,10 @@ function getOrCreateLocalScout(): Scout {
     name: "Lokaler Scout",
     email: "",
     authProvider: "local",
+    roles: ["scout"],
   };
   window.localStorage.setItem(LOCAL_SCOUT_KEY, JSON.stringify(scout));
-  return scout;
+  return mergeScoutWithProfile(scout);
 }
 
 export interface SessionState {
@@ -45,7 +52,7 @@ export async function getCurrentSession(): Promise<SessionState> {
     const user = data.session?.user;
     if (user) {
       return {
-        scout: {
+        scout: mergeScoutWithProfile({
           id: user.id,
           name:
             (user.user_metadata?.full_name as string | undefined) ??
@@ -53,7 +60,8 @@ export async function getCurrentSession(): Promise<SessionState> {
             "Scout",
           email: user.email ?? "",
           authProvider: user.app_metadata?.provider as string | undefined,
-        },
+          roles: ["scout"],
+        }),
         isAuthenticated: true,
         isLocalOnly: false,
       };

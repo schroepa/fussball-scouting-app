@@ -9,15 +9,25 @@ import type {
   Bezugstyp,
   Berichtsart,
   Club,
+  ConsentStatus,
   Empfehlung,
+  FormationPlayerPos,
   Match,
   Player,
   PlayerReport,
+  PlayerShare,
+  ShareRole,
+  ShareStatus,
+  SquadMembership,
   SyncStatus,
+  TacticalFormation,
+  Team,
   TeamReport,
 } from "../types";
 import { parsePhasesFromRemote } from "../match/formations";
 import { parseVideoMarkersFromRemote } from "../match/video";
+import { saveLocalProfileOverlay } from "../trainer/mode";
+import type { AppMode, AppRole } from "../types";
 
 export interface SyncResult {
   ok: boolean;
@@ -127,6 +137,10 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       name: session.scout.name,
       email: session.scout.email,
       auth_provider: session.scout.authProvider ?? "google",
+      roles: session.scout.roles ?? ["scout"],
+      primary_mode: session.scout.primaryMode ?? null,
+      trainer_club_name: session.scout.trainerClubName ?? null,
+      trainer_age_groups: session.scout.trainerAgeGroups ?? [],
     },
     { onConflict: "id" }
   );
@@ -174,6 +188,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       vorname: p.vorname,
       nachname: p.nachname,
       geburtsdatum: p.geburtsdatum ?? null,
+      jahrgang: p.jahrgang ?? null,
       nationalitaet: p.nationalitaet ?? null,
       positionen: p.positionen,
       starker_fuss: p.starkerFuss ?? null,
@@ -269,6 +284,71 @@ export async function pushPendingChanges(): Promise<SyncResult> {
   );
 
   track(await syncCustomAttributes(session.scout.id));
+
+  track(
+    await syncTable<Team>(db.teams, "teams", (t) => ({
+      id: t.id,
+      name: t.name,
+      club_id: t.clubId ?? null,
+      club_name: t.clubName,
+      age_group: t.ageGroup,
+      season: t.season ?? null,
+      created_by: t.ownerScoutId,
+      updated_at: t.updatedAt,
+      created_at: t.createdAt,
+    }))
+  );
+
+  track(
+    await syncTable<SquadMembership>(db.squadMemberships, "squad_memberships", (m) => ({
+      id: m.id,
+      team_id: m.teamId,
+      player_id: m.playerId,
+      consent_status: m.consentStatus,
+      jersey_number: m.jerseyNumber ?? null,
+      notes: m.notes ?? null,
+      created_by: m.ownerScoutId,
+      updated_at: m.updatedAt,
+      created_at: m.createdAt,
+    }))
+  );
+
+  track(
+    await syncTable<PlayerShare>(db.playerShares, "player_shares", (s) => ({
+      id: s.id,
+      player_id: s.playerId,
+      created_by: s.ownerScoutId,
+      invite_code: s.inviteCode,
+      invite_expires_at: s.inviteExpiresAt,
+      accepted_by: s.acceptedByScoutId ?? null,
+      role: s.role,
+      status: s.status,
+      share_pii: s.sharePii,
+      revoked_at: s.revokedAt ?? null,
+      accepted_at: s.acceptedAt ?? null,
+      updated_at: s.updatedAt,
+      created_at: s.createdAt,
+    }))
+  );
+
+  track(
+    await syncTable<TacticalFormation>(
+      db.tacticalFormations,
+      "tactical_formations",
+      (f) => ({
+        id: f.id,
+        name: f.name,
+        team_id: f.teamId ?? null,
+        game_id: f.gameId ?? null,
+        template_key: f.templateKey ?? null,
+        positions_off: f.positionsOff,
+        positions_def: f.positionsDef,
+        created_by: f.ownerScoutId,
+        updated_at: f.updatedAt,
+        created_at: f.createdAt,
+      })
+    )
+  );
 
   if (failed === 0) {
     return {
@@ -373,6 +453,7 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
       vorname: String(row.vorname ?? ""),
       nachname: String(row.nachname ?? ""),
       geburtsdatum: (row.geburtsdatum as string | null) ?? undefined,
+      jahrgang: (row.jahrgang as number | null) ?? undefined,
       nationalitaet: (row.nationalitaet as string | null) ?? undefined,
       positionen: Array.isArray(row.positionen)
         ? (row.positionen as string[])
@@ -482,6 +563,106 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
   );
 
   track(await pullCustomAttributes(session.scout.id));
+
+  track(
+    await pullTable<Team>("teams", db.teams, (row) => ({
+      id: String(row.id),
+      name: String(row.name ?? ""),
+      clubId: (row.club_id as string | null) ?? undefined,
+      clubName: String(row.club_name ?? ""),
+      ageGroup: String(row.age_group ?? ""),
+      season: (row.season as string | null) ?? undefined,
+      ownerScoutId: String(row.created_by ?? session.scout.id),
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  track(
+    await pullTable<SquadMembership>("squad_memberships", db.squadMemberships, (row) => ({
+      id: String(row.id),
+      teamId: String(row.team_id),
+      playerId: String(row.player_id),
+      consentStatus: (row.consent_status as ConsentStatus) ?? "ausstehend",
+      jerseyNumber: (row.jersey_number as number | null) ?? undefined,
+      notes: (row.notes as string | null) ?? undefined,
+      ownerScoutId: String(row.created_by ?? session.scout.id),
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  track(
+    await pullTable<PlayerShare>("player_shares", db.playerShares, (row) => ({
+      id: String(row.id),
+      playerId: String(row.player_id),
+      ownerScoutId: String(row.created_by ?? session.scout.id),
+      inviteCode: String(row.invite_code ?? ""),
+      inviteExpiresAt: iso(row.invite_expires_at) ?? new Date().toISOString(),
+      acceptedByScoutId: (row.accepted_by as string | null) ?? undefined,
+      role: (row.role as ShareRole) ?? "viewer",
+      status: (row.status as ShareStatus) ?? "pending",
+      sharePii: Boolean(row.share_pii),
+      revokedAt: iso(row.revoked_at) ?? undefined,
+      acceptedAt: iso(row.accepted_at) ?? undefined,
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  track(
+    await pullTable<TacticalFormation>(
+      "tactical_formations",
+      db.tacticalFormations,
+      (row) => ({
+        id: String(row.id),
+        name: String(row.name ?? ""),
+        teamId: (row.team_id as string | null) ?? undefined,
+        gameId: (row.game_id as string | null) ?? undefined,
+        templateKey: (row.template_key as string | null) ?? undefined,
+        positionsOff: Array.isArray(row.positions_off)
+          ? (row.positions_off as FormationPlayerPos[])
+          : [],
+        positionsDef: Array.isArray(row.positions_def)
+          ? (row.positions_def as FormationPlayerPos[])
+          : [],
+        ownerScoutId: String(row.created_by ?? session.scout.id),
+        syncStatus: "synced",
+        updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+        createdAt: iso(row.created_at) ?? new Date().toISOString(),
+      })
+    )
+  );
+
+  // Scout-Profil (Rollen) vom Server in Overlay spiegeln
+  try {
+    const { data: scoutRow } = await supabase
+      .from("scouts")
+      .select(
+        "roles, primary_mode, trainer_club_name, trainer_age_groups, name"
+      )
+      .eq("id", session.scout.id)
+      .maybeSingle();
+    if (scoutRow) {
+      saveLocalProfileOverlay({
+        name: (scoutRow.name as string | undefined) ?? session.scout.name,
+        roles: Array.isArray(scoutRow.roles)
+          ? (scoutRow.roles as AppRole[])
+          : ["scout"],
+        primaryMode: (scoutRow.primary_mode as AppMode | null) ?? undefined,
+        trainerClubName:
+          (scoutRow.trainer_club_name as string | null) ?? undefined,
+        trainerAgeGroups: Array.isArray(scoutRow.trainer_age_groups)
+          ? (scoutRow.trainer_age_groups as string[])
+          : undefined,
+      });
+    }
+  } catch {
+    // Profil-Pull optional
+  }
 
   if (failed === 0) {
     return {
