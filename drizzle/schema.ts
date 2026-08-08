@@ -200,6 +200,38 @@ export const tacticalFormations = pgTable("tactical_formations", {
   templateKey: text("template_key"),
   positionsOff: jsonb("positions_off").notNull().default([]),
   positionsDef: jsonb("positions_def").notNull().default([]),
+  sequences: jsonb("sequences").notNull().default([]),
+  createdBy: uuid("created_by").notNull().references(() => scouts.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const playerLinks = pgTable("player_links", {
+  id: uuid("id").primaryKey(),
+  playerIdA: uuid("player_id_a").notNull().references(() => players.id),
+  ownerA: uuid("owner_a").notNull().references(() => scouts.id),
+  playerIdB: uuid("player_id_b").notNull().references(() => players.id),
+  ownerB: uuid("owner_b").notNull().references(() => scouts.id),
+  matchScore: integer("match_score").notNull().default(0),
+  status: text("status").notNull().default("vorgeschlagen"),
+  confirmedByA: boolean("confirmed_by_a").notNull().default(false),
+  confirmedByB: boolean("confirmed_by_b").notNull().default(false),
+  confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  previewA: jsonb("preview_a").notNull().default({}),
+  previewB: jsonb("preview_b").notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const gameParticipations = pgTable("game_participations", {
+  id: uuid("id").primaryKey(),
+  gameId: uuid("game_id").notNull().references(() => matches.id),
+  teamId: uuid("team_id").references(() => teams.id),
+  playerId: uuid("player_id").notNull().references(() => players.id),
+  position: text("position"),
+  minutenVon: integer("minuten_von"),
+  minutenBis: integer("minuten_bis"),
+  rolle: text("rolle").notNull().default("startxi"),
   createdBy: uuid("created_by").notNull().references(() => scouts.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
