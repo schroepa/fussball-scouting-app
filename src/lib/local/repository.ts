@@ -773,6 +773,18 @@ export async function purgeForeignLocalData(scoutId: string): Promise<{
       removed += 1;
     }
   }
+  for (const l of await db.playerLinks.toArray()) {
+    if (l.ownerA !== scoutId && l.ownerB !== scoutId) {
+      await db.playerLinks.delete(l.id);
+      removed += 1;
+    }
+  }
+  for (const g of await db.gameParticipations.toArray()) {
+    if (g.ownerScoutId !== scoutId) {
+      await db.gameParticipations.delete(g.id);
+      removed += 1;
+    }
+  }
 
   return { removed, claimed };
 }

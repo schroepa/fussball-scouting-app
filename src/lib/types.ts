@@ -335,18 +335,109 @@ export interface FormationPlayerPos {
   y: number;
 }
 
+export type MovementType = "lauf" | "pass";
+
+export const MOVEMENT_TYPE_LABELS: Record<MovementType, string> = {
+  lauf: "Lauf ohne Ball",
+  pass: "Passweg",
+};
+
+/** Ein gezeichneter Pfad auf der Taktiktafel (Punkte relativ 0–100). */
+export interface FormationMovement {
+  id: string;
+  playerId?: string;
+  typ: MovementType;
+  /** Reihenfolge innerhalb eines Sequenz-Schritts. */
+  order: number;
+  points: Array<{ x: number; y: number }>;
+}
+
+/** Ein Schritt einer Taktik-Sequenz (Folie). */
+export interface FormationSequenceStep {
+  id: string;
+  label: string;
+  movements: FormationMovement[];
+}
+
 /**
- * Taktik-/Aufstellungsboard (V1: Positions-Sets offensiv/defensiv, ohne Zeichenebene).
+ * Taktik-/Aufstellungsboard inkl. V2: Sequenzen/Bewegungen + optionale Spielzuordnung.
  */
 export interface TacticalFormation {
   id: string;
   name: string;
   teamId?: string;
-  /** Optional – lose Kopplung an ein Spiel; V1 oft null (Vorlage). */
+  /** Optional – lose Kopplung an ein Match. */
   gameId?: string;
   templateKey?: string;
   positionsOff: FormationPlayerPos[];
   positionsDef: FormationPlayerPos[];
+  /** V2: Spielzug-Schritte (Folien). */
+  sequences?: FormationSequenceStep[];
+  ownerScoutId: string;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export type PlayerLinkStatus =
+  | "vorgeschlagen"
+  | "bestaetigt"
+  | "abgelehnt";
+
+export const PLAYER_LINK_STATUS_LABELS: Record<PlayerLinkStatus, string> = {
+  vorgeschlagen: "Vorgeschlagen",
+  bestaetigt: "Bestätigt",
+  abgelehnt: "Abgelehnt",
+};
+
+/**
+ * Verknüpfung zweier Spielerprofile (kein Merge).
+ * Blind-Preview bis beide Owner bestätigt haben.
+ */
+export interface PlayerLink {
+  id: string;
+  playerIdA: string;
+  ownerA: string;
+  playerIdB: string;
+  ownerB: string;
+  matchScore: number;
+  status: PlayerLinkStatus;
+  /** Ob Owner A die Verknüpfung bestätigt hat. */
+  confirmedByA?: boolean;
+  confirmedByB?: boolean;
+  confirmedAt?: string;
+  /** Blind-Preview-Felder (keine Namen). */
+  previewA: PlayerBlindPreview;
+  previewB: PlayerBlindPreview;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface PlayerBlindPreview {
+  jahrgang?: number;
+  clubName?: string;
+  positionen: string[];
+}
+
+export type ParticipationRole = "startxi" | "bank" | "einwechslung";
+
+export const PARTICIPATION_ROLE_LABELS: Record<ParticipationRole, string> = {
+  startxi: "Startelf",
+  bank: "Bank",
+  einwechslung: "Einwechslung",
+};
+
+/** Ist-Teilnahme am Spiel – getrennt von geplanter Aufstellung (Soll). */
+export interface GameParticipation {
+  id: string;
+  gameId: string;
+  teamId?: string;
+  playerId: string;
+  position?: string;
+  minutenVon?: number;
+  minutenBis?: number;
+  rolle: ParticipationRole;
   ownerScoutId: string;
   syncStatus: SyncStatus;
   updatedAt: string;

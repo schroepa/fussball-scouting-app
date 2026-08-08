@@ -23,8 +23,8 @@ Pro-Account nutzen für Blocks/Themes/MCP:
 
 ## Roadmap (Kurz)
 
-Siehe `docs/PLANNING.md` v3. Nächstes großes Thema: **Trainerbereich V1** (`docs/TRAINERBEREICH.md`).  
-Ops: `rls_owner_scoped.sql`, `match_formations.sql`, `match_video.sql`, `attribute_definitions_owner.sql`, `trainer_v1.sql`.
+Siehe `docs/PLANNING.md` v3. Trainerbereich: **V1 erledigt**, **V2** Matching/Zeichnen/Teilnahmen (`docs/TRAINERBEREICH_V2.md`).  
+Ops: `rls_owner_scoped.sql`, `match_formations.sql`, `match_video.sql`, `attribute_definitions_owner.sql`, `trainer_v1.sql`, `trainer_v2.sql`.
 
 ## Documentation
 

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import DuplicateMatchPanel from "./DuplicateMatchPanel";
 import TeamSwitcher from "./TeamSwitcher";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ export default function KaderPage() {
   const [jahrgang, setJahrgang] = useState("");
   const [position, setPosition] = useState("");
   const [existingPlayerId, setExistingPlayerId] = useState("");
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const reload = async (activeTeam?: Team | null) => {
@@ -141,6 +143,15 @@ export default function KaderPage() {
           setTeam(t);
           void reload(t);
         }}
+      />
+
+      <DuplicateMatchPanel
+        player={
+          selectedPlayerId
+            ? rows.find((r) => r.player.id === selectedPlayerId)?.player ?? null
+            : rows[0]?.player ?? null
+        }
+        onLinked={() => void reload(team)}
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -270,6 +281,7 @@ export default function KaderPage() {
                   <li
                     key={membership.id}
                     className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-card px-3 py-3"
+                    onClick={() => setSelectedPlayerId(player.id)}
                   >
                     <div className="min-w-0">
                       <div className="font-medium truncate">

@@ -9,9 +9,13 @@ import {
   defensiveFromOffensive,
   emptyPositionsFromTemplate,
 } from "../trainer/formationBoard";
+import { buildBlindPreview } from "../trainer/matching";
 import type {
   ConsentStatus,
+  GameParticipation,
+  ParticipationRole,
   Player,
+  PlayerLink,
   PlayerShare,
   ShareRole,
   SquadMembership,
@@ -383,6 +387,7 @@ export async function createTacticalFormation(input: {
     templateKey,
     positionsOff,
     positionsDef: defensiveFromOffensive(positionsOff),
+    sequences: [{ id: newId(), label: "Schritt 1", movements: [] }],
     ownerScoutId: scoutId,
     syncStatus: "pending",
     updatedAt: now,
@@ -423,6 +428,7 @@ export async function updateTacticalFormation(
       | "templateKey"
       | "positionsOff"
       | "positionsDef"
+      | "sequences"
     >
   >
 ): Promise<TacticalFormation | undefined> {
@@ -459,6 +465,7 @@ export async function duplicateTacticalFormation(
       (await updateTacticalFormation(created.id, {
         positionsOff: existing.positionsOff,
         positionsDef: existing.positionsDef,
+        sequences: existing.sequences,
       })) ?? created
     );
   });
@@ -471,4 +478,217 @@ export async function getPlayerDevelopment(playerId: string) {
     .equals(playerId)
     .toArray();
   return reports.sort((a, b) => a.datum.localeCompare(b.datum));
+}
+
+export async function proposePlayerLink(input: {
+  myPlayer: Player;
+  otherPlayer: Player;
+  score: number;
+  clubNameMine?: string;
+  clubNameOther?: string;
+}): Promise<PlayerLink> {
+  const scoutId = await currentScoutId();
+  const otherOwner = input.otherPlayer.ownerScoutId ?? scoutId;
+  const now = nowIso();
+
+  // Bestehende Verknüpfung derselben Paarung wiederverwenden
+  const existing = (await db.playerLinks.toArray()).find(
+    (l) =>
+      (l.playerIdA === input.myPlayer.id && l.playerIdB === input.otherPlayer.id) ||
+      (l.playerIdB === input.myPlayer.id && l.playerIdA === input.otherPlayer.id)
+  );
+  if (existing) return existing;
+
+  const iAmA = true;
+  const link: PlayerLink = {
+    id: newId(),
+    playerIdA: input.myPlayer.id,
+    ownerA: scoutId,
+    playerIdB: input.otherPlayer.id,
+    ownerB: otherOwner,
+    matchScore: input.score,
+    status: "vorgeschlagen",
+    confirmedByA: iAmA,
+    confirmedByB: otherOwner === scoutId, // lokaler Doppelgänger: sofort beide Seiten
+    previewA: buildBlindPreview(input.myPlayer, input.clubNameMine),
+    previewB: buildBlindPreview(input.otherPlayer, input.clubNameOther),
+    syncStatus: "pending",
+    updatedAt: now,
+    createdAt: now,
+  };
+
+  if (link.confirmedByA && link.confirmedByB) {
+    link.status = "bestaetigt";
+    link.confirmedAt = now;
+  }
+
+  await db.playerLinks.add(link);
+
+  if (link.status === "bestaetigt" && otherOwner !== scoutId) {
+    await ensureLinkShares(link);
+  }
+
+  return link;
+}
+
+async function ensureLinkShares(link: PlayerLink): Promise<void> {
+  // Automatische Contributor-Freigaben in beide Richtungen (ohne PII)
+  const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+  const now = nowIso();
+  const shares: PlayerShare[] = [
+    {
+      id: newId(),
+      playerId: link.playerIdA,
+      ownerScoutId: link.ownerA,
+      inviteCode: generateInviteCode(),
+      inviteExpiresAt: expires,
+      acceptedByScoutId: link.ownerB,
+      role: "contributor",
+      status: "active",
+      sharePii: false,
+      acceptedAt: now,
+      syncStatus: "pending",
+      updatedAt: now,
+      createdAt: now,
+    },
+    {
+      id: newId(),
+      playerId: link.playerIdB,
+      ownerScoutId: link.ownerB,
+      inviteCode: generateInviteCode(),
+      inviteExpiresAt: expires,
+      acceptedByScoutId: link.ownerA,
+      role: "contributor",
+      status: "active",
+      sharePii: false,
+      acceptedAt: now,
+      syncStatus: "pending",
+      updatedAt: now,
+      createdAt: now,
+    },
+  ];
+  for (const s of shares) {
+    await db.playerShares.put(s);
+  }
+}
+
+export async function listPlayerLinks(): Promise<PlayerLink[]> {
+  const scoutId = await currentScoutId();
+  return (await db.playerLinks.toArray())
+    .filter((l) => l.ownerA === scoutId || l.ownerB === scoutId)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+export async function confirmPlayerLink(id: string): Promise<PlayerLink | undefined> {
+  const link = await db.playerLinks.get(id);
+  if (!link) return undefined;
+  const scoutId = await currentScoutId();
+  if (link.ownerA !== scoutId && link.ownerB !== scoutId) return undefined;
+
+  const updated: PlayerLink = {
+    ...link,
+    confirmedByA: link.ownerA === scoutId ? true : link.confirmedByA,
+    confirmedByB: link.ownerB === scoutId ? true : link.confirmedByB,
+    syncStatus: "pending",
+    updatedAt: nowIso(),
+  };
+  if (updated.confirmedByA && updated.confirmedByB) {
+    updated.status = "bestaetigt";
+    updated.confirmedAt = nowIso();
+    await ensureLinkShares(updated);
+  }
+  await db.playerLinks.put(updated);
+  return updated;
+}
+
+export async function rejectPlayerLink(id: string): Promise<PlayerLink | undefined> {
+  const link = await db.playerLinks.get(id);
+  if (!link) return undefined;
+  const scoutId = await currentScoutId();
+  if (link.ownerA !== scoutId && link.ownerB !== scoutId) return undefined;
+  const updated: PlayerLink = {
+    ...link,
+    status: "abgelehnt",
+    syncStatus: "pending",
+    updatedAt: nowIso(),
+  };
+  await db.playerLinks.put(updated);
+  return updated;
+}
+
+export async function upsertGameParticipation(input: {
+  gameId: string;
+  playerId: string;
+  teamId?: string;
+  position?: string;
+  minutenVon?: number;
+  minutenBis?: number;
+  rolle: ParticipationRole;
+}): Promise<GameParticipation> {
+  const scoutId = await currentScoutId();
+  const existing = (await db.gameParticipations.toArray()).find(
+    (p) =>
+      p.gameId === input.gameId &&
+      p.playerId === input.playerId &&
+      p.ownerScoutId === scoutId
+  );
+  const now = nowIso();
+  if (existing) {
+    const updated: GameParticipation = {
+      ...existing,
+      ...input,
+      syncStatus: "pending",
+      updatedAt: now,
+    };
+    await db.gameParticipations.put(updated);
+    return updated;
+  }
+  const row: GameParticipation = {
+    id: newId(),
+    ...input,
+    ownerScoutId: scoutId,
+    syncStatus: "pending",
+    updatedAt: now,
+    createdAt: now,
+  };
+  await db.gameParticipations.add(row);
+  return row;
+}
+
+export async function listGameParticipations(
+  gameId?: string
+): Promise<GameParticipation[]> {
+  const scoutId = await currentScoutId();
+  let rows = await db.gameParticipations.toArray();
+  rows = rows.filter((p) => p.ownerScoutId === scoutId);
+  if (gameId) rows = rows.filter((p) => p.gameId === gameId);
+  return rows.sort((a, b) => a.playerId.localeCompare(b.playerId));
+}
+
+export async function deleteGameParticipation(id: string): Promise<boolean> {
+  const row = await db.gameParticipations.get(id);
+  if (!row) return false;
+  const scoutId = await currentScoutId();
+  if (row.ownerScoutId !== scoutId) return false;
+  await db.gameParticipations.delete(id);
+  return true;
+}
+
+/** Aggregat für Entwicklungsansicht: Positionen über Spiele. */
+export async function summarizeParticipationsForPlayer(playerId: string) {
+  const scoutId = await currentScoutId();
+  const rows = (await db.gameParticipations.toArray()).filter(
+    (p) => p.ownerScoutId === scoutId && p.playerId === playerId
+  );
+  const byPosition = new Map<string, number>();
+  for (const r of rows) {
+    const key = r.position?.trim() || "ohne Position";
+    byPosition.set(key, (byPosition.get(key) ?? 0) + 1);
+  }
+  return {
+    games: rows.length,
+    byPosition: [...byPosition.entries()]
+      .map(([position, count]) => ({ position, count }))
+      .sort((a, b) => b.count - a.count),
+  };
 }

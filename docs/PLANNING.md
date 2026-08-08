@@ -88,8 +88,9 @@ Deutsche Amateur-/Jugend über fussball.de / Transfermarkt-Adapter. Dedup **pro 
 7. ~~**Import-Feinschliff**~~ – leere Treffer, Sync-Meldungen, Hilfe
 8. ~~**M10 Qualität**~~ – Vitest, Playwright-Smoke, CSP, Rate-Limit (`docs/SECURITY.md`)
 9. ~~**M11 Edit + UI**~~ – Berichte bearbeiten, Radien, Select, Empty States
-10. **M12 Trainerbereich V1** – Rollen, Teams/Kader, Entwicklung, Freigaben, Positions-Board (`docs/TRAINERBEREICH.md`)
-11. **Später:** Trainer V2 (Matching, Taktik-Zeichnen), VEO Phase 2, Cookie-SSR-Auth
+10. ~~**M12 Trainerbereich V1**~~ – Rollen, Teams/Kader, Entwicklung, Freigaben, Positions-Board
+11. **M13 Trainerbereich V2** – Matching, Taktik-Zeichnen/Sequenzen, Spiel-Teilnahme (`docs/TRAINERBEREICH_V2.md`)
+12. **Später:** VEO Phase 2, Cookie-SSR-Auth
 
 ## 7. M7 – Match-Phasen & Formationen
 
@@ -129,7 +130,13 @@ Am **Match** (zusätzlich zur optionalen Kurznotiz `TeamReport.formation`):
 - Spieler: optional `jahrgang`; Einwilligung am Kadereintrag
 - UI: `/kader`, `/entwicklung`, `/freigaben`, `/aufstellung`, `/einstellungen/profil`
 - SQL: `supabase/trainer_v1.sql`
-- V2 bewusst ausgelassen: Doppelgänger-Matching, Bewegungspfade, Spiel-Teilnahme-Ist
+
+## 11b. M13 – Trainerbereich V2
+
+- `player_links` (Blind-Match, Verknüpfung statt Merge)
+- Bewegungsmuster + Sequenzen auf `tactical_formations.sequences`
+- `game_participations` (Ist-Daten, lose an Match gekoppelt)
+- SQL: `supabase/trainer_v2.sql`
 
 ## 12. Offene Punkte
 
@@ -137,3 +144,4 @@ Am **Match** (zusätzlich zur optionalen Kurznotiz `TeamReport.formation`):
 - App-Name / Domain für PWA?
 - Rechtliche Formulierung Eltern-Einwilligung (Text, nicht nur Datenfeld)
 - Wireframes Freigabe-Journey / Trainer-Onboarding
+- Feintuning Matching-Schwellen mit Testdaten

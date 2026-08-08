@@ -1,7 +1,7 @@
 # Fusca – Trainerbereich (Konzept + V1-Entscheidungen)
 
 **Stand:** 08.08.2026  
-**Status:** V1 in Umsetzung  
+**Status:** V1 erledigt · V2 in Umsetzung  
 **Quelle:** Konzept „Erweiterung um Trainerbereich“ (07.08.2026)
 
 ---
@@ -14,8 +14,8 @@ Gemeinsamer Kern für Scout und Trainer: Owner-scoped Spielerprofile, chronologi
 
 | Phase | Umfang |
 |---|---|
-| **V1 (jetzt)** | Rollenmodell (Mehrfachauswahl), Teams + Team-Wechsel, Kader (Jahrgang, Einwilligung), Entwicklungsansicht, einfache Freigabe (Code/Link, ohne Doppelgänger-Matching), Aufstellung als Positions-Board (ohne Zeichenwerkzeug) |
-| **V2** | Doppelgänger-Matching (Blind-Match), Bewegungsmuster/Taktik-Sequenzen, Spielzuordnung inkl. Teilnahme-Ist-Daten |
+| **V1** | Rollenmodell, Teams/Kader, Entwicklung, Freigaben, Positions-Board – **erledigt** |
+| **V2 (jetzt)** | Doppelgänger-Matching (Blind-Match), Bewegungsmuster/Taktik-Sequenzen, Spielzuordnung inkl. Teilnahme-Ist-Daten – siehe `docs/TRAINERBEREICH_V2.md` |
 
 ## Entscheidungen zu offenen Punkten (Abschnitt 8)
 
