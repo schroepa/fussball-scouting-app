@@ -12,8 +12,14 @@ import type {
   ConsentStatus,
   Empfehlung,
   FormationPlayerPos,
+  FormationSequenceStep,
+  GameParticipation,
   Match,
+  ParticipationRole,
   Player,
+  PlayerBlindPreview,
+  PlayerLink,
+  PlayerLinkStatus,
   PlayerReport,
   PlayerShare,
   ShareRole,
@@ -343,9 +349,49 @@ export async function pushPendingChanges(): Promise<SyncResult> {
         template_key: f.templateKey ?? null,
         positions_off: f.positionsOff,
         positions_def: f.positionsDef,
+        sequences: f.sequences ?? [],
         created_by: f.ownerScoutId,
         updated_at: f.updatedAt,
         created_at: f.createdAt,
+      })
+    )
+  );
+
+  track(
+    await syncTable<PlayerLink>(db.playerLinks, "player_links", (l) => ({
+      id: l.id,
+      player_id_a: l.playerIdA,
+      owner_a: l.ownerA,
+      player_id_b: l.playerIdB,
+      owner_b: l.ownerB,
+      match_score: l.matchScore,
+      status: l.status,
+      confirmed_by_a: Boolean(l.confirmedByA),
+      confirmed_by_b: Boolean(l.confirmedByB),
+      confirmed_at: l.confirmedAt ?? null,
+      preview_a: l.previewA,
+      preview_b: l.previewB,
+      updated_at: l.updatedAt,
+      created_at: l.createdAt,
+    }))
+  );
+
+  track(
+    await syncTable<GameParticipation>(
+      db.gameParticipations,
+      "game_participations",
+      (p) => ({
+        id: p.id,
+        game_id: p.gameId,
+        team_id: p.teamId ?? null,
+        player_id: p.playerId,
+        position: p.position ?? null,
+        minuten_von: p.minutenVon ?? null,
+        minuten_bis: p.minutenBis ?? null,
+        rolle: p.rolle,
+        created_by: p.ownerScoutId,
+        updated_at: p.updatedAt,
+        created_at: p.createdAt,
       })
     )
   );
@@ -629,6 +675,50 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
         positionsDef: Array.isArray(row.positions_def)
           ? (row.positions_def as FormationPlayerPos[])
           : [],
+        sequences: Array.isArray(row.sequences)
+          ? (row.sequences as FormationSequenceStep[])
+          : [],
+        ownerScoutId: String(row.created_by ?? session.scout.id),
+        syncStatus: "synced",
+        updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+        createdAt: iso(row.created_at) ?? new Date().toISOString(),
+      })
+    )
+  );
+
+  track(
+    await pullTable<PlayerLink>("player_links", db.playerLinks, (row) => ({
+      id: String(row.id),
+      playerIdA: String(row.player_id_a),
+      ownerA: String(row.owner_a),
+      playerIdB: String(row.player_id_b),
+      ownerB: String(row.owner_b),
+      matchScore: Number(row.match_score ?? 0),
+      status: (row.status as PlayerLinkStatus) ?? "vorgeschlagen",
+      confirmedByA: Boolean(row.confirmed_by_a),
+      confirmedByB: Boolean(row.confirmed_by_b),
+      confirmedAt: iso(row.confirmed_at) ?? undefined,
+      previewA: (row.preview_a as PlayerBlindPreview) ?? { positionen: [] },
+      previewB: (row.preview_b as PlayerBlindPreview) ?? { positionen: [] },
+      syncStatus: "synced",
+      updatedAt: iso(row.updated_at) ?? new Date().toISOString(),
+      createdAt: iso(row.created_at) ?? new Date().toISOString(),
+    }))
+  );
+
+  track(
+    await pullTable<GameParticipation>(
+      "game_participations",
+      db.gameParticipations,
+      (row) => ({
+        id: String(row.id),
+        gameId: String(row.game_id),
+        teamId: (row.team_id as string | null) ?? undefined,
+        playerId: String(row.player_id),
+        position: (row.position as string | null) ?? undefined,
+        minutenVon: (row.minuten_von as number | null) ?? undefined,
+        minutenBis: (row.minuten_bis as number | null) ?? undefined,
+        rolle: (row.rolle as ParticipationRole) ?? "startxi",
         ownerScoutId: String(row.created_by ?? session.scout.id),
         syncStatus: "synced",
         updatedAt: iso(row.updated_at) ?? new Date().toISOString(),

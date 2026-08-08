@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import DuplicateMatchPanel from "./DuplicateMatchPanel";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,6 +107,8 @@ export default function FreigabenPage() {
 
   return (
     <div id="page-freigaben" className="space-y-8">
+      <DuplicateMatchPanel player={players[0] ?? null} />
+
       <section id="section-share-create" className="space-y-3">
         <h2 className="text-base font-semibold tracking-tight">Freigabe erstellen</h2>
         <p className="text-sm text-muted-foreground">

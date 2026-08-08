@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import TeamSwitcher from "./TeamSwitcher";
 import { EmptyState } from "@/components/EmptyState";
 import { SimpleSelect } from "@/components/ui/select";
-import { listSquadPlayers, getPlayerDevelopment } from "../lib/local/trainerRepository";
+import { listSquadPlayers, getPlayerDevelopment, summarizeParticipationsForPlayer } from "../lib/local/trainerRepository";
 import { getActiveTeamId } from "../lib/trainer/mode";
 import type { Player, PlayerReport, Team } from "../lib/types";
 import { BEZUGSTYP_LABELS } from "../lib/types";
@@ -13,6 +13,10 @@ export default function EntwicklungPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerId, setPlayerId] = useState("");
   const [reports, setReports] = useState<PlayerReport[]>([]);
+  const [participationSummary, setParticipationSummary] = useState<{
+    games: number;
+    byPosition: Array<{ position: string; count: number }>;
+  } | null>(null);
 
   const reloadPlayers = async (t?: Team | null, preferredId?: string) => {
     const teamId = t?.id ?? getActiveTeamId();
@@ -33,8 +37,10 @@ export default function EntwicklungPage() {
     setPlayerId(nextId);
     if (nextId) {
       setReports(await getPlayerDevelopment(nextId));
+      setParticipationSummary(await summarizeParticipationsForPlayer(nextId));
     } else {
       setReports([]);
+      setParticipationSummary(null);
     }
   };
 
@@ -76,7 +82,15 @@ export default function EntwicklungPage() {
               value={playerId}
               onValueChange={async (id) => {
                 setPlayerId(id);
-                setReports(id ? await getPlayerDevelopment(id) : []);
+                if (id) {
+                  setReports(await getPlayerDevelopment(id));
+                  setParticipationSummary(
+                    await summarizeParticipationsForPlayer(id)
+                  );
+                } else {
+                  setReports([]);
+                  setParticipationSummary(null);
+                }
               }}
               options={players.map((p) => ({
                 value: p.id,
@@ -87,7 +101,7 @@ export default function EntwicklungPage() {
             />
           </div>
 
-          {selected ? (
+              {selected ? (
             <div className="space-y-4">
               <div>
                 <h2 className="text-lg font-semibold tracking-tight">
@@ -98,6 +112,21 @@ export default function EntwicklungPage() {
                   {reports.length === 1 ? "" : "en"} über die Saison
                 </p>
               </div>
+
+              {participationSummary && participationSummary.games > 0 ? (
+                <div className="rounded-lg border border-border bg-card p-3 text-sm">
+                  <div className="font-medium mb-1">
+                    Spielzeiten ({participationSummary.games} Spiele)
+                  </div>
+                  <ul className="text-muted-foreground space-y-0.5">
+                    {participationSummary.byPosition.map((row) => (
+                      <li key={row.position}>
+                        {row.count}× {row.position}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
 
               {reports.length >= 2 ? (
                 <div className="rounded-lg border border-border bg-card p-3">

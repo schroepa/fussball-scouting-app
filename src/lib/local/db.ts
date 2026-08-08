@@ -2,8 +2,10 @@ import Dexie, { type EntityTable } from "dexie";
 import type {
   AttributeDefinition,
   Club,
+  GameParticipation,
   Match,
   Player,
+  PlayerLink,
   PlayerReport,
   PlayerShare,
   Scout,
@@ -40,6 +42,8 @@ export class ScoutingDB extends Dexie {
   squadMemberships!: EntityTable<SquadMembership, "id">;
   playerShares!: EntityTable<PlayerShare, "id">;
   tacticalFormations!: EntityTable<TacticalFormation, "id">;
+  playerLinks!: EntityTable<PlayerLink, "id">;
+  gameParticipations!: EntityTable<GameParticipation, "id">;
 
   constructor() {
     super("fussball-scouting-db");
@@ -100,6 +104,28 @@ export class ScoutingDB extends Dexie {
       playerShares:
         "id, playerId, ownerScoutId, inviteCode, acceptedByScoutId, status, syncStatus, updatedAt",
       tacticalFormations: "id, teamId, name, ownerScoutId, syncStatus, updatedAt",
+    });
+
+    this.version(5).stores({
+      clubs: "id, name, ownerScoutId, syncStatus, updatedAt",
+      players: "id, nachname, aktuellerClubId, ownerScoutId, jahrgang, syncStatus, updatedAt",
+      matches: "id, datum, heimClubId, gastClubId, ownerScoutId, syncStatus, updatedAt",
+      playerReports:
+        "id, playerId, scoutId, bezugstyp, matchId, datum, syncStatus, updatedAt",
+      teamReports:
+        "id, clubId, scoutId, berichtsart, bezugstyp, matchId, datum, syncStatus, updatedAt",
+      attributeDefinitions: "id, giltFuer, key, reihenfolge, ownerScoutId, syncStatus",
+      scouts: "id, email",
+      mediaBlobs: "key",
+      teams: "id, name, ageGroup, ownerScoutId, syncStatus, updatedAt",
+      squadMemberships:
+        "id, teamId, playerId, consentStatus, ownerScoutId, syncStatus, updatedAt",
+      playerShares:
+        "id, playerId, ownerScoutId, inviteCode, acceptedByScoutId, status, syncStatus, updatedAt",
+      tacticalFormations: "id, teamId, gameId, name, ownerScoutId, syncStatus, updatedAt",
+      playerLinks: "id, playerIdA, playerIdB, ownerA, ownerB, status, syncStatus, updatedAt",
+      gameParticipations:
+        "id, gameId, playerId, teamId, ownerScoutId, syncStatus, updatedAt",
     });
   }
 }

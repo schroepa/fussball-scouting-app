@@ -1,5 +1,12 @@
-import { useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import TeamSwitcher from "./TeamSwitcher";
+import FormationSequenceEditor from "./FormationSequenceEditor";
+import GameParticipationEditor from "./GameParticipationEditor";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +18,7 @@ import {
   defensiveFromOffensive,
   emptyPositionsFromTemplate,
 } from "../lib/trainer/formationBoard";
+import { listMatches } from "../lib/local/repository";
 import {
   createTacticalFormation,
   deleteTacticalFormation,
@@ -21,35 +29,47 @@ import {
 } from "../lib/local/trainerRepository";
 import type {
   FormationPlayerPos,
+  FormationSequenceStep,
+  Match,
+  MovementType,
   Player,
   TacticalFormation,
   Team,
 } from "../lib/types";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type BoardMode = "offensive" | "defensive";
+type BoardTool = "positions" | "draw";
 
 export default function AufstellungPage() {
+  const isMobile = useIsMobile();
   const [team, setTeam] = useState<Team | null>(null);
   const [formations, setFormations] = useState<TacticalFormation[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [activeId, setActiveId] = useState("");
   const [players, setPlayers] = useState<Player[]>([]);
   const [boardMode, setBoardMode] = useState<BoardMode>("offensive");
+  const [boardTool, setBoardTool] = useState<BoardTool>("positions");
+  const [drawTool, setDrawTool] = useState<MovementType>("pass");
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [name, setName] = useState("Aufstellung");
   const [templateKey, setTemplateKey] = useState("4-3-3");
   const [saving, setSaving] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
 
   const active = formations.find((f) => f.id === activeId);
 
   const reload = async (t?: Team | null) => {
     const teamId = t?.id ?? getActiveTeamId() ?? undefined;
-    const [list, squad] = await Promise.all([
+    const [list, squad, matchList] = await Promise.all([
       listTacticalFormations(teamId),
       teamId ? listSquadPlayers(teamId) : Promise.resolve([]),
+      listMatches(),
     ]);
     setFormations(list);
     setPlayers(squad.map((r) => r.player));
+    setMatches(matchList);
     if (activeId && list.some((f) => f.id === activeId)) return;
     setActiveId(list[0]?.id ?? "");
   };
@@ -69,6 +89,10 @@ export default function AufstellungPage() {
     () => new Map(players.map((p) => [p.id, p])),
     [players]
   );
+
+  const sequences = active?.sequences?.length
+    ? active.sequences
+    : ([{ id: "step-1", label: "Schritt 1", movements: [] }] as FormationSequenceStep[]);
 
   const createNew = async () => {
     const teamId = team?.id ?? getActiveTeamId() ?? undefined;
@@ -99,12 +123,22 @@ export default function AufstellungPage() {
     }
   };
 
+  const saveSequences = async (next: FormationSequenceStep[]) => {
+    if (!active) return;
+    setSaving(true);
+    try {
+      await updateTacticalFormation(active.id, { sequences: next });
+      await reload(team);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const assignPlayer = async (playerId: string) => {
     if (selectedSlot === null || !active) return;
     const next = positions.map((p, i) =>
       i === selectedSlot ? { ...p, playerId } : p
     );
-    // Spieler nur einmal aufstellen
     for (let i = 0; i < next.length; i++) {
       if (i !== selectedSlot && next[i]!.playerId === playerId) {
         next[i] = { ...next[i]!, playerId: "" };
@@ -136,6 +170,14 @@ export default function AufstellungPage() {
         : p
     );
     await patchPositions(next);
+  };
+
+  const linkGame = async (gameId: string) => {
+    if (!active) return;
+    await updateTacticalFormation(active.id, {
+      gameId: gameId || undefined,
+    });
+    await reload(team);
   };
 
   return (
@@ -171,7 +213,7 @@ export default function AufstellungPage() {
       </div>
 
       {formations.length > 0 ? (
-        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center flex-wrap">
           <SimpleSelect
             value={activeId}
             onValueChange={setActiveId}
@@ -229,93 +271,184 @@ export default function AufstellungPage() {
       {!active ? (
         <EmptyState
           title="Keine Aufstellung"
-          description="Lege ein Positions-Board an (ohne Zeichenwerkzeug – das kommt in V2)."
+          description="Lege ein Positions-Board an. Zeichnen und Spielzuordnung folgen danach."
         />
       ) : (
-        <div className="grid gap-4 lg:grid-cols-[1fr_16rem]">
-          <div className="space-y-3">
-            <div
-              className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs"
-              role="group"
-              aria-label="Offensiv oder defensiv"
-            >
-              <button
-                type="button"
-                className={cn(
-                  "rounded-md px-3 py-1.5 font-medium min-h-8",
-                  boardMode === "offensive"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground"
-                )}
-                aria-pressed={boardMode === "offensive"}
-                onClick={() => setBoardMode("offensive")}
-              >
-                Offensiv
-              </button>
-              <button
-                type="button"
-                className={cn(
-                  "rounded-md px-3 py-1.5 font-medium min-h-8",
-                  boardMode === "defensive"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground"
-                )}
-                aria-pressed={boardMode === "defensive"}
-                onClick={() => setBoardMode("defensive")}
-              >
-                Defensiv
-              </button>
-            </div>
-
-            <FormationBoard
-              positions={positions}
-              playerById={playerById}
-              selectedSlot={selectedSlot}
-              onSelectSlot={setSelectedSlot}
-              onMove={moveToken}
+        <>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <Label className="text-muted-foreground shrink-0">Spiel (optional)</Label>
+            <SimpleSelect
+              value={active.gameId ?? ""}
+              onValueChange={(v) => void linkGame(v)}
+              className="sm:max-w-md"
+              placeholder="Keine Zuordnung"
+              options={[
+                { value: "", label: "Keine Zuordnung" },
+                ...matches.map((m) => ({
+                  value: m.id,
+                  label: `${m.heimClubName} vs ${m.gastClubName} (${new Date(m.datum).toLocaleDateString("de-DE")})`,
+                })),
+              ]}
             />
-            <p className="text-xs text-muted-foreground">
-              Desktop: Token ziehen. Mobile: Slot antippen, dann Spieler wählen.
-              Offensiv/Defensiv sind getrennte Positions-Sets (kein reines Farbschema).
-            </p>
           </div>
 
-          <aside className="space-y-2" aria-label="Kader zuordnen">
-            <h3 className="text-sm font-semibold">
-              {selectedSlot === null
-                ? "Slot wählen"
-                : `Slot ${selectedSlot + 1} besetzen`}
-            </h3>
-            {selectedSlot !== null ? (
-              <ul className="space-y-1 max-h-[28rem] overflow-auto">
-                <li>
+          <div className="grid gap-4 lg:grid-cols-[1fr_16rem]">
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <div
+                  className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs"
+                  role="group"
+                  aria-label="Offensiv oder defensiv"
+                >
                   <button
                     type="button"
-                    className="w-full text-left rounded-md px-2 py-2 text-sm hover:bg-muted"
-                    onClick={() => void assignPlayer("")}
+                    className={cn(
+                      "rounded-md px-3 py-1.5 font-medium min-h-8",
+                      boardMode === "offensive"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground"
+                    )}
+                    aria-pressed={boardMode === "offensive"}
+                    onClick={() => setBoardMode("offensive")}
                   >
-                    Leer
+                    Offensiv
                   </button>
-                </li>
-                {players.map((p) => (
-                  <li key={p.id}>
+                  <button
+                    type="button"
+                    className={cn(
+                      "rounded-md px-3 py-1.5 font-medium min-h-8",
+                      boardMode === "defensive"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground"
+                    )}
+                    aria-pressed={boardMode === "defensive"}
+                    onClick={() => setBoardMode("defensive")}
+                  >
+                    Defensiv
+                  </button>
+                </div>
+                <div
+                  className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs"
+                  role="group"
+                  aria-label="Werkzeug"
+                >
+                  <button
+                    type="button"
+                    className={cn(
+                      "rounded-md px-3 py-1.5 font-medium min-h-8",
+                      boardTool === "positions"
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground"
+                    )}
+                    aria-pressed={boardTool === "positions"}
+                    onClick={() => setBoardTool("positions")}
+                  >
+                    Positionen
+                  </button>
+                  <button
+                    type="button"
+                    className={cn(
+                      "rounded-md px-3 py-1.5 font-medium min-h-8",
+                      boardTool === "draw"
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground"
+                    )}
+                    aria-pressed={boardTool === "draw"}
+                    onClick={() => setBoardTool("draw")}
+                  >
+                    Zeichnen
+                  </button>
+                </div>
+              </div>
+
+              <div className="relative max-w-lg mx-auto">
+                <FormationBoard
+                  positions={positions}
+                  playerById={playerById}
+                  selectedSlot={selectedSlot}
+                  onSelectSlot={setSelectedSlot}
+                  onMove={moveToken}
+                  tokensInteractive={boardTool === "positions"}
+                />
+                {boardTool === "draw" ? (
+                  <FormationSequenceEditor
+                    variant="canvas"
+                    steps={sequences}
+                    activeStepIndex={Math.min(stepIndex, sequences.length - 1)}
+                    onActiveStepIndex={setStepIndex}
+                    onChangeSteps={(next) => void saveSequences(next)}
+                    drawEnabled={!isMobile}
+                    tool={drawTool}
+                    onToolChange={setDrawTool}
+                  />
+                ) : null}
+              </div>
+
+              {boardTool === "draw" ? (
+                <FormationSequenceEditor
+                  variant="controls"
+                  steps={sequences}
+                  activeStepIndex={Math.min(stepIndex, sequences.length - 1)}
+                  onActiveStepIndex={setStepIndex}
+                  onChangeSteps={(next) => void saveSequences(next)}
+                  drawEnabled={!isMobile}
+                  tool={drawTool}
+                  onToolChange={setDrawTool}
+                />
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Desktop: Token ziehen. Mobile: Slot antippen. Zeichnen unter
+                  „Zeichnen“ (Pass durchgezogen, Lauf gestrichelt).
+                </p>
+              )}
+            </div>
+
+            <aside className="space-y-2" aria-label="Kader zuordnen">
+              <h3 className="text-sm font-semibold">
+                {selectedSlot === null
+                  ? "Slot wählen"
+                  : `Slot ${selectedSlot + 1} besetzen`}
+              </h3>
+              {selectedSlot !== null && boardTool === "positions" ? (
+                <ul className="space-y-1 max-h-[28rem] overflow-auto">
+                  <li>
                     <button
                       type="button"
                       className="w-full text-left rounded-md px-2 py-2 text-sm hover:bg-muted"
-                      onClick={() => void assignPlayer(p.id)}
+                      onClick={() => void assignPlayer("")}
                     >
-                      {p.nachname}, {p.vorname}
+                      Leer
                     </button>
                   </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Tippe einen Kreis auf dem Feld an.
-              </p>
-            )}
-          </aside>
-        </div>
+                  {players.map((p) => (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        className="w-full text-left rounded-md px-2 py-2 text-sm hover:bg-muted"
+                        onClick={() => void assignPlayer(p.id)}
+                      >
+                        {p.nachname}, {p.vorname}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {boardTool === "draw"
+                    ? "Zeichnen-Modus aktiv."
+                    : "Tippe einen Kreis auf dem Feld an."}
+                </p>
+              )}
+            </aside>
+          </div>
+
+          {active.gameId ? (
+            <GameParticipationEditor
+              gameId={active.gameId}
+              teamId={active.teamId}
+            />
+          ) : null}
+        </>
       )}
     </div>
   );
@@ -327,17 +460,20 @@ function FormationBoard({
   selectedSlot,
   onSelectSlot,
   onMove,
+  tokensInteractive,
 }: {
   positions: FormationPlayerPos[];
   playerById: Map<string, Player>;
   selectedSlot: number | null;
   onSelectSlot: (index: number) => void;
   onMove: (index: number, x: number, y: number) => void | Promise<void>;
+  tokensInteractive: boolean;
 }) {
   const onPointerDown = (
     e: ReactPointerEvent<HTMLButtonElement>,
     index: number
   ) => {
+    if (!tokensInteractive) return;
     onSelectSlot(index);
     const field = e.currentTarget.parentElement;
     if (!field) return;
@@ -366,7 +502,7 @@ function FormationBoard({
   return (
     <div
       id="panel-formation-board"
-      className="relative aspect-[2/3] w-full max-w-lg mx-auto rounded-xl border border-border overflow-hidden bg-[linear-gradient(180deg,oklch(0.42_0.08_145)_0%,oklch(0.36_0.07_145)_50%,oklch(0.42_0.08_145)_100%)]"
+      className="relative aspect-[2/3] w-full rounded-xl border border-border overflow-hidden bg-[linear-gradient(180deg,oklch(0.42_0.08_145)_0%,oklch(0.36_0.07_145)_50%,oklch(0.42_0.08_145)_100%)]"
       role="application"
       aria-label="Spielfeld Aufstellung"
     >
@@ -391,7 +527,8 @@ function FormationBoard({
               "absolute z-10 flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-[10px] font-semibold shadow-sm touch-none",
               selectedSlot === index
                 ? "border-white bg-primary text-primary-foreground ring-2 ring-white/70"
-                : "border-white/70 bg-card text-foreground"
+                : "border-white/70 bg-card text-foreground",
+              !tokensInteractive && "pointer-events-none opacity-90"
             )}
             style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
             aria-label={
