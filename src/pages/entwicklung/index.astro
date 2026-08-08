@@ -1,0 +1,9 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import EntwicklungPage from "../../components/EntwicklungPage";
+---
+
+<Layout title="Entwicklung" activeNav="entwicklung">
+  <h1 class="md:hidden text-xl font-semibold tracking-tight mb-4">Entwicklung</h1>
+  <EntwicklungPage client:load />
+</Layout>

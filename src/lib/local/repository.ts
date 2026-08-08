@@ -747,5 +747,32 @@ export async function purgeForeignLocalData(scoutId: string): Promise<{
     }
   }
 
+  for (const t of await db.teams.toArray()) {
+    if (t.ownerScoutId !== scoutId) {
+      await db.teams.delete(t.id);
+      removed += 1;
+    }
+  }
+  for (const m of await db.squadMemberships.toArray()) {
+    if (m.ownerScoutId !== scoutId) {
+      await db.squadMemberships.delete(m.id);
+      removed += 1;
+    }
+  }
+  for (const s of await db.playerShares.toArray()) {
+    const mine =
+      s.ownerScoutId === scoutId || s.acceptedByScoutId === scoutId;
+    if (!mine) {
+      await db.playerShares.delete(s.id);
+      removed += 1;
+    }
+  }
+  for (const f of await db.tacticalFormations.toArray()) {
+    if (f.ownerScoutId !== scoutId) {
+      await db.tacticalFormations.delete(f.id);
+      removed += 1;
+    }
+  }
+
   return { removed, claimed };
 }

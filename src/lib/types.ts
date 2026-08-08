@@ -55,6 +55,8 @@ export interface Player {
   vorname: string;
   nachname: string;
   geburtsdatum?: string;
+  /** Jahrgang (Jugend) – datensparsame Alternative zum vollen Geburtsdatum. */
+  jahrgang?: number;
   nationalitaet?: string;
   positionen: string[];
   starkerFuss?: "links" | "rechts" | "beidfuessig";
@@ -209,9 +211,144 @@ export interface AttributeDefinition {
   createdAt?: string;
 }
 
+export type AppRole = "scout" | "trainer";
+export type AppMode = "scout" | "trainer";
+
+export const APP_ROLE_LABELS: Record<AppRole, string> = {
+  scout: "Scout",
+  trainer: "Trainer",
+};
+
+export const AGE_GROUP_OPTIONS = [
+  "U8",
+  "U9",
+  "U10",
+  "U11",
+  "U12",
+  "U13",
+  "U14",
+  "U15",
+  "U16",
+  "U17",
+  "U18",
+  "U19",
+  "U21",
+  "Herren",
+  "Damen",
+] as const;
+
 export interface Scout {
   id: string;
   name: string;
   email: string;
   authProvider?: string;
+  /** Mehrfachauswahl – Nutzer können Scout und Trainer sein. */
+  roles?: AppRole[];
+  /** Bevorzugte Startansicht bei Doppelrolle. */
+  primaryMode?: AppMode;
+  /** Verein/Team-Angabe bei Trainer-Rolle (Selbstauskunft). */
+  trainerClubName?: string;
+  trainerAgeGroups?: string[];
+  syncStatus?: SyncStatus;
+  updatedAt?: string;
+}
+
+/** Mannschaft eines Trainers (mehrere Teams parallel möglich). */
+export interface Team {
+  id: string;
+  name: string;
+  clubId?: string;
+  clubName: string;
+  ageGroup: string;
+  season?: string;
+  ownerScoutId: string;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export type ConsentStatus = "ausstehend" | "erteilt" | "verweigert";
+
+export const CONSENT_STATUS_LABELS: Record<ConsentStatus, string> = {
+  ausstehend: "Ausstehend",
+  erteilt: "Erteilt",
+  verweigert: "Verweigert",
+};
+
+/** Kadereintrag: Spieler ↔ Team inkl. Eltern-Einwilligung. */
+export interface SquadMembership {
+  id: string;
+  teamId: string;
+  playerId: string;
+  consentStatus: ConsentStatus;
+  jerseyNumber?: number;
+  notes?: string;
+  ownerScoutId: string;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export type ShareRole = "contributor" | "viewer";
+export type ShareStatus = "pending" | "active" | "revoked" | "expired";
+
+export const SHARE_ROLE_LABELS: Record<ShareRole, string> = {
+  contributor: "Mitbewerten",
+  viewer: "Nur lesen",
+};
+
+export const SHARE_STATUS_LABELS: Record<ShareStatus, string> = {
+  pending: "Offen",
+  active: "Aktiv",
+  revoked: "Widerrufen",
+  expired: "Abgelaufen",
+};
+
+/**
+ * Gezielte Freigabe eines Spielerprofils (Einladung per Code).
+ * Kein Marktplatz – Zugriff nur nach Annahme des Codes.
+ */
+export interface PlayerShare {
+  id: string;
+  playerId: string;
+  ownerScoutId: string;
+  inviteCode: string;
+  inviteExpiresAt: string;
+  acceptedByScoutId?: string;
+  role: ShareRole;
+  status: ShareStatus;
+  /** Sensible Stammdaten mitteilen? Standard false. */
+  sharePii: boolean;
+  revokedAt?: string;
+  acceptedAt?: string;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface FormationPlayerPos {
+  playerId: string;
+  positionLabel?: string;
+  /** Relativ 0–100 auf dem Spielfeld (Breite). */
+  x: number;
+  /** Relativ 0–100 auf dem Spielfeld (Tiefe, 0 = eigene Grundlinie). */
+  y: number;
+}
+
+/**
+ * Taktik-/Aufstellungsboard (V1: Positions-Sets offensiv/defensiv, ohne Zeichenebene).
+ */
+export interface TacticalFormation {
+  id: string;
+  name: string;
+  teamId?: string;
+  /** Optional – lose Kopplung an ein Spiel; V1 oft null (Vorlage). */
+  gameId?: string;
+  templateKey?: string;
+  positionsOff: FormationPlayerPos[];
+  positionsDef: FormationPlayerPos[];
+  ownerScoutId: string;
+  syncStatus: SyncStatus;
+  updatedAt: string;
+  createdAt: string;
 }

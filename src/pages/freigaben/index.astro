@@ -1,0 +1,9 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import FreigabenPage from "../../components/FreigabenPage";
+---
+
+<Layout title="Freigaben" activeNav="freigaben">
+  <h1 class="md:hidden text-xl font-semibold tracking-tight mb-4">Freigaben</h1>
+  <FreigabenPage client:load />
+</Layout>

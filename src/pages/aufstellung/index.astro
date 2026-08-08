@@ -1,0 +1,9 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AufstellungPage from "../../components/AufstellungPage";
+---
+
+<Layout title="Aufstellung" activeNav="aufstellung">
+  <h1 class="md:hidden text-xl font-semibold tracking-tight mb-4">Aufstellung</h1>
+  <AufstellungPage client:load />
+</Layout>
