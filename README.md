@@ -176,6 +176,7 @@ supabase/         setup.sql + Ops-Migrationen
 | Berichte bearbeiten | erledigt (`/reports/.../edit`) |
 | UI-Radien (max. 16px außen) | erledigt – `docs/RADIUS.md` |
 | Qualität / Security / Tests | erledigt (Vitest + Playwright-Smoke, CSP, Rate-Limit) |
+| Trainerbereich V1 | erledigt (App) – `trainer_v1.sql` ausführen; Details `docs/TRAINERBEREICH.md` |
 
 Ausführlich: [`docs/PLANNING.md`](docs/PLANNING.md).
 
