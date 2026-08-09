@@ -50,5 +50,5 @@ function normalizeYear(n: number): number | undefined {
 
 export function formatJahrgang(jahrgang: number | undefined): string {
   const y = parseJahrgang(jahrgang);
-  return y !== undefined ? String(y) : "–";
+  return y !== undefined ? String(y) : "-";
 }

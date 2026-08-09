@@ -48,7 +48,7 @@ async function syncAfterImport(): Promise<{
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     return {
       kind: "offline",
-      message: "Offline – Sync später über die Sync-Leiste.",
+      message: "Offline, Sync später über die Sync-Leiste.",
     };
   }
   try {
@@ -305,7 +305,7 @@ export default function ImportPanel() {
           return {
             externalSource: "manual",
             externalRef: `paste:${club.externalRef}:${idx}:${nachname}:${vorname}`.toLowerCase(),
-            vorname: vorname || "—",
+            vorname: vorname || "-",
             nachname,
             positionen: [],
             clubExternalRef: club.externalRef,
@@ -411,7 +411,7 @@ export default function ImportPanel() {
     <div id="panel-import" className="space-y-4 md:space-y-6">
       <div className="hidden md:block space-y-1">
         <p className="text-sm text-muted-foreground">
-          Quelle wählen, Treffer prüfen und übernehmen – ideal am Desktop nach
+          Quelle wählen, Treffer prüfen und übernehmen, ideal am Desktop nach
           dem Spieltag.
         </p>
       </div>
@@ -492,11 +492,11 @@ export default function ImportPanel() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Jugendkader oft gesperrt – dann Namensliste nutzen.
+                Jugendkader oft gesperrt, dann Namensliste nutzen.
               </p>
 
               {teams.length > 0 && (
-                <div className="rounded-lg border border-border overflow-hidden">
+                <div className="panel overflow-hidden">
                   <div className="px-3 py-2 text-sm font-medium border-b border-border bg-muted/40">
                     Mannschaften ({teams.length})
                   </div>
@@ -525,7 +525,7 @@ export default function ImportPanel() {
               <div className="rounded-lg border border-dashed border-border p-3 space-y-2">
                 <p className="text-sm font-medium">Namensliste (Fallback)</p>
                 <p className="text-xs text-muted-foreground">
-                  Eine Zeile pro Spieler –{" "}
+                  Eine Zeile pro Spieler -{" "}
                   <code className="bg-muted px-1 rounded">Nachname, Vorname</code>
                   {clubContext ? ` · ${clubContext.name}` : ""}
                 </p>
@@ -565,7 +565,7 @@ export default function ImportPanel() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                TheSportsDB – eher bekannte Profis.
+                TheSportsDB, eher bekannte Profis.
               </p>
             </TabsContent>
 
@@ -611,7 +611,7 @@ export default function ImportPanel() {
           ) : result.players.length === 0 &&
             result.clubs.length === 0 &&
             result.matches.length === 0 ? (
-            <div className="rounded-lg border border-border bg-card px-4 py-8 text-center space-y-2">
+            <div className="panel px-4 py-8 text-center space-y-2">
               <p className="text-sm font-medium text-foreground">
                 Keine Treffer in dieser Quelle
               </p>
@@ -647,7 +647,7 @@ export default function ImportPanel() {
                     {result.players.map((p) => (
                       <li
                         key={`${p.externalSource}:${p.externalRef}`}
-                        className="rounded-lg border border-border p-3 flex items-center gap-3"
+                        className="panel p-3 flex items-center gap-3"
                       >
                         {p.fotoUrl ? (
                           <img
@@ -681,7 +681,7 @@ export default function ImportPanel() {
                     ))}
                   </ul>
 
-                  <div className="hidden md:block rounded-lg border border-border overflow-hidden">
+                  <div className="hidden md:block panel overflow-hidden">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -699,13 +699,13 @@ export default function ImportPanel() {
                               {p.vorname} {p.nachname}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                              {p.clubName ?? "—"}
+                              {p.clubName ?? "-"}
                             </TableCell>
                             <TableCell className="text-muted-foreground">
-                              {p.positionen.join(", ") || "—"}
+                              {p.positionen.join(", ") || "-"}
                             </TableCell>
                             <TableCell className="text-muted-foreground whitespace-nowrap">
-                              {p.geburtsdatum ?? "—"}
+                              {p.geburtsdatum ?? "-"}
                             </TableCell>
                             <TableCell className="text-right">
                               <Button
@@ -735,7 +735,7 @@ export default function ImportPanel() {
                     {result.clubs.map((c) => (
                       <li
                         key={`${c.externalSource}:${c.externalRef}`}
-                        className="rounded-lg border border-border p-3 flex items-center gap-3"
+                        className="panel p-3 flex items-center gap-3"
                       >
                         {c.logoUrl ? (
                           <img
@@ -772,7 +772,7 @@ export default function ImportPanel() {
                   <h3 className="font-semibold tracking-tight">
                     Spiele ({result.matches.length})
                   </h3>
-                  <ul className="space-y-1 text-sm text-muted-foreground max-h-40 overflow-auto rounded-lg border border-border p-3">
+                  <ul className="space-y-1 text-sm text-muted-foreground max-h-40 overflow-auto panel p-3">
                     {result.matches.slice(0, 20).map((m) => (
                       <li key={`${m.externalSource}:${m.externalRef}`}>
                         {new Date(m.datum).toLocaleDateString("de-DE")}:{" "}

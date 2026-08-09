@@ -20,7 +20,7 @@ export default function MatchVideoSummary({
   });
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 space-y-3 text-sm">
+    <div className="panel p-4 space-y-3 text-sm">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
@@ -53,7 +53,7 @@ export default function MatchVideoSummary({
                 {m.abMinute != null ? `ab ${m.abMinute}'` : "Marke"}
                 {m.timecode ? ` · ${m.timecode}` : ""}
               </span>
-              {m.label ? ` – ${m.label}` : ""}
+              {m.label ? `, ${m.label}` : ""}
               {m.notiz ? `: ${m.notiz}` : ""}
             </li>
           ))}

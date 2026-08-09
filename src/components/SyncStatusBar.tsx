@@ -98,7 +98,7 @@ export default function SyncStatusBar({
           <span
             className={cn(
               "size-1.5 rounded-full",
-              online ? "bg-emerald-600 dark:bg-emerald-400" : "bg-amber-600 dark:bg-amber-400"
+              online ? "bg-primary" : "bg-amber-600 dark:bg-amber-400"
             )}
             aria-hidden="true"
           />
@@ -166,7 +166,7 @@ export default function SyncStatusBar({
           role="status"
           aria-live="polite"
           className={cn(
-            "absolute z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-lg border border-border bg-card text-card-foreground px-3 py-2.5 shadow-lg text-[11px] leading-snug",
+            "absolute z-50 w-[min(18rem,calc(100vw-1.5rem))] panel p-3 text-[11px] leading-snug",
             isHeader ? "top-full right-0 mt-2" : "bottom-full left-0 mb-2"
           )}
         >

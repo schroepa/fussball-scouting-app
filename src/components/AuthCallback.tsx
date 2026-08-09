@@ -42,14 +42,16 @@ export default function AuthCallback() {
 
   if (status === "error") {
     return (
-      <div className="text-center space-y-2">
-        <p className="text-red-600">Anmeldung fehlgeschlagen.</p>
-        <a href="/login" className="underline text-emerald-700">
+      <div className="panel mx-auto max-w-md p-6 text-center space-y-3">
+        <p className="text-destructive">Anmeldung fehlgeschlagen.</p>
+        <a href="/login" className="text-primary underline-offset-2 hover:underline">
           Erneut versuchen
         </a>
       </div>
     );
   }
 
-  return <p className="text-muted-foreground text-center">Anmeldung wird abgeschlossen…</p>;
+  return (
+    <p className="text-muted-foreground text-center">Anmeldung wird abgeschlossen…</p>
+  );
 }

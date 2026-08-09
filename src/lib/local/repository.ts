@@ -18,7 +18,7 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
-/** Erzeugt eine clientseitige UUID – verhindert ID-Kollisionen zwischen Geräten. */
+/** Erzeugt eine clientseitige UUID, verhindert ID-Kollisionen zwischen Geräten. */
 export function newId(): string {
   return uuidv4();
 }

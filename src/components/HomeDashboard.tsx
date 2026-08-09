@@ -155,7 +155,7 @@ export default function HomeDashboard() {
 
   return (
     <div id="page-home-dashboard" className="grid gap-4 md:gap-5 md:grid-cols-12">
-      {/* Hero / welcome – wide */}
+      {/* Hero / welcome, wide */}
       <section className="panel md:col-span-8 relative overflow-hidden min-h-[13.5rem]">
         <div
           className="glow-spot -right-10 -top-16 size-[22rem] opacity-90"
@@ -178,7 +178,7 @@ export default function HomeDashboard() {
               {isTrainer
                 ? stats.team
                   ? stats.team.name
-                  : "Kein Team – unter Kader anlegen"
+                  : "Kein Team, unter Kader anlegen"
                 : "Beobachtungen erfassen und auswerten"}
             </p>
           </div>
@@ -215,7 +215,7 @@ export default function HomeDashboard() {
         </div>
       </section>
 
-      {/* Side stack – metrics + links */}
+      {/* Side stack, metrics + links */}
       <aside className="md:col-span-4 grid gap-4 content-start">
         {stats.pendingSync > 0 ? (
           <div
@@ -295,7 +295,7 @@ export default function HomeDashboard() {
         </nav>
       </aside>
 
-      {/* Recent table – full width */}
+      {/* Recent table, full width */}
       <section className="panel md:col-span-12 overflow-hidden" aria-labelledby="home-recent-title">
         <div className="flex items-center justify-between gap-3 px-5 md:px-6 py-4 border-b border-border">
           <h2 id="home-recent-title" className="text-sm font-semibold tracking-tight">
@@ -355,7 +355,7 @@ export default function HomeDashboard() {
                       >
                         {typeof r.gesamtbewertung === "number"
                           ? `${r.gesamtbewertung}/10`
-                          : "—"}
+                          : "-"}
                       </a>
                     </td>
                   </tr>

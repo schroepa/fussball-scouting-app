@@ -1,6 +1,6 @@
 import type { Match, MatchPhase } from "../types";
 
-/** Häufige Systeme – Chips am Spielfeldrand. */
+/** Häufige Systeme, Chips am Spielfeldrand. */
 export const COMMON_FORMATIONS = [
   "4-4-2",
   "4-3-3",

@@ -120,11 +120,11 @@ export default function PlayerHistory({ playerId }: Props) {
         </Card>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <Card size="sm" className="lg:col-span-5 shadow-sm">
+          <Card size="sm" className="lg:col-span-5">
             <CardHeader className="border-b">
               <CardTitle>Durchschnitt</CardTitle>
               <CardDescription>
-                Ø Gesamt {avgGesamt ?? "–"} · {reports.length} Bericht
+                Ø Gesamt {avgGesamt ?? "-"} · {reports.length} Bericht
                 {reports.length === 1 ? "" : "e"}
               </CardDescription>
             </CardHeader>
@@ -147,7 +147,7 @@ export default function PlayerHistory({ playerId }: Props) {
                   >
                     <span>{attr.name}</span>
                     <span className="font-semibold tabular-nums">
-                      {avgByKey[attr.key] ?? "–"}
+                      {avgByKey[attr.key] ?? "-"}
                     </span>
                   </div>
                 ))}
@@ -155,7 +155,7 @@ export default function PlayerHistory({ playerId }: Props) {
             </CardContent>
           </Card>
 
-          <Card size="sm" className="lg:col-span-7 shadow-sm">
+          <Card size="sm" className="lg:col-span-7">
             <CardHeader className="border-b">
               <CardTitle>Verlauf</CardTitle>
               <CardDescription>Bewertungen über die Zeit</CardDescription>
@@ -165,7 +165,7 @@ export default function PlayerHistory({ playerId }: Props) {
             </CardContent>
           </Card>
 
-          <Card size="sm" className="lg:col-span-12 shadow-sm">
+          <Card size="sm" className="lg:col-span-12">
             <CardHeader className="border-b">
               <CardTitle>Berichte</CardTitle>
             </CardHeader>
@@ -174,7 +174,7 @@ export default function PlayerHistory({ playerId }: Props) {
                 <a
                   key={r.id}
                   href={`/reports/player/${r.id}`}
-                  className="block rounded-lg border border-border px-3 py-3 hover:bg-muted/40 transition-colors"
+                  className="block panel px-3 py-3 hover:bg-muted/40 transition-colors"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="font-medium">

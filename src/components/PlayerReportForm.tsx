@@ -185,7 +185,7 @@ export default function PlayerReportForm({ reportId }: Props) {
           <CardDescription>
             {isEdit
               ? "Änderungen werden beim nächsten Sync hochgeladen."
-              : "Lokal gespeichert – Sync sobald wieder Netz da ist."}
+              : "Lokal gespeichert, Sync sobald wieder Netz da ist."}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2 justify-center pb-6">
@@ -214,14 +214,14 @@ export default function PlayerReportForm({ reportId }: Props) {
           {isEdit ? "Spielerbericht bearbeiten" : "Spielerbericht"}
         </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Schnell erfassen – später am Desktop verfeinern.
+          Schnell erfassen, später am Desktop verfeinern.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
         {/* Kontext / Meta */}
         <div className="lg:col-span-5 space-y-4">
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Kontext</CardTitle>
             </CardHeader>
@@ -257,16 +257,16 @@ export default function PlayerReportForm({ reportId }: Props) {
             </CardContent>
           </Card>
 
-          <div className="rounded-lg border border-border p-3 space-y-2 shadow-sm">
+          <div className="panel p-4 space-y-2">
             <p className="text-sm font-semibold">Empfehlung</p>
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 gap-1.5">
               {EMPFEHLUNG_OPTIONS.map((opt) => (
                 <button
                   key={opt}
                   type="button"
                   onClick={() => setEmpfehlung(opt)}
                   className={cn(
-                    "rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                    "rounded-[var(--radius)] border px-3 py-2.5 text-left text-sm font-medium transition-colors focus-ring",
                     empfehlung === opt
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border bg-background text-muted-foreground hover:bg-muted/50"
@@ -278,10 +278,10 @@ export default function PlayerReportForm({ reportId }: Props) {
             </div>
           </div>
 
-          <Card size="sm" className="shadow-sm lg:block">
+          <Card size="sm" className="lg:block">
             <CardHeader className="border-b">
               <CardTitle>Fotos</CardTitle>
-              <CardDescription>Optional – Kamera oder Galerie</CardDescription>
+              <CardDescription>Optional, Kamera oder Galerie</CardDescription>
             </CardHeader>
             <CardContent className="pt-4">
               <CameraCapture
@@ -297,11 +297,11 @@ export default function PlayerReportForm({ reportId }: Props) {
 
         {/* Bewertung + Notizen */}
         <div className="lg:col-span-7 space-y-4">
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Bewertungsraster</CardTitle>
               <CardDescription className="hidden md:block">
-                1–10 · eigene Felder unter{" "}
+                1-10 · eigene Felder unter{" "}
                 <a
                   href="/einstellungen/attribute"
                   className="text-primary underline-offset-2 hover:underline"
@@ -329,7 +329,7 @@ export default function PlayerReportForm({ reportId }: Props) {
               <div className="mt-3 pt-3 border-t border-border md:max-w-md">
                 <RatingSlider
                   label="Gesamtbewertung"
-                  description="Manuell – nicht automatisch berechnet."
+                  description="Manuell, nicht automatisch berechnet."
                   value={gesamtbewertung}
                   onChange={setGesamtbewertung}
                 />
@@ -337,7 +337,7 @@ export default function PlayerReportForm({ reportId }: Props) {
             </CardContent>
           </Card>
 
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Notizen</CardTitle>
               <CardDescription className="hidden md:block">Zum Nachbereiten am Rechner gedacht</CardDescription>

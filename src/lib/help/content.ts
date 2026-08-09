@@ -59,7 +59,7 @@ export const onboardingSteps: OnboardingStep[] = [
   {
     id: "welcome",
     title: "Willkommen bei Fussball Scouting",
-    body: "Erfasse Beobachtungen am Spielfeldrand, synchronisiere sie und werte sie später am Desktop aus. Deine Daten bleiben privat – nur du siehst deine Spieler und Berichte.",
+    body: "Erfasse Beobachtungen am Spielfeldrand, synchronisiere sie und werte sie später am Desktop aus. Deine Daten bleiben privat, nur du siehst deine Spieler und Berichte.",
   },
   {
     id: "pitch",
@@ -70,7 +70,7 @@ export const onboardingSteps: OnboardingStep[] = [
   {
     id: "sync",
     title: "Sync, wenn Netz da ist",
-    body: "Oben bzw. in der Sidebar siehst du den Sync-Status. Sobald du online und angemeldet bist, werden deine Berichte in die Cloud geschoben – und auf anderen Geräten wieder heruntergeladen.",
+    body: "Oben bzw. in der Sidebar siehst du den Sync-Status. Sobald du online und angemeldet bist, werden deine Berichte in die Cloud geschoben, und auf anderen Geräten wieder heruntergeladen.",
   },
   {
     id: "desktop",
@@ -80,7 +80,7 @@ export const onboardingSteps: OnboardingStep[] = [
   {
     id: "privacy",
     title: "Nur deine Beobachtungen",
-    body: "Jeder Scout sieht ausschließlich die von ihm angelegten Spieler, Teams und Berichte. Wenn du die App weitergibst, sieht der andere Scout deine Testspieler nicht – und umgekehrt.",
+    body: "Jeder Scout sieht ausschließlich die von ihm angelegten Spieler, Teams und Berichte. Wenn du die App weitergibst, sieht der andere Scout deine Testspieler nicht, und umgekehrt.",
     ctaHint: "Details jederzeit unter Hilfe nachlesen.",
   },
 ];
@@ -92,7 +92,7 @@ export const helpSections: HelpSection[] = [
     title: "Erste Schritte",
     summary: "Anmelden, ersten Bericht schreiben, Sync prüfen.",
     paragraphs: [
-      "Melde dich mit Google oder Magic Link an. Ohne konfiguriertes Supabase läuft die App im Lokal-Modus auf einem Gerät – geräteübergreifender Sync braucht Login.",
+      "Melde dich mit Google oder Magic Link an. Ohne konfiguriertes Supabase läuft die App im Lokal-Modus auf einem Gerät, geräteübergreifender Sync braucht Login.",
       "Praktischer Einstieg: Kader importieren, dann einen Spielerbericht am Platz anlegen. Am Desktop nachbereiten und im Dashboard vergleichen.",
     ],
     bullets: [
@@ -100,7 +100,7 @@ export const helpSections: HelpSection[] = [
       "Sync-Status: Sidebar (Desktop) bzw. Header (Mobil)",
       "Einführung jederzeit über „Einführung starten“ auf dieser Seite",
     ],
-    tip: "Am Platz: PWA auf dem Homescreen – volle Bildschirmfläche, schneller Start.",
+    tip: "Am Platz: PWA auf dem Homescreen, volle Bildschirmfläche, schneller Start.",
     links: [
       { href: "/reports/new-player", label: "Spielerbericht" },
       { href: "/import", label: "Import" },
@@ -113,7 +113,7 @@ export const helpSections: HelpSection[] = [
     summary: "Jeder Scout sieht nur die eigenen Beobachtungen.",
     paragraphs: [
       "Spieler, Vereine, Spiele und Berichte gehören dem Scout, der sie angelegt hat. Andere Scouts können deine Einträge weder lesen noch bearbeiten.",
-      "Derselbe reale Spieler (z. B. von Transfermarkt) kann bei zwei Scouts als getrennte Datensätze existieren – inklusive eigener Notizen und Bewertungen.",
+      "Derselbe reale Spieler (z. B. von Transfermarkt) kann bei zwei Scouts als getrennte Datensätze existieren, inklusive eigener Notizen und Bewertungen.",
     ],
     bullets: [
       "Kein gemeinsamer Pool aller Scouts im Team",
@@ -137,17 +137,17 @@ export const helpSections: HelpSection[] = [
       "Fehler: Badge + „Retry“ / „Erneut versuchen“",
       "Hilfe-Link im Sync-Panel bei wiederkehrenden Problemen",
     ],
-    tip: "Nach dem Spieltag einmal Sync prüfen – bevor du das zweite Gerät öffnest.",
+    tip: "Nach dem Spieltag einmal Sync prüfen, bevor du das zweite Gerät öffnest.",
   },
   {
     id: "mobil-desktop",
     group: "einstieg",
     title: "Mobil vs. Desktop",
-    summary: "Drei Kontexte – eine App.",
+    summary: "Drei Kontexte, eine App.",
     paragraphs: [
       "Spielfeldrand: schlanke Formulare, Bottom-Navigation, große Tap-Ziele.",
       "Nachbearbeitung Zuhause: Sidebar, Tabellen, Dashboard, Import und Export.",
-      "Video-Studium: am Spiel VEO-/Video-Link und Zeitmarken – ohne Rohvideo-Upload.",
+      "Video-Studium: am Spiel VEO-/Video-Link und Zeitmarken, ohne Rohvideo-Upload.",
     ],
     bullets: [
       "Dark Mode: Mond-/Sonnen-Icon im Header oder in der Sidebar",
@@ -181,7 +181,7 @@ export const helpSections: HelpSection[] = [
     summary: "Standard-Raster und eigene Kategorien.",
     paragraphs: [
       "Standard Spieler: Technik, Taktik, Athletik, Mentalität. Standard Team: Organisation, Pressing, Umschalten, Standards.",
-      "Unter Bewertungsfelder legst du zusätzliche Skalen (1–10) an – getrennt für Spieler und Team. Custom-Felder gehören nur dir und synchronisieren geräteübergreifend.",
+      "Unter Bewertungsfelder legst du zusätzliche Skalen (1-10) an, getrennt für Spieler und Team. Custom-Felder gehören nur dir und synchronisieren geräteübergreifend.",
     ],
     tip: "Eigene Felder erscheinen in Formularen und im Dashboard (Radar, Vergleich, Verlauf).",
     links: [{ href: "/einstellungen/attribute", label: "Bewertungsfelder öffnen" }],
@@ -193,7 +193,7 @@ export const helpSections: HelpSection[] = [
     summary: "Systeme und Wechsel am Spiel.",
     paragraphs: [
       "Beim Bezug „Spiel“ kannst du am Match unter „Formationen & Phasen“ Basis-Systeme für Heim und Gast (offensiv/defensiv) setzen.",
-      "Phasen markieren Systemwechsel ab einer Minute – am Platz per Chip, zu Hause detailliert nachpflegen.",
+      "Phasen markieren Systemwechsel ab einer Minute, am Platz per Chip, zu Hause detailliert nachpflegen.",
     ],
     bullets: [
       "Chips für gängige Systeme (4-3-3, 4-2-3-1, …) plus Freitext",
@@ -205,15 +205,15 @@ export const helpSections: HelpSection[] = [
     id: "video",
     group: "erfassen",
     title: "Video / VEO",
-    summary: "Link und Zeitmarken – kein Upload.",
+    summary: "Link und Zeitmarken, kein Upload.",
     paragraphs: [
       "Am Spiel unter „Video / VEO“ hinterlegst du einen Link (VEO, YouTube, Drive, …) und optional eine Bezeichnung.",
       "Zeitmarken mit Spielminute und/oder Timecode helfen beim Nachstudium. Rohvideos werden nicht in der App-Cloud gespeichert.",
     ],
     bullets: [
-      "Nur Link/Referenz – spart Storage",
+      "Nur Link/Referenz, spart Storage",
       "Marken in der Berichtsdetailansicht",
-      "Später optional: Event-Import – nie automatische Gesamtnote",
+      "Später optional: Event-Import, nie automatische Gesamtnote",
     ],
   },
   {
@@ -223,7 +223,7 @@ export const helpSections: HelpSection[] = [
     summary: "Kader übernehmen statt tippen.",
     paragraphs: [
       "Unter Import Quelle wählen, Treffer prüfen, übernehmen. Deduplizierung gilt pro Scout: derselbe externe Spieler wird bei dir nicht doppelt angelegt.",
-      "Jugendkader auf fussball.de sind oft gesperrt – dann Namensliste oder manuell.",
+      "Jugendkader auf fussball.de sind oft gesperrt, dann Namensliste oder manuell.",
     ],
     bullets: [
       "Transfermarkt: empfohlen für Jugend-/Vereinsskader",
@@ -232,7 +232,7 @@ export const helpSections: HelpSection[] = [
       "API-Tab: braucht API_FUSSBALL_TOKEN",
       "Nach Übernehmen: Sync-Leiste prüfen",
     ],
-    tip: "Nur öffentliche Scout-Quellen – Importe sparsam und für den eigenen Workflow.",
+    tip: "Nur öffentliche Scout-Quellen, Importe sparsam und für den eigenen Workflow.",
     links: [{ href: "/import", label: "Zum Import" }],
   },
   {
@@ -256,7 +256,7 @@ export const helpSections: HelpSection[] = [
     summary: "Kader, Entwicklung, Freigaben, Aufstellung.",
     paragraphs: [
       "Unter Profil & Rollen kannst du die Rolle Trainer aktivieren (auch parallel zu Scout). Dann erscheint die Trainer-Navigation.",
-      "Kader pflegt deine Mannschaft(en) mit Jahrgang und Einwilligung. Freigaben laufen gezielt per Code – kein Marktplatz. Aufstellung ist ein Positions-Board (Zeichenwerkzeug folgt in V2).",
+      "Kader pflegt deine Mannschaft(en) mit Jahrgang und Einwilligung. Freigaben laufen gezielt per Code, kein Marktplatz. Aufstellung ist ein Positions-Board (Zeichenwerkzeug folgt in V2).",
     ],
     bullets: [
       "Mehrere Teams mit Umschalter",
@@ -284,7 +284,7 @@ export const helpSections: HelpSection[] = [
       {
         question: "Kann ich die Einführung erneut ansehen?",
         answer:
-          "Ja – auf dieser Hilfeseite oben rechts „Einführung starten“.",
+          "Ja, auf dieser Hilfeseite oben rechts „Einführung starten“.",
       },
       {
         question: "Wo stelle ich den Dark Mode um?",
@@ -294,10 +294,10 @@ export const helpSections: HelpSection[] = [
       {
         question: "Wo landen Fotos?",
         answer:
-          "Zuerst lokal am Gerät; bei Sync in deinem Storage, gebunden an deine Berichte – nicht sichtbar für andere Scouts.",
+          "Zuerst lokal am Gerät; bei Sync in deinem Storage, gebunden an deine Berichte, nicht sichtbar für andere Scouts.",
       },
       {
-        question: "Sync zeigt Fehler – was tun?",
+        question: "Sync zeigt Fehler, was tun?",
         answer:
           "Online prüfen, dann „Retry“ / „Erneut versuchen“ in der Sync-Leiste. Bleibt der Fehler: einmal ab- und neu anmelden; bei Import-Problemen Token/URL prüfen.",
       },

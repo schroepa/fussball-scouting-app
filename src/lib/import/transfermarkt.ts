@@ -3,7 +3,7 @@
  * Beispiel: https://www.transfermarkt.de/bfc-dynamo-u17/startseite/verein/35633
  *
  * Hinweis: SportDB.dev (https://sportdb.dev) ist ein API-Proxy auf Transfermarkt
- * und Flashscore – benötigt aber einen API-Key. Dieser Scraper holt die Kader
+ * und Flashscore, benötigt aber einen API-Key. Dieser Scraper holt die Kader
  * direkt und kostenlos von der öffentlichen Vereinsseite.
  */
 import type { ImportedClub, ImportedPlayer, ImportSearchResult } from "./types";
@@ -81,7 +81,7 @@ function parseClubName(html: string): string {
   if (fromHeader) return decodeHtml(fromHeader);
   const title = html.match(/<title>\s*([^|<]+)/i)?.[1];
   if (title) {
-    return decodeHtml(title.replace(/\s*[-–].*$/, "").trim());
+    return decodeHtml(title.replace(/\s*[--].*$/, "").trim());
   }
   return "Transfermarkt-Verein";
 }
@@ -214,7 +214,7 @@ export async function importTransfermarktClub(
     return {
       externalSource: SOURCE,
       externalRef: p.id,
-      vorname: vorname || "—",
+      vorname: vorname || "-",
       nachname: nachname || p.name,
       geburtsdatum: p.birth ? germanDateToIso(p.birth) : undefined,
       nationalitaet: p.nationality,

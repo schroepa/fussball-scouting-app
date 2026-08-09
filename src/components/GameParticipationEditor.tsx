@@ -54,9 +54,9 @@ export default function GameParticipationEditor({
     <section id="section-game-participation" className="space-y-3">
       <h3 className="text-sm font-semibold">Spiel-Teilnahme (Ist)</h3>
       <p className="text-xs text-muted-foreground">
-        Getrennt von der geplanten Aufstellung – für Entwicklungsstatistik.
+        Getrennt von der geplanten Aufstellung, für Entwicklungsstatistik.
       </p>
-      <div className="grid gap-2 sm:grid-cols-5 rounded-lg border border-border bg-card p-3">
+      <div className="grid gap-2 sm:grid-cols-5 panel p-3">
         <div className="sm:col-span-2 space-y-1">
           <Label>Spieler</Label>
           <SimpleSelect
@@ -141,8 +141,8 @@ export default function GameParticipationEditor({
               className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm"
             >
               <span>
-                {nameOf(r.playerId)} · {r.position || "–"} ·{" "}
-                {PARTICIPATION_ROLE_LABELS[r.rolle]} · {r.minutenVon ?? 0}–
+                {nameOf(r.playerId)} · {r.position || "-"} ·{" "}
+                {PARTICIPATION_ROLE_LABELS[r.rolle]} · {r.minutenVon ?? 0}-
                 {r.minutenBis ?? 90}&apos;
               </span>
               <Button

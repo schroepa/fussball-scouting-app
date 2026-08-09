@@ -185,7 +185,7 @@ export default function TeamReportForm({ reportId }: Props) {
           <CardDescription>
             {isEdit
               ? "Änderungen werden beim nächsten Sync hochgeladen."
-              : "Lokal gespeichert – Sync sobald wieder Netz da ist."}
+              : "Lokal gespeichert, Sync sobald wieder Netz da ist."}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2 justify-center pb-6">
@@ -214,30 +214,30 @@ export default function TeamReportForm({ reportId }: Props) {
           {isEdit ? "Teambericht bearbeiten" : "Teambericht"}
         </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Gegner oder eigenes Team – kompakt am Platz.
+          Gegner oder eigenes Team, kompakt am Platz.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
         <div className="lg:col-span-5 space-y-4">
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Kontext</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 pt-4">
               <div className="space-y-1.5">
                 <Label>Berichtsart</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="seg-control w-full grid grid-cols-2">
                   {BERICHTSART_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       type="button"
                       onClick={() => setBerichtsart(opt)}
                       className={cn(
-                        "rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
+                        "px-3 py-2.5 text-sm font-medium transition-colors",
                         berichtsart === opt
-                          ? "border-primary bg-primary/10 text-foreground"
-                          : "border-border bg-background text-muted-foreground hover:bg-muted/50"
+                          ? "seg-control__thumb"
+                          : "seg-control__item"
                       )}
                     >
                       {BERICHTSART_LABELS[opt]}
@@ -278,7 +278,7 @@ export default function TeamReportForm({ reportId }: Props) {
                   <Input
                     id="tr-formation"
                     type="text"
-                    placeholder="optional – Details am Spiel"
+                    placeholder="optional, Details am Spiel"
                     value={formation}
                     onChange={(e) => setFormation(e.target.value)}
                   />
@@ -291,7 +291,7 @@ export default function TeamReportForm({ reportId }: Props) {
             </CardContent>
           </Card>
 
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Schlüsselspieler</CardTitle>
             </CardHeader>
@@ -341,7 +341,7 @@ export default function TeamReportForm({ reportId }: Props) {
             </CardContent>
           </Card>
 
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Fotos</CardTitle>
             </CardHeader>
@@ -359,11 +359,11 @@ export default function TeamReportForm({ reportId }: Props) {
 
         <div className="lg:col-span-7 space-y-4">
           {attributes.length > 0 ? (
-            <Card size="sm" className="shadow-sm">
+            <Card size="sm">
               <CardHeader className="border-b">
                 <CardTitle>Bewertungsraster</CardTitle>
                 <CardDescription className="hidden md:block">
-                  1–10 · eigene Felder unter{" "}
+                  1-10 · eigene Felder unter{" "}
                   <a
                     href="/einstellungen/attribute"
                     className="text-primary underline-offset-2 hover:underline"
@@ -392,11 +392,11 @@ export default function TeamReportForm({ reportId }: Props) {
             </Card>
           ) : null}
 
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Analyse</CardTitle>
               <CardDescription className="hidden md:block">
-                Spielstil und Standards – am Desktop mit mehr Schreibfläche
+                Spielstil und Standards, am Desktop mit mehr Schreibfläche
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 pt-4">

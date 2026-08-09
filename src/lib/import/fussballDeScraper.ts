@@ -84,7 +84,7 @@ export function extractClubId(input: string): string | null {
     );
   }
   if (/^[A-Z0-9]{20,}$/i.test(trimmed) && !/team-id/i.test(trimmed)) {
-    // Ambiguous raw ID – treat as club if caller says so.
+    // Ambiguous raw ID, treat as club if caller says so.
     return trimmed.toUpperCase();
   }
   return extractFussballDeId(trimmed);
@@ -249,7 +249,7 @@ async function decodePlayers(
     out.push({
       externalSource: SOURCE,
       externalRef: p.playerId,
-      vorname: vorname || "—",
+      vorname: vorname || "-",
       nachname: nachname || full,
       positionen: [],
       clubExternalRef: club.externalRef,
@@ -359,7 +359,7 @@ export async function scrapeTeamSquad(
       seasonUsed: season,
       notice:
         season !== seasons[0]
-          ? `Aktuelle Saison ohne öffentlichen Kader – Spieler aus Saison ${season.slice(0, 2)}/${season.slice(2)} übernommen.`
+          ? `Aktuelle Saison ohne öffentlichen Kader, Spieler aus Saison ${season.slice(0, 2)}/${season.slice(2)} übernommen.`
           : undefined,
     };
   }
@@ -434,7 +434,7 @@ export async function scrapeClubWithOptionalSquads(
       notice:
         deduped.size === 0
           ? notices.slice(0, 3).join(" ") ||
-            "Keine öffentlichen Kaderlisten gefunden. Jugendspieler oft nicht freigegeben – bitte manuell oder per Namensliste anlegen."
+            "Keine öffentlichen Kaderlisten gefunden. Jugendspieler oft nicht freigegeben, bitte manuell oder per Namensliste anlegen."
           : `${deduped.size} Spieler aus veröffentlichten Kadern. ${
               notices.length
                 ? `(${notices.length} Mannschaft(en) ohne Kader.)`

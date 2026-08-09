@@ -58,7 +58,7 @@ const scoutMore: NavItem[] = [
   { key: "hilfe", href: "/hilfe", label: "Hilfe", Icon: CircleHelp },
 ];
 
-/** Mobil nur 3 Primärziele – Rest unter „Mehr“ (inkl. Aufstellung). */
+/** Mobil nur 3 Primärziele, Rest unter „Mehr“ (inkl. Aufstellung). */
 const trainerPrimary: NavItem[] = [
   { key: "home", href: "/", label: "Start", Icon: Home },
   { key: "kader", href: "/kader", label: "Kader", Icon: UsersRound },

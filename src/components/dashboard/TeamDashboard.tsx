@@ -71,24 +71,24 @@ export default function TeamDashboard() {
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-        <Card size="sm" className="shadow-sm">
+        <Card size="sm">
           <CardHeader className="pb-0">
-            <CardDescription>Vereine mit Berichten</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">{filtered.length}</CardTitle>
+            <CardDescription className="label-caps">Vereine mit Berichten</CardDescription>
+            <CardTitle className="text-2xl display-num">{filtered.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card size="sm" className="shadow-sm">
+        <Card size="sm">
           <CardHeader className="pb-0">
-            <CardDescription>Team-Berichte gesamt</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">
+            <CardDescription className="label-caps">Team-Berichte gesamt</CardDescription>
+            <CardTitle className="text-2xl display-num">
               {filtered.reduce((s, r) => s + r.reportCount, 0)}
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card size="sm" className="shadow-sm col-span-2 lg:col-span-1">
+        <Card size="sm" className="col-span-2 lg:col-span-1">
           <CardHeader className="pb-0">
-            <CardDescription>Gegner / Eigen</CardDescription>
-            <CardTitle className="text-lg tabular-nums">
+            <CardDescription className="label-caps">Gegner / Eigen</CardDescription>
+            <CardTitle className="text-lg display-num">
               {filtered.reduce((s, r) => s + r.gegnerCount, 0)} /{" "}
               {filtered.reduce((s, r) => s + r.eigenCount, 0)}
             </CardTitle>
@@ -96,7 +96,7 @@ export default function TeamDashboard() {
         </Card>
       </div>
 
-      <Card size="sm" className="shadow-sm">
+      <Card size="sm">
         <CardHeader className="border-b">
           <CardTitle>Filter</CardTitle>
         </CardHeader>
@@ -161,7 +161,7 @@ export default function TeamDashboard() {
             {filtered.map((row) => (
               <li
                 key={row.club.id}
-                className="rounded-xl border border-border bg-card p-3 space-y-2"
+                className="panel p-3 space-y-2"
               >
                 <div className="font-semibold">{row.club.name}</div>
                 <div className="text-xs text-muted-foreground">
@@ -186,7 +186,7 @@ export default function TeamDashboard() {
             ))}
           </ul>
 
-          <div className="hidden md:block rounded-xl border border-border overflow-hidden bg-card">
+          <div className="hidden md:block panel overflow-hidden bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -205,7 +205,7 @@ export default function TeamDashboard() {
                   <TableRow key={row.club.id}>
                     <TableCell className="font-medium">{row.club.name}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {row.club.liga ?? "—"}
+                      {row.club.liga ?? "-"}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {row.reportCount}
@@ -217,12 +217,12 @@ export default function TeamDashboard() {
                       {row.eigenCount}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {row.lastFormation ?? "—"}
+                      {row.lastFormation ?? "-"}
                     </TableCell>
                     <TableCell className="text-muted-foreground whitespace-nowrap">
                       {row.latest
                         ? new Date(row.latest.datum).toLocaleDateString("de-DE")
-                        : "—"}
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       {row.latest ? (
@@ -233,7 +233,7 @@ export default function TeamDashboard() {
                           Öffnen
                         </a>
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </TableCell>
                   </TableRow>

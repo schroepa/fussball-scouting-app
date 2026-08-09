@@ -53,7 +53,7 @@ export function buildBlindPreview(
 }
 
 /**
- * Kombinierter Match-Score 0–100.
+ * Kombinierter Match-Score 0-100.
  * Name (55) + Jahrgang (25) + Verein (12) + Position (8).
  */
 export function scorePlayerMatch(

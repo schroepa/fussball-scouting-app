@@ -17,7 +17,7 @@ interface CameraCaptureProps {
 /**
  * Foto-Aufnahme direkt aus der App.
  *
- * Nutzt `<input type="file" accept="image/*" capture="environment">` –
+ * Nutzt `<input type="file" accept="image/*" capture="environment">` -
  * mobil öffnet das die Kamera, am Desktop die Dateiauswahl.
  */
 export default function CameraCapture({

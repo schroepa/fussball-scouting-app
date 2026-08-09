@@ -23,6 +23,6 @@ describe("parseJahrgang", () => {
   it("formatJahrgang", () => {
     expect(formatJahrgang(2012)).toBe("2012");
     expect(formatJahrgang(0.2012)).toBe("2012");
-    expect(formatJahrgang(undefined)).toBe("–");
+    expect(formatJahrgang(undefined)).toBe("-");
   });
 });

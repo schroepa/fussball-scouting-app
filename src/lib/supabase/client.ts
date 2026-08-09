@@ -7,7 +7,7 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as
 
 /**
  * Ob Supabase konfiguriert ist. Solange kein Supabase-Projekt angebunden
- * ist, läuft die App im reinen Lokal-Modus (Dexie/IndexedDB) weiter –
+ * ist, läuft die App im reinen Lokal-Modus (Dexie/IndexedDB) weiter -
  * Erfassung funktioniert, nur die Synchronisation ist deaktiviert.
  * Siehe README.md für die Einrichtung.
  */

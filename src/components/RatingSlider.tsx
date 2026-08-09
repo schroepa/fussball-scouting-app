@@ -42,7 +42,7 @@ export default function RatingSlider({
           )}
           aria-hidden="true"
         >
-          {value != null ? value : "–"}
+          {value != null ? value : "-"}
         </span>
       </div>
       {description && (

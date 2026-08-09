@@ -55,7 +55,7 @@ export default function DuplicateMatchPanel({
         <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 space-y-2">
           <p className="text-sm font-medium">Möglicher Doppelgänger gefunden</p>
           <p className="text-xs text-muted-foreground">
-            Blind-Preview ohne fremde Namen – Verknüpfung statt Zusammenführen.
+            Blind-Preview ohne fremde Namen, Verknüpfung statt Zusammenführen.
           </p>
           <ul className="space-y-2">
             {candidates.slice(0, 3).map((c) => (
@@ -67,7 +67,7 @@ export default function DuplicateMatchPanel({
                   <span className="font-medium">Score {c.score}</span>
                   <span className="text-muted-foreground">
                     {" "}
-                    · Jg. {c.preview.jahrgang ?? "–"}
+                    · Jg. {c.preview.jahrgang ?? "-"}
                     {c.preview.clubName ? ` · ${c.preview.clubName}` : ""}
                     {c.preview.positionen.length
                       ? ` · ${c.preview.positionen.join(", ")}`
@@ -115,12 +115,12 @@ export default function DuplicateMatchPanel({
             {openLinks.map((l) => (
               <li
                 key={l.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2"
+                className="flex flex-wrap items-center justify-between gap-2 panel px-3 py-2"
               >
                 <div className="text-sm">
                   Score {l.matchScore} · Blind A: Jg.{" "}
-                  {l.previewA.jahrgang ?? "–"} / B: Jg.{" "}
-                  {l.previewB.jahrgang ?? "–"}
+                  {l.previewA.jahrgang ?? "-"} / B: Jg.{" "}
+                  {l.previewB.jahrgang ?? "-"}
                   <Badge variant="secondary" className="ml-2">
                     {PLAYER_LINK_STATUS_LABELS[l.status]}
                   </Badge>

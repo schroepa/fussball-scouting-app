@@ -84,7 +84,7 @@ export default function FreigabenPage() {
     try {
       const share = await createPlayerShare({ playerId, role });
       setCreatedCode(share.inviteCode);
-      setMessage("Einladung erstellt. Code teilen – kein öffentlicher Marktplatz.");
+      setMessage("Einladung erstellt. Code teilen, kein öffentlicher Marktplatz.");
       await reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Freigabe fehlgeschlagen.");
@@ -118,7 +118,7 @@ export default function FreigabenPage() {
         <form
           id="form-create-share"
           onSubmit={handleCreate}
-          className="grid gap-3 sm:grid-cols-3 rounded-lg border border-border bg-card p-4"
+          className="grid gap-3 sm:grid-cols-3 panel p-4 md:p-5"
         >
           <div className="space-y-1.5 sm:col-span-2">
             <Label>Spieler</Label>
@@ -148,7 +148,7 @@ export default function FreigabenPage() {
           </div>
         </form>
         {createdCode ? (
-          <p className="rounded-lg bg-muted px-3 py-2 font-mono text-sm" role="status">
+          <p className="panel-inset px-3 py-2 font-mono text-sm" role="status">
             Code: <strong>{createdCode}</strong>
           </p>
         ) : null}
@@ -159,7 +159,7 @@ export default function FreigabenPage() {
         <form
           id="form-accept-share"
           onSubmit={handleAccept}
-          className="flex flex-col sm:flex-row gap-2 rounded-lg border border-border bg-card p-4"
+          className="flex flex-col sm:flex-row gap-2 panel p-4 md:p-5"
         >
           <Input
             value={inviteCode}
@@ -188,11 +188,11 @@ export default function FreigabenPage() {
         {outgoing.length === 0 ? (
           <EmptyState title="Noch keine Freigaben" description="Erstelle einen Code für einen Spieler." />
         ) : (
-          <ul className="space-y-2">
+          <ul className="panel overflow-hidden divide-y divide-border">
             {outgoing.map((s) => (
               <li
                 key={s.id}
-                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-card px-3 py-3"
+                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 py-3"
               >
                 <div>
                   <div className="font-medium">{playerName(s.playerId)}</div>
@@ -227,11 +227,11 @@ export default function FreigabenPage() {
         {incoming.length === 0 ? (
           <p className="text-sm text-muted-foreground">Keine angenommenen Freigaben.</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="panel overflow-hidden divide-y divide-border">
             {incoming.map((s) => (
               <li
                 key={s.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-3"
+                className="flex items-center justify-between px-4 py-3"
               >
                 <div>
                   <div className="font-medium">Spieler {s.playerId.slice(0, 8)}…</div>

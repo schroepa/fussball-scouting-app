@@ -118,7 +118,7 @@ export default function KaderPage() {
     const map = new Map<string, Row[]>();
     for (const row of filtered) {
       const key = formatJahrgang(row.player.jahrgang);
-      const label = key === "–" ? "Ohne Jahrgang" : key;
+      const label = key === "-" ? "Ohne Jahrgang" : key;
       const list = map.get(label) ?? [];
       list.push(row);
       map.set(label, list);
@@ -140,7 +140,7 @@ export default function KaderPage() {
     setError(null);
     const parsedJahrgang = parseJahrgang(jahrgang);
     if (jahrgang.trim() && parsedJahrgang === undefined) {
-      setError("Jahrgang ungültig – bitte als Jahreszahl angeben (z. B. 2012).");
+      setError("Jahrgang ungültig, bitte als Jahreszahl angeben (z. B. 2012).");
       return;
     }
     const player = await createPlayer({
@@ -337,7 +337,7 @@ export default function KaderPage() {
           title={rows.length === 0 ? "Kader ist leer" : "Keine Treffer"}
           description={
             rows.length === 0
-              ? "Füge Spieler hinzu – mit Jahrgang und Einwilligungsstatus."
+              ? "Füge Spieler hinzu, mit Jahrgang und Einwilligungsstatus."
               : "Filter zurücksetzen oder anderen Suchbegriff verwenden."
           }
         />

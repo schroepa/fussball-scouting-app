@@ -55,7 +55,7 @@ export interface Player {
   vorname: string;
   nachname: string;
   geburtsdatum?: string;
-  /** Jahrgang (Jugend) – datensparsame Alternative zum vollen Geburtsdatum. */
+  /** Jahrgang (Jugend), datensparsame Alternative zum vollen Geburtsdatum. */
   jahrgang?: number;
   nationalitaet?: string;
   positionen: string[];
@@ -113,7 +113,7 @@ export interface Match {
   formationGastDef?: string;
   /** Systemwechsel / Phasen chronologisch nach abMinute. */
   phases?: MatchPhase[];
-  /** Externer Video-Link (VEO o. Ä.) – kein Rohvideo-Upload. */
+  /** Externer Video-Link (VEO o. Ä.), kein Rohvideo-Upload. */
   videoUrl?: string;
   /** Kurzbezeichnung / VEO-Referenz. */
   videoRef?: string;
@@ -242,7 +242,7 @@ export interface Scout {
   name: string;
   email: string;
   authProvider?: string;
-  /** Mehrfachauswahl – Nutzer können Scout und Trainer sein. */
+  /** Mehrfachauswahl, Nutzer können Scout und Trainer sein. */
   roles?: AppRole[];
   /** Bevorzugte Startansicht bei Doppelrolle. */
   primaryMode?: AppMode;
@@ -306,7 +306,7 @@ export const SHARE_STATUS_LABELS: Record<ShareStatus, string> = {
 
 /**
  * Gezielte Freigabe eines Spielerprofils (Einladung per Code).
- * Kein Marktplatz – Zugriff nur nach Annahme des Codes.
+ * Kein Marktplatz, Zugriff nur nach Annahme des Codes.
  */
 export interface PlayerShare {
   id: string;
@@ -329,9 +329,9 @@ export interface PlayerShare {
 export interface FormationPlayerPos {
   playerId: string;
   positionLabel?: string;
-  /** Relativ 0–100 auf dem Spielfeld (Breite). */
+  /** Relativ 0-100 auf dem Spielfeld (Breite). */
   x: number;
-  /** Relativ 0–100 auf dem Spielfeld (Tiefe, 0 = eigene Grundlinie). */
+  /** Relativ 0-100 auf dem Spielfeld (Tiefe, 0 = eigene Grundlinie). */
   y: number;
 }
 
@@ -342,7 +342,7 @@ export const MOVEMENT_TYPE_LABELS: Record<MovementType, string> = {
   pass: "Passweg",
 };
 
-/** Ein gezeichneter Pfad auf der Taktiktafel (Punkte relativ 0–100). */
+/** Ein gezeichneter Pfad auf der Taktiktafel (Punkte relativ 0-100). */
 export interface FormationMovement {
   id: string;
   playerId?: string;
@@ -366,7 +366,7 @@ export interface TacticalFormation {
   id: string;
   name: string;
   teamId?: string;
-  /** Optional – lose Kopplung an ein Match. */
+  /** Optional, lose Kopplung an ein Match. */
   gameId?: string;
   templateKey?: string;
   positionsOff: FormationPlayerPos[];
@@ -428,7 +428,7 @@ export const PARTICIPATION_ROLE_LABELS: Record<ParticipationRole, string> = {
   einwechslung: "Einwechslung",
 };
 
-/** Ist-Teilnahme am Spiel – getrennt von geplanter Aufstellung (Soll). */
+/** Ist-Teilnahme am Spiel, getrennt von geplanter Aufstellung (Soll). */
 export interface GameParticipation {
   id: string;
   gameId: string;

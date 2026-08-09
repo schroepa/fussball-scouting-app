@@ -1,6 +1,6 @@
 /**
  * SSRF-Schutz für Import-Endpunkte: nur bekannte Scout-Quellen.
- * Bloße IDs/Slugs (ohne Schema) sind erlaubt – die Scraper bauen die URL selbst.
+ * Bloße IDs/Slugs (ohne Schema) sind erlaubt, die Scraper bauen die URL selbst.
  */
 
 const ALLOWED_HOST_SUFFIXES = ["transfermarkt.de", "fussball.de"] as const;

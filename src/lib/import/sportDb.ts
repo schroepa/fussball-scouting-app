@@ -51,7 +51,7 @@ export async function importViaSportDbOrTransfermarkt(
     const contentType = res.headers.get("content-type") ?? "";
     const raw = await res.text();
 
-    // Wenn SportDB HTML zurückgibt: nicht parsen hier – Fallback auf direkten Scrape.
+    // Wenn SportDB HTML zurückgibt: nicht parsen hier, Fallback auf direkten Scrape.
     // Strukturiertes JSON (falls vorhanden) später mappen.
     if (contentType.includes("application/json")) {
       const data = JSON.parse(raw) as unknown;
@@ -64,14 +64,14 @@ export async function importViaSportDbOrTransfermarkt(
     return {
       ...fallback,
       via: "transfermarkt",
-      notice: `${fallback.notice ?? ""} (SportDB-Antwort nicht auswertbar – direkter Transfermarkt-Scrape genutzt.)`.trim(),
+      notice: `${fallback.notice ?? ""} (SportDB-Antwort nicht auswertbar, direkter Transfermarkt-Scrape genutzt.)`.trim(),
     };
   } catch {
     const fallback = await importTransfermarktClub(urlOrId);
     return {
       ...fallback,
       via: "transfermarkt",
-      notice: `${fallback.notice ?? ""} (SportDB nicht erreichbar – direkter Transfermarkt-Scrape.)`.trim(),
+      notice: `${fallback.notice ?? ""} (SportDB nicht erreichbar, direkter Transfermarkt-Scrape.)`.trim(),
     };
   }
 }

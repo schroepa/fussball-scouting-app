@@ -74,8 +74,8 @@ export default function EntwicklungPage() {
         />
       ) : (
         <>
-          <div className="max-w-sm space-y-1.5">
-            <label className="text-sm text-muted-foreground" htmlFor="dev-player">
+          <div className="panel p-4 md:p-5 space-y-1.5 max-w-sm">
+            <label className="label-caps" htmlFor="dev-player">
               Spieler
             </label>
             <SimpleSelect
@@ -117,7 +117,7 @@ export default function EntwicklungPage() {
               </div>
 
               {participationSummary && participationSummary.games > 0 ? (
-                <div className="rounded-lg border border-border bg-card p-3 text-sm">
+                <div className="panel p-4 text-sm">
                   <div className="font-medium mb-1">
                     Spielzeiten ({participationSummary.games} Spiele)
                   </div>
@@ -132,7 +132,7 @@ export default function EntwicklungPage() {
               ) : null}
 
               {reports.length >= 2 ? (
-                <div className="rounded-lg border border-border bg-card p-3">
+                <div className="panel p-4">
                   <RatingTrendChart reports={reports} />
                 </div>
               ) : (
@@ -141,11 +141,11 @@ export default function EntwicklungPage() {
                 </p>
               )}
 
-              <ol className="space-y-3">
+              <ol className="panel overflow-hidden divide-y divide-border">
                 {[...reports].reverse().map((r) => (
                   <li
                     key={r.id}
-                    className="rounded-lg border border-border bg-card px-3 py-3"
+                    className="px-4 py-3"
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <div className="font-medium">
@@ -155,7 +155,7 @@ export default function EntwicklungPage() {
                         </span>
                       </div>
                       {typeof r.gesamtbewertung === "number" ? (
-                        <div className="text-sm font-semibold tabular-nums">
+                        <div className="text-sm font-semibold tabular-nums display-num">
                           {r.gesamtbewertung}/10
                         </div>
                       ) : null}

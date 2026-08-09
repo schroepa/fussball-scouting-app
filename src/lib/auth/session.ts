@@ -8,7 +8,7 @@ const LOCAL_SCOUT_KEY = "scouting_local_scout";
  * Erzeugt/liest ein lokales Scout-Profil (Fallback, falls Supabase noch
  * nicht konfiguriert ist oder der Scout offline arbeitet, ohne sich vorher
  * eingeloggt zu haben). Damit bleibt die App auch ohne Backend vollständig
- * nutzbar – nur die Synchronisation entfällt dann.
+ * nutzbar, nur die Synchronisation entfällt dann.
  */
 function getOrCreateLocalScout(): Scout {
   if (typeof window === "undefined") {

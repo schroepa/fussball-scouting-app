@@ -13,7 +13,7 @@ export default function MatchFormationsSummary({
   );
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 space-y-3 text-sm">
+    <div className="panel p-4 space-y-3 text-sm">
       <div>
         <div className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
           Formationen (Spiel)
@@ -25,17 +25,17 @@ export default function MatchFormationsSummary({
         <div>
           <div className="text-muted-foreground text-xs">Heim off / def</div>
           <div className="font-medium">
-            {match.formationHeimOff || "–"}
+            {match.formationHeimOff || "-"}
             {" / "}
-            {match.formationHeimDef || "–"}
+            {match.formationHeimDef || "-"}
           </div>
         </div>
         <div>
           <div className="text-muted-foreground text-xs">Gast off / def</div>
           <div className="font-medium">
-            {match.formationGastOff || "–"}
+            {match.formationGastOff || "-"}
             {" / "}
-            {match.formationGastDef || "–"}
+            {match.formationGastDef || "-"}
           </div>
         </div>
       </div>
@@ -48,10 +48,10 @@ export default function MatchFormationsSummary({
                 ab {p.abMinute}&apos;
               </span>
               {" · "}
-              Heim {p.formationHeimOff || "–"}/{p.formationHeimDef || "–"}
+              Heim {p.formationHeimOff || "-"}/{p.formationHeimDef || "-"}
               {" · "}
-              Gast {p.formationGastOff || "–"}/{p.formationGastDef || "–"}
-              {p.notiz ? ` – ${p.notiz}` : ""}
+              Gast {p.formationGastOff || "-"}/{p.formationGastDef || "-"}
+              {p.notiz ? `, ${p.notiz}` : ""}
             </li>
           ))}
         </ul>

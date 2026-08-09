@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 /**
  * Card = äußere Fläche (max. 16px via --radius-outer).
- * Nested Rows darin: rounded-md (6px) bei ~8–12px Padding → konzentrische Radien.
+ * Nested Rows darin: rounded-md (6px) bei ~8-12px Padding → konzentrische Radien.
  */
 function Card({
   className,

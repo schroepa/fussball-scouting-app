@@ -2,7 +2,7 @@ import type { AttributeDefinition } from "./types";
 
 /**
  * MVP-Bewertungsraster für Spieler (siehe docs/PLANNING.md, Abschnitt 5).
- * Diese Liste ist nur der Startpunkt ("ist_custom: false") – Scouts können
+ * Diese Liste ist nur der Startpunkt ("ist_custom: false"), Scouts können
  * über die Erweiterbarkeits-Funktion (M6) eigene Kategorien ergänzen, die
  * dann als zusätzliche Einträge mit `istCustom: true` in dieselbe Tabelle
  * (lokal: Dexie-Tabelle `attributeDefinitions`, zentral: Supabase-Tabelle
@@ -104,7 +104,7 @@ export const DEFAULT_TEAM_ATTRIBUTES: AttributeDefinition[] = [
     typ: "skala",
     skalaMin: 1,
     skalaMax: 10,
-    gruppe: "Ecken, Freistöße, Einwürfe – offensiv und defensiv",
+    gruppe: "Ecken, Freistöße, Einwürfe, offensiv und defensiv",
     istCustom: false,
     reihenfolge: 4,
   },

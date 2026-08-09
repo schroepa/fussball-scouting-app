@@ -25,8 +25,8 @@ export type AgeBucket = "u18" | "19_23" | "24_29" | "30plus" | "unbekannt";
 
 export const AGE_BUCKET_LABELS: Record<AgeBucket, string> = {
   u18: "≤ 18",
-  "19_23": "19–23",
-  "24_29": "24–29",
+  "19_23": "19-23",
+  "24_29": "24-29",
   "30plus": "30+",
   unbekannt: "Alter unbekannt",
 };

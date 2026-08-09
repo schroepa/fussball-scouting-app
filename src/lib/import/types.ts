@@ -1,6 +1,6 @@
 /**
  * Generische Import-Adapter-Schnittstelle (siehe docs/PLANNING.md, M2).
- * Pro Datenquelle ein Provider – so lassen sich später ausländische Ligen
+ * Pro Datenquelle ein Provider, so lassen sich später ausländische Ligen
  * ergänzen, ohne den Kern der App zu ändern.
  */
 

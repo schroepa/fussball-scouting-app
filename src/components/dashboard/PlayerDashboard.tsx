@@ -153,29 +153,29 @@ export default function PlayerDashboard() {
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card size="sm" className="shadow-sm">
+        <Card size="sm">
           <CardHeader className="pb-0">
-            <CardDescription>Spieler (Filter)</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">{summary.players}</CardTitle>
+            <CardDescription className="label-caps">Spieler (Filter)</CardDescription>
+            <CardTitle className="text-2xl display-num">{summary.players}</CardTitle>
           </CardHeader>
         </Card>
-        <Card size="sm" className="shadow-sm">
+        <Card size="sm">
           <CardHeader className="pb-0">
-            <CardDescription>Mit Bericht</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">{summary.observed}</CardTitle>
+            <CardDescription className="label-caps">Mit Bericht</CardDescription>
+            <CardTitle className="text-2xl display-num">{summary.observed}</CardTitle>
           </CardHeader>
         </Card>
-        <Card size="sm" className="shadow-sm">
+        <Card size="sm">
           <CardHeader className="pb-0">
-            <CardDescription>Ø Gesamt</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">
-              {summary.avgGesamt ?? "–"}
+            <CardDescription className="label-caps">Ø Gesamt</CardDescription>
+            <CardTitle className="text-2xl display-num">
+              {summary.avgGesamt ?? "-"}
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card size="sm" className="shadow-sm">
+        <Card size="sm">
           <CardHeader className="pb-0">
-            <CardDescription>Empfehlungen</CardDescription>
+            <CardDescription className="label-caps">Empfehlungen</CardDescription>
             <CardContent className="px-0 pt-1 flex flex-wrap gap-1">
               {EMPFEHLUNG_OPTIONS.map((e) => (
                 <Badge key={e} variant="secondary" className="text-[10px]">
@@ -187,11 +187,11 @@ export default function PlayerDashboard() {
         </Card>
       </div>
 
-      <Card size="sm" className="shadow-sm">
+      <Card size="sm">
         <CardHeader className="border-b">
           <CardTitle>Filter</CardTitle>
           <CardDescription>
-            Am Desktop filtern und vergleichen – mobil kompakt.
+            Am Desktop filtern und vergleichen, mobil kompakt.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-4 space-y-3">
@@ -232,7 +232,7 @@ export default function PlayerDashboard() {
                 value={String(minGesamt)}
                 onValueChange={(v) => setMinGesamt(Number(v))}
                 options={[
-                  { value: "0", label: "–" },
+                  { value: "0", label: "-" },
                   ...[6, 7, 8, 9].map((n) => ({
                     value: String(n),
                     label: `≥ ${n}`,
@@ -274,7 +274,7 @@ export default function PlayerDashboard() {
       </Card>
 
       {compareIds.length > 0 && (
-        <div className="sticky top-16 z-10 rounded-xl border border-border bg-card/95 backdrop-blur px-3 py-2 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+        <div className="sticky top-16 z-10 panel-glass px-3 py-2 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm">
             Vergleich: {compareIds.length}/2 Spieler gewählt
           </p>
@@ -318,7 +318,7 @@ export default function PlayerDashboard() {
             {filtered.map((row) => (
               <li
                 key={row.player.id}
-                className="rounded-lg border border-border bg-card p-3 space-y-2"
+                className="panel p-3 space-y-2"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -333,7 +333,7 @@ export default function PlayerDashboard() {
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-lg font-semibold tabular-nums text-primary">
-                      {row.latestGesamt ?? row.avgGesamt ?? "–"}
+                      {row.latestGesamt ?? row.avgGesamt ?? "-"}
                     </div>
                     <div className="text-[10px] text-muted-foreground">
                       {row.reportCount} Ber.
@@ -369,7 +369,7 @@ export default function PlayerDashboard() {
             ))}
           </ul>
 
-          <div className="hidden md:block rounded-xl border border-border overflow-hidden bg-card">
+          <div className="hidden md:block panel overflow-hidden bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -408,24 +408,24 @@ export default function PlayerDashboard() {
                         {row.player.vorname} {row.player.nachname}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {row.clubName ?? "—"}
+                        {row.clubName ?? "-"}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {row.player.positionen.join(", ") || "—"}
+                        {row.player.positionen.join(", ") || "-"}
                       </TableCell>
                       <TableCell className="tabular-nums text-muted-foreground">
-                        {row.age ?? "—"}
+                        {row.age ?? "-"}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {row.reportCount}
                       </TableCell>
                       <TableCell className="text-right tabular-nums font-semibold text-primary">
-                        {row.latestGesamt ?? row.avgGesamt ?? "—"}
+                        {row.latestGesamt ?? row.avgGesamt ?? "-"}
                       </TableCell>
                       <TableCell>
                         {row.latestEmpfehlung
                           ? EMPFEHLUNG_LABELS[row.latestEmpfehlung]
-                          : "—"}
+                          : "-"}
                       </TableCell>
                       <TableCell
                         className="text-right tabular-nums text-muted-foreground text-xs"
@@ -435,7 +435,7 @@ export default function PlayerDashboard() {
                           .map((a) =>
                             row.avgByKey[a.key] != null
                               ? row.avgByKey[a.key]
-                              : "–"
+                              : "-"
                           )
                           .join(" / ")}
                       </TableCell>

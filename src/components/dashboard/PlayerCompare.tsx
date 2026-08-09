@@ -114,7 +114,7 @@ export default function PlayerCompare({ playerAId, playerBId }: Props) {
             Vergleich
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {nameA} vs. {nameB} – Mittelwerte aller Berichte
+            {nameA} vs. {nameB}, Mittelwerte aller Berichte
           </p>
         </div>
         <Button variant="outline" render={<a href="/dashboard/players" />}>
@@ -122,7 +122,7 @@ export default function PlayerCompare({ playerAId, playerBId }: Props) {
         </Button>
       </div>
 
-      <Card size="sm" className="shadow-sm">
+      <Card size="sm">
         <CardHeader className="border-b">
           <CardTitle>Radar</CardTitle>
           <CardDescription>
@@ -160,7 +160,7 @@ export default function PlayerCompare({ playerAId, playerBId }: Props) {
         <SideCard side={b} title={nameB} />
       </div>
 
-      <Card size="sm" className="shadow-sm">
+      <Card size="sm">
         <CardHeader className="border-b">
           <CardTitle>Direktvergleich</CardTitle>
         </CardHeader>
@@ -198,20 +198,20 @@ function SideCard({ side, title }: { side: Side; title: string }) {
   );
 
   return (
-    <Card size="sm" className="shadow-sm">
+    <Card size="sm">
       <CardHeader className="border-b">
         <CardTitle className="text-base">{title}</CardTitle>
         <CardDescription>
           {[side.clubName, side.player.positionen.join(", ")]
             .filter(Boolean)
-            .join(" · ") || "—"}
+            .join(" · ") || "-"}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-4 space-y-2 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Ø Gesamt</span>
           <span className="font-semibold tabular-nums text-primary">
-            {side.avgGesamt ?? "–"}
+            {side.avgGesamt ?? "-"}
           </span>
         </div>
         <div className="flex justify-between">
@@ -273,7 +273,7 @@ function CompareRow({
             : "text-right tabular-nums text-muted-foreground"
         }
       >
-        {a ?? "–"}
+        {a ?? "-"}
       </span>
       <span className="text-center text-xs text-muted-foreground min-w-[5rem]">
         {label}
@@ -285,7 +285,7 @@ function CompareRow({
             : "tabular-nums text-muted-foreground"
         }
       >
-        {b ?? "–"}
+        {b ?? "-"}
       </span>
     </div>
   );

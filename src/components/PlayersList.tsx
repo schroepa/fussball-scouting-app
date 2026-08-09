@@ -100,7 +100,7 @@ export default function PlayersList() {
               return (
                 <li
                   key={p.id}
-                  className="rounded-lg border border-border bg-card p-3 flex items-center justify-between gap-2"
+                  className="panel p-3 flex items-center justify-between gap-2"
                 >
                   <div className="min-w-0">
                     <div className="font-semibold text-card-foreground truncate">
@@ -136,7 +136,7 @@ export default function PlayersList() {
             })}
           </ul>
 
-          <div className="hidden md:block rounded-xl border border-border overflow-hidden">
+          <div className="hidden md:block panel overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -160,10 +160,10 @@ export default function PlayersList() {
                         {p.vorname} {p.nachname}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {club?.name ?? "—"}
+                        {club?.name ?? "-"}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {p.positionen.join(", ") || "—"}
+                        {p.positionen.join(", ") || "-"}
                       </TableCell>
                       <TableCell className="text-muted-foreground capitalize">
                         {p.externalSource ?? "manuell"}
