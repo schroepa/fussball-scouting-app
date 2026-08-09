@@ -4,6 +4,7 @@ import SyncStatusBar from "../components/SyncStatusBar";
 import UserMenu from "../components/UserMenu";
 import AuthGate from "../components/AuthGate";
 import ThemeToggle from "../components/ThemeToggle";
+import ThemeSync from "../components/ThemeSync";
 import AppNavigation from "../components/AppNavigation";
 import MobileHeader from "../components/MobileHeader";
 import { CircleHelp, SlidersHorizontal, UserRound } from "lucide-react";
@@ -59,7 +60,7 @@ const sidebarExtra = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#fafafa" />
+    <meta name="theme-color" content="#eef0f4" />
     <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
@@ -75,18 +76,23 @@ const sidebarExtra = [
         try {
           var key = "fusca_color_mode";
           var stored = localStorage.getItem(key);
-          var mode =
-            stored === "light" || stored === "dark"
+          var preference =
+            stored === "light" || stored === "dark" || stored === "system"
               ? stored
-              : window.matchMedia("(prefers-color-scheme: dark)").matches
+              : "system";
+          var mode =
+            preference === "system"
+              ? window.matchMedia("(prefers-color-scheme: dark)").matches
                 ? "dark"
-                : "light";
+                : "light"
+              : preference;
           var root = document.documentElement;
           if (mode === "dark") root.classList.add("dark");
           else root.classList.remove("dark");
           root.style.colorScheme = mode;
+          root.dataset.theme = mode;
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", mode === "dark" ? "#1c1c22" : "#fafafa");
+          if (meta) meta.setAttribute("content", mode === "dark" ? "#0b0d12" : "#eef0f4");
         } catch (e) {}
       })();
     </script>
@@ -100,6 +106,7 @@ const sidebarExtra = [
     </a>
 
     <AuthGate client:load requireAuth={requireAuth} />
+    <ThemeSync client:load />
     {requireAuth && showNav ? <OnboardingWizard client:load /> : null}
 
     {
@@ -112,7 +119,7 @@ const sidebarExtra = [
           >
             <div class="flex h-14 items-center gap-2.5 px-4 border-b border-sidebar-border">
               <div
-                class="size-7 rounded-md bg-primary text-primary-foreground grid place-items-center text-[10px] font-semibold tracking-tight"
+                class="size-7 rounded-lg bg-primary text-primary-foreground grid place-items-center text-[10px] font-semibold tracking-tight"
                 aria-hidden="true"
               >
                 FS

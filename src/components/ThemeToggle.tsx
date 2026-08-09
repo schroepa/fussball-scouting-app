@@ -1,52 +1,69 @@
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import {
+  bindSystemThemeListener,
+  cycleThemePreference,
   getCurrentMode,
-  resolveInitialMode,
-  toggleColorMode,
+  resolvePreference,
   type ColorMode,
+  type ThemePreference,
 } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 type Variant = "header" | "sidebar" | "bar";
+
+const labels: Record<ThemePreference, string> = {
+  system: "Systemfarbe (folgt Gerät)",
+  light: "Hellmodus",
+  dark: "Dunkelmodus",
+};
 
 export default function ThemeToggle({
   variant = "bar",
 }: {
   variant?: Variant;
 }) {
-  const [mode, setMode] = useState<ColorMode>("light");
+  const [preference, setPreference] = useState<ThemePreference>("system");
+  const [resolved, setResolved] = useState<ColorMode>("light");
 
   useEffect(() => {
-    setMode(resolveInitialMode());
+    setPreference(resolvePreference());
+    setResolved(getCurrentMode());
+    const unbind = bindSystemThemeListener();
     const onChange = (event: Event) => {
-      const detail = (event as CustomEvent<{ mode: ColorMode }>).detail;
-      if (detail?.mode) setMode(detail.mode);
-      else setMode(getCurrentMode());
+      const detail = (
+        event as CustomEvent<{ mode: ColorMode; preference?: ThemePreference }>
+      ).detail;
+      if (detail?.preference) setPreference(detail.preference);
+      else setPreference(resolvePreference());
+      setResolved(detail?.mode ?? getCurrentMode());
     };
     window.addEventListener("fusca:themechange", onChange);
-    return () => window.removeEventListener("fusca:themechange", onChange);
+    return () => {
+      unbind();
+      window.removeEventListener("fusca:themechange", onChange);
+    };
   }, []);
 
-  const isDark = mode === "dark";
+  const Icon =
+    preference === "system" ? Monitor : preference === "dark" ? Sun : Moon;
 
   return (
     <button
       type="button"
-      onClick={() => setMode(toggleColorMode())}
+      onClick={() => {
+        const next = cycleThemePreference();
+        setPreference(next);
+        setResolved(getCurrentMode());
+      }}
       className={cn(
-        "inline-flex size-10 items-center justify-center rounded-md border border-border bg-card text-foreground transition-colors hover:bg-muted focus-ring",
+        "inline-flex size-10 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-colors hover:bg-muted focus-ring",
         variant === "sidebar" && "size-9"
       )}
-      title={isDark ? "Hellmodus" : "Dunkelmodus"}
-      aria-label={isDark ? "Hellmodus aktivieren" : "Dunkelmodus aktivieren"}
-      aria-pressed={isDark}
+      title={`${labels[preference]} · aktiv: ${resolved === "dark" ? "dunkel" : "hell"}`}
+      aria-label={`Darstellung: ${labels[preference]}. Tippen zum Wechseln.`}
     >
-      {isDark ? (
-        <Sun className="size-4" aria-hidden="true" strokeWidth={1.75} />
-      ) : (
-        <Moon className="size-4" aria-hidden="true" strokeWidth={1.75} />
-      )}
+      <Icon className="size-4" aria-hidden="true" strokeWidth={1.75} />
     </button>
   );
 }
