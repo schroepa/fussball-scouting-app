@@ -189,7 +189,7 @@ export default function AufstellungPage() {
         }}
       />
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+      <div className="panel p-4 md:p-5 flex flex-col gap-3 lg:flex-row lg:items-end">
         <div className="space-y-1.5 flex-1">
           <Label htmlFor="f-name">Name</Label>
           <Input
@@ -296,17 +296,17 @@ export default function AufstellungPage() {
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
                 <div
-                  className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs"
+                  className="seg-control text-xs"
                   role="group"
                   aria-label="Offensiv oder defensiv"
                 >
                   <button
                     type="button"
                     className={cn(
-                      "rounded-md px-3 py-1.5 font-medium min-h-8",
+                      "px-3 py-1.5 min-h-8",
                       boardMode === "offensive"
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground"
+                        ? "seg-control__thumb"
+                        : "seg-control__item"
                     )}
                     aria-pressed={boardMode === "offensive"}
                     onClick={() => setBoardMode("offensive")}
@@ -316,10 +316,10 @@ export default function AufstellungPage() {
                   <button
                     type="button"
                     className={cn(
-                      "rounded-md px-3 py-1.5 font-medium min-h-8",
+                      "px-3 py-1.5 min-h-8",
                       boardMode === "defensive"
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground"
+                        ? "seg-control__thumb"
+                        : "seg-control__item"
                     )}
                     aria-pressed={boardMode === "defensive"}
                     onClick={() => setBoardMode("defensive")}
@@ -328,17 +328,17 @@ export default function AufstellungPage() {
                   </button>
                 </div>
                 <div
-                  className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs"
+                  className="seg-control text-xs"
                   role="group"
                   aria-label="Werkzeug"
                 >
                   <button
                     type="button"
                     className={cn(
-                      "rounded-md px-3 py-1.5 font-medium min-h-8",
+                      "px-3 py-1.5 min-h-8",
                       boardTool === "positions"
-                        ? "bg-foreground text-background"
-                        : "text-muted-foreground"
+                        ? "seg-control__thumb"
+                        : "seg-control__item"
                     )}
                     aria-pressed={boardTool === "positions"}
                     onClick={() => setBoardTool("positions")}
@@ -348,10 +348,10 @@ export default function AufstellungPage() {
                   <button
                     type="button"
                     className={cn(
-                      "rounded-md px-3 py-1.5 font-medium min-h-8",
+                      "px-3 py-1.5 min-h-8",
                       boardTool === "draw"
-                        ? "bg-foreground text-background"
-                        : "text-muted-foreground"
+                        ? "seg-control__thumb"
+                        : "seg-control__item"
                     )}
                     aria-pressed={boardTool === "draw"}
                     onClick={() => setBoardTool("draw")}
@@ -403,18 +403,18 @@ export default function AufstellungPage() {
               )}
             </div>
 
-            <aside className="space-y-2" aria-label="Kader zuordnen">
+            <aside className="panel p-3 space-y-2" aria-label="Kader zuordnen">
               <h3 className="text-sm font-semibold">
                 {selectedSlot === null
                   ? "Slot wählen"
                   : `Slot ${selectedSlot + 1} besetzen`}
               </h3>
               {selectedSlot !== null && boardTool === "positions" ? (
-                <ul className="space-y-1 max-h-[28rem] overflow-auto">
+                <ul className="panel-inset max-h-[28rem] overflow-auto divide-y divide-border/60">
                   <li>
                     <button
                       type="button"
-                      className="w-full text-left rounded-md px-2 py-2 text-sm hover:bg-muted"
+                      className="w-full text-left px-2.5 py-2 text-sm hover:bg-muted/50 focus-ring"
                       onClick={() => void assignPlayer("")}
                     >
                       Leer
@@ -424,7 +424,7 @@ export default function AufstellungPage() {
                     <li key={p.id}>
                       <button
                         type="button"
-                        className="w-full text-left rounded-md px-2 py-2 text-sm hover:bg-muted"
+                        className="w-full text-left px-2.5 py-2 text-sm hover:bg-muted/50 focus-ring"
                         onClick={() => void assignPlayer(p.id)}
                       >
                         {p.nachname}, {p.vorname}
@@ -502,7 +502,7 @@ function FormationBoard({
   return (
     <div
       id="panel-formation-board"
-      className="relative aspect-[2/3] w-full rounded-xl border border-border overflow-hidden bg-[linear-gradient(180deg,oklch(0.42_0.08_145)_0%,oklch(0.36_0.07_145)_50%,oklch(0.42_0.08_145)_100%)]"
+      className="relative aspect-[2/3] w-full panel overflow-hidden bg-[linear-gradient(180deg,oklch(0.42_0.08_145)_0%,oklch(0.36_0.07_145)_50%,oklch(0.42_0.08_145)_100%)]"
       role="application"
       aria-label="Spielfeld Aufstellung"
     >

@@ -48,7 +48,7 @@ export default function ClubsList() {
             {filtered.map((c) => (
               <li
                 key={c.id}
-                className="rounded-lg border border-border bg-card p-3 flex items-center justify-between gap-2"
+                className="panel p-3 flex items-center justify-between gap-2"
               >
                 <div className="font-semibold truncate">{c.name}</div>
                 {c.liga && (
@@ -60,7 +60,7 @@ export default function ClubsList() {
             ))}
           </ul>
 
-          <div className="hidden md:block rounded-xl border border-border overflow-hidden">
+          <div className="hidden md:block panel overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -74,10 +74,10 @@ export default function ClubsList() {
                   <TableRow key={c.id}>
                     <TableCell className="font-medium">{c.name}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {c.liga ?? "—"}
+                      {c.liga ?? "-"}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {c.land ?? "—"}
+                      {c.land ?? "-"}
                     </TableCell>
                   </TableRow>
                 ))}

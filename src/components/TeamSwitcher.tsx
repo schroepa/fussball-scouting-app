@@ -103,7 +103,7 @@ export default function TeamSwitcher({
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Noch kein Team – lege dein erstes an, um den Kader zu pflegen.
+          Noch kein Team, lege dein erstes an, um den Kader zu pflegen.
         </p>
       )}
 
@@ -111,7 +111,7 @@ export default function TeamSwitcher({
         <form
           id="form-create-team"
           onSubmit={handleCreate}
-          className="grid gap-3 sm:grid-cols-3 rounded-lg border border-border bg-card p-3"
+          className="grid gap-3 sm:grid-cols-3 panel p-3"
         >
           <div className="space-y-1.5">
             <Label htmlFor="team-name">Mannschaft</Label>

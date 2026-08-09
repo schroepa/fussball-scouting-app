@@ -3,7 +3,7 @@ import { COMMON_FORMATIONS } from "../match/formations";
 
 export { COMMON_FORMATIONS };
 
-/** Relative Slot-Koordinaten (x/y 0–100) für Startaufstellungen. */
+/** Relative Slot-Koordinaten (x/y 0-100) für Startaufstellungen. */
 const LAYOUTS: Record<string, Omit<FormationPlayerPos, "playerId">[]> = {
   "4-4-2": [
     { positionLabel: "TW", x: 50, y: 8 },

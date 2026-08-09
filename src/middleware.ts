@@ -61,7 +61,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // The app stores its Supabase session in localStorage (client-side), so the
   // server cannot verify the session here without migrating to cookie storage.
   // The client AuthGate remains the primary page-level auth check (Phase 1).
-  // Full SSR cookie-based gate is Phase 2 — see docs/SECURITY.md.
+  // Full SSR cookie-based gate is Phase 2 - see docs/SECURITY.md.
   if (isProtected && isHtmlNav) {
     response.headers.set("Cache-Control", "private, no-store");
     response.headers.set("X-Fusca-Auth", "client-gate");

@@ -49,7 +49,7 @@ export default function HomeTips() {
         <p className="text-sm text-muted-foreground leading-relaxed">
           Nutze die Seitenleiste für schnellen Wechsel zwischen Berichten,
           Spielern und Import. Formulare und Tabellen nutzen auf großen
-          Bildschirmen die volle Breite – ideal zum Nachbereiten nach dem Spiel.
+          Bildschirmen die volle Breite, ideal zum Nachbereiten nach dem Spiel.
         </p>
       </div>
       <div className="rounded-xl border border-border bg-accent/60 p-4 md:p-5">

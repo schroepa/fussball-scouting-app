@@ -18,7 +18,6 @@ import {
   BezugstypBadge,
   SyncStatusBadge,
 } from "./ReportBadges";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -144,66 +143,74 @@ export default function ReportList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="seg-control w-fit" role="group" aria-label="Berichtstyp filtern">
         {filters.map((opt) => (
-          <Button
+          <button
             key={opt.key}
             type="button"
-            size="sm"
-            variant={filter === opt.key ? "default" : "outline"}
+            className={
+              filter === opt.key
+                ? "seg-control__thumb px-3.5 py-2 text-xs min-h-9 focus-ring"
+                : "seg-control__item px-3.5 py-2 text-xs min-h-9 focus-ring"
+            }
+            aria-pressed={filter === opt.key}
             onClick={() => setFilter(opt.key)}
           >
             {opt.label}
-          </Button>
+          </button>
         ))}
       </div>
 
       {filteredRows.length === 0 ? (
-        <p className="text-muted-foreground text-sm">
-          Noch keine Berichte erfasst. Lege einen neuen Bericht an.
-        </p>
+        <div className="panel px-5 py-12 text-center">
+          <p className="text-muted-foreground text-sm">
+            Noch keine Berichte erfasst. Lege einen neuen Bericht an.
+          </p>
+        </div>
       ) : (
         <>
           {/* Mobile: cards */}
-          <ul className="space-y-2 md:hidden">
+          <ul className="space-y-3 md:hidden">
             {filteredRows.map((row) => (
               <li key={row.id}>
                 <a
                   href={row.href}
-                  className="block rounded-xl border border-border bg-card p-3 hover:bg-muted/40"
+                  className="panel block p-4 hover:bg-muted/30 focus-ring transition-colors"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold text-card-foreground truncate">
                       {row.kind === "spieler" ? "Spieler" : "Team"} · {row.title}
                     </span>
-                    <span className="text-xs text-muted-foreground shrink-0">
+                    <span className="text-xs text-muted-foreground shrink-0 tabular-nums">
                       {new Date(row.datum).toLocaleDateString("de-DE")}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-1.5 mt-2">{row.badges}</div>
+                  <div className="flex flex-wrap gap-1.5 mt-2.5">{row.badges}</div>
                 </a>
               </li>
             ))}
           </ul>
 
-          {/* Desktop: ganze Zeile öffnet den Bericht */}
-          <div className="hidden md:block rounded-xl border border-border bg-card overflow-hidden">
+          {/* Desktop: quiet table panel */}
+          <div className="hidden md:block panel overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">Typ</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Status</TableHead>
+                <TableRow className="hover:bg-transparent border-border">
+                  <TableHead className="w-[100px] label-caps font-medium h-11">
+                    Typ
+                  </TableHead>
+                  <TableHead className="label-caps font-medium h-11">Name</TableHead>
+                  <TableHead className="label-caps font-medium h-11">Datum</TableHead>
+                  <TableHead className="label-caps font-medium h-11">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredRows.map((row) => (
-                  <TableRow key={row.id} className="hover:bg-muted/40">
+                  <TableRow key={row.id} className="hover:bg-muted/30 border-border">
                     <TableCell className="font-medium capitalize p-0">
                       <a
                         href={row.href}
-                        className="block px-4 py-3 text-inherit no-underline"
+                        className="block px-4 py-3.5 text-inherit no-underline min-h-11"
                         aria-label={`${row.kind === "spieler" ? "Spielerbericht" : "Teambericht"} öffnen: ${row.title}`}
                       >
                         {row.kind}
@@ -212,7 +219,7 @@ export default function ReportList() {
                     <TableCell className="p-0">
                       <a
                         href={row.href}
-                        className="block px-4 py-3 text-inherit no-underline"
+                        className="block px-4 py-3.5 text-inherit no-underline"
                         tabIndex={-1}
                       >
                         <div className="font-medium">{row.title}</div>
@@ -222,7 +229,7 @@ export default function ReportList() {
                     <TableCell className="text-muted-foreground whitespace-nowrap p-0">
                       <a
                         href={row.href}
-                        className="block px-4 py-3 text-inherit no-underline"
+                        className="block px-4 py-3.5 text-inherit no-underline tabular-nums"
                         tabIndex={-1}
                       >
                         {new Date(row.datum).toLocaleDateString("de-DE")}
@@ -231,7 +238,7 @@ export default function ReportList() {
                     <TableCell className="p-0">
                       <a
                         href={row.href}
-                        className="block px-4 py-3 text-inherit no-underline"
+                        className="block px-4 py-3.5 text-inherit no-underline"
                         tabIndex={-1}
                       >
                         <SyncStatusBadge status={row.syncStatus} />

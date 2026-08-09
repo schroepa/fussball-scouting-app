@@ -58,7 +58,7 @@ const scoutMore: NavItem[] = [
   { key: "hilfe", href: "/hilfe", label: "Hilfe", Icon: CircleHelp },
 ];
 
-/** Mobil nur 3 Primärziele – Rest unter „Mehr“ (inkl. Aufstellung). */
+/** Mobil nur 3 Primärziele, Rest unter „Mehr“ (inkl. Aufstellung). */
 const trainerPrimary: NavItem[] = [
   { key: "home", href: "/", label: "Start", Icon: Home },
   { key: "kader", href: "/kader", label: "Kader", Icon: UsersRound },
@@ -158,11 +158,17 @@ export default function AppNavigation({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-lg text-[10px] font-medium min-h-14 min-w-0",
-                active ? "text-primary bg-primary/8" : "text-muted-foreground"
+                "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-2xl text-[11px] font-medium min-h-14 min-w-0 focus-ring",
+                active
+                  ? "nav-active"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
-              <Icon className="size-5 shrink-0" aria-hidden="true" />
+              <Icon
+                className={cn("size-5 shrink-0", active ? "opacity-100" : "opacity-70")}
+                aria-hidden="true"
+                strokeWidth={1.75}
+              />
               <span className="truncate max-w-full">{item.label}</span>
             </a>
           );
@@ -171,19 +177,25 @@ export default function AppNavigation({
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
           <SheetTrigger
             className={cn(
-              "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-lg text-[10px] font-medium min-h-14 min-w-0",
-              moreActive ? "text-primary bg-primary/8" : "text-muted-foreground"
+              "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-2xl text-[11px] font-medium min-h-14 min-w-0 focus-ring",
+              moreActive
+                ? "nav-active"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
-            aria-label="Mehr"
+            aria-label="Mehr Menü öffnen"
+            aria-expanded={moreOpen}
           >
-            <Menu className="size-5 shrink-0" aria-hidden="true" />
+            <Menu className="size-5 shrink-0 opacity-70" aria-hidden="true" strokeWidth={1.75} />
             <span>Mehr</span>
           </SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[85dvh] rounded-t-2xl pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <SheetContent
+            side="bottom"
+            className="max-h-[85dvh] rounded-t-[1.25rem] pb-[max(1rem,env(safe-area-inset-bottom))] border-border bg-card"
+          >
             <SheetHeader className="px-4 pt-4 pb-2">
               <SheetTitle>Mehr</SheetTitle>
             </SheetHeader>
-            <div className="px-4 pb-2">
+            <div className="px-4 pb-3">
               <ModeSwitcher className="w-full justify-stretch [&>button]:flex-1" />
             </div>
             <nav className="px-2 pb-4 space-y-0.5" aria-label="Weitere Bereiche">
@@ -196,14 +208,14 @@ export default function AppNavigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium",
+                      "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium min-h-11 focus-ring",
                       active
                         ? "bg-primary text-primary-foreground"
-                        : "hover:bg-muted"
+                        : "text-foreground hover:bg-muted"
                     )}
                     onClick={() => setMoreOpen(false)}
                   >
-                    <Icon className="size-4 shrink-0" aria-hidden="true" />
+                    <Icon className="size-4 shrink-0 opacity-80" aria-hidden="true" strokeWidth={1.75} />
                     {item.label}
                   </a>
                 );
@@ -217,9 +229,10 @@ export default function AppNavigation({
 
   return (
     <div className="space-y-1 flex-1 flex flex-col min-h-0">
-      <div className="px-2 pb-2">
+      <div className="px-0.5 pb-3">
         <ModeSwitcher className="w-full justify-stretch [&>button]:flex-1" />
       </div>
+      <p className="px-2.5 pb-1.5 label-caps">Navigation</p>
       <div className="space-y-1 flex-1 overflow-y-auto">
         {sidebarItems.map((item) => {
           const active = isActive(activeNav, item.key);
@@ -230,13 +243,13 @@ export default function AppNavigation({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-2.5 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors min-h-11 focus-ring",
                 active
-                  ? "bg-primary text-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent"
+                  ? "nav-active"
+                  : "text-sidebar-foreground/70 hover:bg-muted/60 hover:text-sidebar-foreground"
               )}
             >
-              <Icon className="size-4 shrink-0" aria-hidden="true" />
+              <Icon className="size-4 shrink-0 opacity-75" aria-hidden="true" strokeWidth={1.75} />
               {item.label}
             </a>
           );

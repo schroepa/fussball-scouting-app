@@ -120,7 +120,7 @@ export default function FormationSequenceEditor({
     <div id="panel-formation-sequences" className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
         <div
-          className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs"
+          className="inline-flex panel bg-muted/40 p-0.5 text-xs"
           role="tablist"
           aria-label="Sequenz-Schritte"
         >
@@ -164,7 +164,7 @@ export default function FormationSequenceEditor({
         {drawEnabled ? (
           <>
             <div
-              className="inline-flex rounded-lg border border-border p-0.5 text-xs"
+              className="inline-flex panel p-0.5 text-xs"
               role="group"
               aria-label="Zeichenwerkzeug"
             >
@@ -219,7 +219,7 @@ export default function FormationSequenceEditor({
           </>
         ) : (
           <span className="text-xs text-muted-foreground">
-            Zeichnen am Desktop/Tablet – mobil nur betrachten
+            Zeichnen am Desktop/Tablet, mobil nur betrachten
           </span>
         )}
       </div>

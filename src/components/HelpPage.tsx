@@ -24,7 +24,7 @@ export default function HelpPage() {
     <div id="page-help" className="app-page space-y-6 md:space-y-8">
       <section
         id="section-help-intro"
-        className="surface-nested-outer border border-border bg-card p-5 md:p-6"
+        className="panel p-5 md:p-6"
         aria-labelledby="help-intro-title"
       >
         <div className="flex flex-col sm:flex-row sm:items-start gap-4 justify-between">
@@ -69,7 +69,7 @@ export default function HelpPage() {
         >
           {groups.map(({ group, label, sections }) => (
             <div key={group} className="space-y-1">
-              <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="px-3 label-caps">
                 {label}
               </p>
               <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 -mx-1 px-1">
@@ -82,10 +82,10 @@ export default function HelpPage() {
                       onClick={() => setActiveId(section.id)}
                       aria-current={isActive ? "true" : undefined}
                       className={cn(
-                        "text-left rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap lg:whitespace-normal transition-colors shrink-0",
+                        "text-left rounded-2xl px-3 py-2 text-sm font-medium whitespace-nowrap lg:whitespace-normal transition-colors shrink-0 focus-ring",
                         isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-card border border-border hover:bg-muted/60 text-foreground"
+                          ? "nav-active"
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                       )}
                     >
                       {section.title}
@@ -99,7 +99,7 @@ export default function HelpPage() {
 
         <article
           id={`section-help-${active.id}`}
-          className="surface-nested-outer border border-border bg-card p-5 md:p-6 space-y-4"
+          className="panel p-5 md:p-6 space-y-4"
           aria-labelledby="help-article-title"
         >
           <header className="space-y-1">
@@ -117,7 +117,7 @@ export default function HelpPage() {
               {active.faqs.map((item) => (
                 <details
                   key={item.question}
-                  className="surface-nested-inner border border-border bg-background/50 px-3 py-2.5 group"
+                  className="panel-inset px-3 py-2.5 group"
                 >
                   <summary className="cursor-pointer text-sm font-medium list-none flex items-start justify-between gap-2 [&::-webkit-details-marker]:hidden">
                     <span>{item.question}</span>
@@ -157,7 +157,7 @@ export default function HelpPage() {
 
           {active.tip ? (
             <aside
-              className="surface-nested-inner border border-border bg-accent/40 px-3 py-2.5 text-sm"
+              className="panel-inset bg-accent/40 px-3 py-2.5 text-sm"
               aria-label="Tipp"
             >
               <span className="font-medium text-accent-foreground">Tipp: </span>
@@ -190,21 +190,21 @@ export default function HelpPage() {
       >
         <a
           href="/reports/new-player"
-          className="surface-nested-outer border border-border bg-card p-4 text-sm hover:bg-muted/50 transition-colors"
+          className="panel p-4 text-sm hover:bg-muted/25 transition-colors focus-ring"
         >
           <div className="font-semibold">Spielerbericht</div>
           <div className="text-muted-foreground mt-1">Jetzt erfassen</div>
         </a>
         <a
           href="/import"
-          className="surface-nested-outer border border-border bg-card p-4 text-sm hover:bg-muted/50 transition-colors"
+          className="panel p-4 text-sm hover:bg-muted/25 transition-colors focus-ring"
         >
           <div className="font-semibold">Import</div>
           <div className="text-muted-foreground mt-1">Kader übernehmen</div>
         </a>
         <a
           href="/dashboard"
-          className="surface-nested-outer border border-border bg-card p-4 text-sm hover:bg-muted/50 transition-colors"
+          className="panel p-4 text-sm hover:bg-muted/25 transition-colors focus-ring"
         >
           <div className="font-semibold">Dashboard</div>
           <div className="text-muted-foreground mt-1">Auswerten</div>

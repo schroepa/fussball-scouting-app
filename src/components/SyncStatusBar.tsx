@@ -90,14 +90,18 @@ export default function SyncStatusBar({
       {!compact ? (
         <span
           className={cn(
-            "inline-flex items-center gap-1",
-            online ? "text-primary" : "text-amber-600 dark:text-amber-400"
+            "inline-flex items-center gap-1.5",
+            online ? "text-muted-foreground" : "text-amber-800 dark:text-amber-300"
           )}
           title={online ? "Online" : "Offline"}
         >
-          <span className="text-[10px]" aria-hidden>
-            ●
-          </span>
+          <span
+            className={cn(
+              "size-1.5 rounded-full",
+              online ? "bg-primary" : "bg-amber-600 dark:bg-amber-400"
+            )}
+            aria-hidden="true"
+          />
           <span className={isHeader ? "sr-only sm:not-sr-only sm:inline" : undefined}>
             {online ? "Online" : "Offline"}
           </span>
@@ -109,13 +113,15 @@ export default function SyncStatusBar({
           type="button"
           onClick={() => setPanelOpen((o) => !o)}
           className={cn(
-            "rounded-md font-semibold min-h-9",
-            compact ? "px-2 py-1.5 text-[10px]" : "px-2.5 py-1.5",
+            "rounded-md font-semibold min-h-10 focus-ring",
+            compact ? "px-2 py-1.5 text-[11px]" : "px-2.5 py-1.5",
             stats.error > 0
               ? "bg-destructive text-destructive-foreground"
-              : "bg-amber-500/90 text-foreground"
+              : "bg-amber-100 text-amber-950 dark:bg-amber-400/20 dark:text-amber-100"
           )}
           title="Sync-Details"
+          aria-expanded={panelOpen}
+          aria-controls="sync-status-panel"
         >
           {compact ? (stats.error > 0 ? "!" : stats.pending) : queueLabel}
         </button>
@@ -127,7 +133,7 @@ export default function SyncStatusBar({
           onClick={() => void runSync(stats.error > 0)}
           disabled={syncing || !online}
           className={cn(
-            "inline-flex items-center justify-center gap-1.5 rounded-md font-medium min-h-9 min-w-9 disabled:opacity-40",
+            "inline-flex items-center justify-center gap-1.5 rounded-md font-medium min-h-10 min-w-10 focus-ring disabled:opacity-40",
             compact ? "px-2" : "px-2.5 py-1.5",
             hasErrors
               ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -138,11 +144,16 @@ export default function SyncStatusBar({
               ? "Fehlerhafte Uploads erneut versuchen"
               : "Jetzt synchronisieren"
           }
-          aria-label={syncing ? "Synchronisiere" : "Sync"}
+          aria-label={syncing ? "Synchronisiere" : "Jetzt synchronisieren"}
+          aria-busy={syncing}
         >
-          <RefreshCw className={cn("size-3.5", syncing && "animate-spin")} />
+          <RefreshCw
+            className={cn("size-3.5", syncing && "animate-spin")}
+            aria-hidden="true"
+            strokeWidth={1.75}
+          />
           {!compact ? (
-            <span>{syncing ? "Sync…" : stats.error > 0 ? "Retry" : "Sync"}</span>
+            <span>{syncing ? "Sync…" : stats.error > 0 ? "Erneut" : "Sync"}</span>
           ) : null}
         </button>
       ) : (
@@ -151,9 +162,11 @@ export default function SyncStatusBar({
 
       {panelOpen && (lastResult || stats.total > 0) ? (
         <div
+          id="sync-status-panel"
           role="status"
+          aria-live="polite"
           className={cn(
-            "absolute z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-lg border border-border bg-card text-card-foreground px-3 py-2.5 shadow-lg text-[11px] leading-snug",
+            "absolute z-50 w-[min(18rem,calc(100vw-1.5rem))] panel p-3 text-[11px] leading-snug",
             isHeader ? "top-full right-0 mt-2" : "bottom-full left-0 mb-2"
           )}
         >
@@ -163,11 +176,11 @@ export default function SyncStatusBar({
             </p>
             <button
               type="button"
-              className="rounded p-1.5 text-muted-foreground hover:bg-muted"
+              className="rounded-md p-2 text-muted-foreground hover:bg-muted focus-ring min-h-9 min-w-9 inline-flex items-center justify-center"
               onClick={() => setPanelOpen(false)}
-              aria-label="Schließen"
+              aria-label="Sync-Details schließen"
             >
-              <X className="size-3.5" />
+              <X className="size-3.5" aria-hidden="true" />
             </button>
           </div>
 
@@ -205,13 +218,13 @@ export default function SyncStatusBar({
               type="button"
               disabled={syncing || !online || !isSupabaseConfigured}
               onClick={() => void runSync(true)}
-              className="rounded-md bg-primary px-2.5 py-1.5 font-medium text-primary-foreground disabled:opacity-40 min-h-9"
+              className="rounded-md bg-primary px-2.5 py-1.5 font-medium text-primary-foreground disabled:opacity-40 min-h-10 focus-ring"
             >
               Erneut versuchen
             </button>
             <a
               href="/hilfe"
-              className="inline-flex items-center rounded-md border border-border px-2.5 py-1.5 font-medium hover:bg-muted min-h-9"
+              className="inline-flex items-center rounded-md border border-border px-2.5 py-1.5 font-medium hover:bg-muted min-h-10 focus-ring"
             >
               Hilfe
             </a>

@@ -85,7 +85,7 @@ export default function ProfileSettings() {
     <form
       id="form-profile"
       onSubmit={handleSubmit}
-      className="space-y-6 max-w-xl"
+      className="panel p-5 md:p-6 space-y-6 max-w-xl"
     >
       <div className="space-y-1.5">
         <Label htmlFor="profile-name">Anzeigename</Label>
@@ -115,7 +115,7 @@ export default function ProfileSettings() {
       </fieldset>
 
       {roles.includes("trainer") ? (
-        <div className="space-y-4 rounded-lg border border-border bg-card p-4">
+        <div className="space-y-4 panel p-4">
           <div className="space-y-1.5">
             <Label htmlFor="trainer-club">Verein / Team</Label>
             <Input
@@ -182,7 +182,7 @@ export default function ProfileSettings() {
 
       <Button type="submit">Speichern</Button>
       <p className="text-xs text-muted-foreground">
-        Keine Vereins-Verifizierung im MVP – Selbstauskunft. Details:{" "}
+        Keine Vereins-Verifizierung im MVP, Selbstauskunft. Details:{" "}
         <a href="/hilfe" className="underline-offset-2 hover:underline">
           Hilfe
         </a>

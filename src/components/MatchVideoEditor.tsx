@@ -95,7 +95,7 @@ export default function MatchVideoEditor({
         <div>
           <h3 className="text-sm font-semibold tracking-tight">Video / VEO</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Link speichern – kein Rohvideo-Upload.{" "}
+            Link speichern, kein Rohvideo-Upload.{" "}
             {summarizeMatchVideo({
               ...match,
               videoUrl,
@@ -144,7 +144,7 @@ export default function MatchVideoEditor({
           <Input
             type="text"
             className="h-9 text-sm"
-            placeholder="z. B. VEO U17 – 12.03."
+            placeholder="z. B. VEO U17, 12.03."
             value={videoRef}
             onChange={(e) => setVideoRef(e.target.value)}
           />

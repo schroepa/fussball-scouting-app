@@ -118,7 +118,7 @@ export default function KaderPage() {
     const map = new Map<string, Row[]>();
     for (const row of filtered) {
       const key = formatJahrgang(row.player.jahrgang);
-      const label = key === "–" ? "Ohne Jahrgang" : key;
+      const label = key === "-" ? "Ohne Jahrgang" : key;
       const list = map.get(label) ?? [];
       list.push(row);
       map.set(label, list);
@@ -140,7 +140,7 @@ export default function KaderPage() {
     setError(null);
     const parsedJahrgang = parseJahrgang(jahrgang);
     if (jahrgang.trim() && parsedJahrgang === undefined) {
-      setError("Jahrgang ungültig – bitte als Jahreszahl angeben (z. B. 2012).");
+      setError("Jahrgang ungültig, bitte als Jahreszahl angeben (z. B. 2012).");
       return;
     }
     const player = await createPlayer({
@@ -189,141 +189,143 @@ export default function KaderPage() {
         onLinked={() => void reload(team)}
       />
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 flex-1">
-          <div className="space-y-1.5">
-            <Label htmlFor="kader-search">Suche</Label>
-            <Input
-              id="kader-search"
-              type="search"
-              placeholder="Name, Position…"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            />
+      <div className="panel p-4 md:p-5 space-y-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 flex-1">
+            <div className="space-y-1.5">
+              <Label htmlFor="kader-search">Suche</Label>
+              <Input
+                id="kader-search"
+                type="search"
+                placeholder="Name, Position…"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="kader-consent">Einwilligung</Label>
+              <SimpleSelect
+                id="kader-consent"
+                value={consentFilter}
+                onValueChange={setConsentFilter}
+                options={[
+                  { value: "alle", label: "Alle" },
+                  { value: "ausstehend", label: "Ausstehend" },
+                  { value: "erteilt", label: "Erteilt" },
+                  { value: "verweigert", label: "Verweigert" },
+                ]}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="kader-pos-filter">Position</Label>
+              <SimpleSelect
+                id="kader-pos-filter"
+                value={positionFilter}
+                onValueChange={setPositionFilter}
+                options={[
+                  { value: "alle", label: "Alle Positionen" },
+                  ...positionOptions.map((p) => ({ value: p, label: p })),
+                ]}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="kader-jg-filter">Jahrgang</Label>
+              <SimpleSelect
+                id="kader-jg-filter"
+                value={jahrgangFilter}
+                onValueChange={setJahrgangFilter}
+                options={[
+                  { value: "alle", label: "Alle Jahrgänge" },
+                  ...jahrgangOptions.map((j) => ({ value: j, label: j })),
+                ]}
+              />
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="kader-consent">Einwilligung</Label>
-            <SimpleSelect
-              id="kader-consent"
-              value={consentFilter}
-              onValueChange={setConsentFilter}
-              options={[
-                { value: "alle", label: "Alle" },
-                { value: "ausstehend", label: "Ausstehend" },
-                { value: "erteilt", label: "Erteilt" },
-                { value: "verweigert", label: "Verweigert" },
-              ]}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="kader-pos-filter">Position</Label>
-            <SimpleSelect
-              id="kader-pos-filter"
-              value={positionFilter}
-              onValueChange={setPositionFilter}
-              options={[
-                { value: "alle", label: "Alle Positionen" },
-                ...positionOptions.map((p) => ({ value: p, label: p })),
-              ]}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="kader-jg-filter">Jahrgang</Label>
-            <SimpleSelect
-              id="kader-jg-filter"
-              value={jahrgangFilter}
-              onValueChange={setJahrgangFilter}
-              options={[
-                { value: "alle", label: "Alle Jahrgänge" },
-                ...jahrgangOptions.map((j) => ({ value: j, label: j })),
-              ]}
-            />
-          </div>
+          <Button type="button" onClick={() => setAdding((v) => !v)} className="shrink-0">
+            {adding ? "Abbrechen" : "+ Spieler"}
+          </Button>
         </div>
-        <Button type="button" onClick={() => setAdding((v) => !v)} className="shrink-0">
-          {adding ? "Abbrechen" : "+ Spieler"}
-        </Button>
-      </div>
 
-      {adding ? (
-        <div className="space-y-4 rounded-lg border border-border bg-card p-4">
-          <form id="form-kader-player" onSubmit={handleAddNew} className="grid gap-3 sm:grid-cols-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="k-vorname">Vorname</Label>
-              <Input
-                id="k-vorname"
-                value={vorname}
-                onChange={(e) => setVorname(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="k-nachname">Nachname</Label>
-              <Input
-                id="k-nachname"
-                value={nachname}
-                onChange={(e) => setNachname(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="k-jahrgang">Jahrgang</Label>
-              <Input
-                id="k-jahrgang"
-                inputMode="numeric"
-                placeholder="2012"
-                pattern="[12][0-9]{3}"
-                value={jahrgang}
-                onChange={(e) => setJahrgang(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
-              />
-              <p className="text-[11px] text-muted-foreground">Vierstellige Jahreszahl, z.&nbsp;B. 2012</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="k-pos">Position</Label>
-              <Input
-                id="k-pos"
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
-              />
-            </div>
-            {error ? (
-              <p className="text-sm text-destructive sm:col-span-4" role="alert">
-                {error}
-              </p>
-            ) : null}
-            <div className="sm:col-span-4">
-              <Button type="submit">Neu anlegen &amp; zum Kader</Button>
-            </div>
-          </form>
-
-          {availablePlayers.length > 0 ? (
-            <div className="flex flex-col sm:flex-row gap-2 sm:items-end border-t border-border pt-4">
-              <div className="flex-1 space-y-1.5">
-                <Label>Bestehenden Spieler hinzufügen</Label>
-                <SimpleSelect
-                  value={existingPlayerId}
-                  onValueChange={setExistingPlayerId}
-                  placeholder="Spieler wählen"
-                  options={availablePlayers.map((p) => ({
-                    value: p.id,
-                    label: `${p.nachname}, ${p.vorname}${
-                      parseJahrgang(p.jahrgang)
-                        ? ` (${parseJahrgang(p.jahrgang)})`
-                        : ""
-                    }`,
-                  }))}
+        {adding ? (
+          <div className="space-y-4 panel-inset p-4">
+            <form id="form-kader-player" onSubmit={handleAddNew} className="grid gap-3 sm:grid-cols-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="k-vorname">Vorname</Label>
+                <Input
+                  id="k-vorname"
+                  value={vorname}
+                  onChange={(e) => setVorname(e.target.value)}
                 />
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={!existingPlayerId}
-                onClick={() => void handleAddExisting()}
-              >
-                Hinzufügen
-              </Button>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
+              <div className="space-y-1.5">
+                <Label htmlFor="k-nachname">Nachname</Label>
+                <Input
+                  id="k-nachname"
+                  value={nachname}
+                  onChange={(e) => setNachname(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="k-jahrgang">Jahrgang</Label>
+                <Input
+                  id="k-jahrgang"
+                  inputMode="numeric"
+                  placeholder="2012"
+                  pattern="[12][0-9]{3}"
+                  value={jahrgang}
+                  onChange={(e) => setJahrgang(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
+                />
+                <p className="text-[11px] text-muted-foreground">Vierstellige Jahreszahl, z.&nbsp;B. 2012</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="k-pos">Position</Label>
+                <Input
+                  id="k-pos"
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                />
+              </div>
+              {error ? (
+                <p className="text-sm text-destructive sm:col-span-4" role="alert">
+                  {error}
+                </p>
+              ) : null}
+              <div className="sm:col-span-4">
+                <Button type="submit">Neu anlegen &amp; zum Kader</Button>
+              </div>
+            </form>
+
+            {availablePlayers.length > 0 ? (
+              <div className="flex flex-col sm:flex-row gap-2 sm:items-end border-t border-border pt-4">
+                <div className="flex-1 space-y-1.5">
+                  <Label>Bestehenden Spieler hinzufügen</Label>
+                  <SimpleSelect
+                    value={existingPlayerId}
+                    onValueChange={setExistingPlayerId}
+                    placeholder="Spieler wählen"
+                    options={availablePlayers.map((p) => ({
+                      value: p.id,
+                      label: `${p.nachname}, ${p.vorname}${
+                        parseJahrgang(p.jahrgang)
+                          ? ` (${parseJahrgang(p.jahrgang)})`
+                          : ""
+                      }`,
+                    }))}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!existingPlayerId}
+                  onClick={() => void handleAddExisting()}
+                >
+                  Hinzufügen
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
 
       {!team ? (
         <EmptyState
@@ -335,32 +337,34 @@ export default function KaderPage() {
           title={rows.length === 0 ? "Kader ist leer" : "Keine Treffer"}
           description={
             rows.length === 0
-              ? "Füge Spieler hinzu – mit Jahrgang und Einwilligungsstatus."
+              ? "Füge Spieler hinzu, mit Jahrgang und Einwilligungsstatus."
               : "Filter zurücksetzen oder anderen Suchbegriff verwenden."
           }
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {byJahrgang.map(([jahrgangKey, group]) => (
-            <section key={jahrgangKey} aria-labelledby={`jg-${jahrgangKey}`}>
-              <h2
-                id={`jg-${jahrgangKey}`}
-                className="text-sm font-semibold text-muted-foreground mb-2"
-              >
-                Jahrgang {jahrgangKey}
-              </h2>
-              <ul className="space-y-2">
+            <section key={jahrgangKey} aria-labelledby={`jg-${jahrgangKey}`} className="panel overflow-hidden">
+              <div className="px-4 md:px-5 py-3 border-b border-border">
+                <h2
+                  id={`jg-${jahrgangKey}`}
+                  className="label-caps"
+                >
+                  Jahrgang {jahrgangKey}
+                </h2>
+              </div>
+              <ul className="divide-y divide-border">
                 {group.map(({ membership, player }) => (
                   <li
                     key={membership.id}
-                    className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-card px-3 py-3"
+                    className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 md:px-5 py-3.5 hover:bg-muted/25 transition-colors cursor-pointer"
                     onClick={() => setSelectedPlayerId(player.id)}
                   >
                     <div className="min-w-0">
                       <div className="font-medium truncate">
                         {player.nachname}, {player.vorname}
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground mt-0.5">
                         {player.positionen.join(", ") || "ohne Position"}
                         {membership.jerseyNumber
                           ? ` · #${membership.jerseyNumber}`

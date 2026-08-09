@@ -78,7 +78,7 @@ export default function CreatePlayerForm({ onCreated }: Props) {
   }
 
   return (
-    <Card size="sm" className="shadow-sm">
+    <Card size="sm">
       <CardHeader className="border-b">
         <CardTitle>Neuer Spieler</CardTitle>
         <CardDescription>Manuell anlegen, wenn kein Import passt</CardDescription>

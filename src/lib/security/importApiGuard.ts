@@ -25,7 +25,7 @@ export async function guardImportApi(request: Request): Promise<Response | null>
     return auth.response;
   }
 
-  // 2. Rate limiting — derive key from forwarded IP headers or fall back to "local".
+  // 2. Rate limiting - derive key from forwarded IP headers or fall back to "local".
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip")?.trim() ||

@@ -80,7 +80,7 @@ export async function syncAll(): Promise<SyncResult> {
   if (!ok) {
     message = [push.message, pull.message].filter(Boolean).join(" · ");
   } else if (synced === 0 && pulled === 0) {
-    message = "Alles aktuell – nichts zu synchronisieren.";
+    message = "Alles aktuell, nichts zu synchronisieren.";
   } else {
     const parts: string[] = [];
     if (synced > 0) parts.push(`${synced} hochgeladen`);
@@ -103,7 +103,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       pulled: 0,
       failed: 0,
       message:
-        "Supabase ist nicht konfiguriert – Berichte werden nur lokal gespeichert.",
+        "Supabase ist nicht konfiguriert, Berichte werden nur lokal gespeichert.",
     };
   }
   if (typeof navigator !== "undefined" && !navigator.onLine) {
@@ -112,7 +112,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       synced: 0,
       pulled: 0,
       failed: 0,
-      message: "Keine Internetverbindung – Sync wird übersprungen.",
+      message: "Keine Internetverbindung, Sync wird übersprungen.",
     };
   }
 
@@ -440,7 +440,7 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
       synced: 0,
       pulled: 0,
       failed: 0,
-      message: "Keine Internetverbindung – Pull übersprungen.",
+      message: "Keine Internetverbindung, Pull übersprungen.",
     };
   }
 

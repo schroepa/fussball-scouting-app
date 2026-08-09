@@ -37,7 +37,7 @@ async function fussballFetch(path: string): Promise<unknown> {
     throw new Error(
       `fussball.de-API antwortete mit HTTP ${res.status}. ${
         res.status === 502
-          ? "Der Dienst ist derzeit nicht erreichbar – bitte später erneut versuchen."
+          ? "Der Dienst ist derzeit nicht erreichbar, bitte später erneut versuchen."
           : "Bitte Token und ID prüfen."
       }`
     );
@@ -115,7 +115,7 @@ export async function importFussballDeClub(
     },
   ];
 
-  // Mannschaftsnamen als zusätzliche "Clubs"/Labels speichern wir nicht doppelt –
+  // Mannschaftsnamen als zusätzliche "Clubs"/Labels speichern wir nicht doppelt -
   // aber Spiele aus next/prev laden.
   const matches: ImportedMatch[] = [];
   for (const endpoint of [
@@ -168,7 +168,7 @@ export async function importFussballDeClub(
         });
       }
     } catch {
-      // Spiele optional – Club-Import soll auch ohne Games klappen.
+      // Spiele optional, Club-Import soll auch ohne Games klappen.
     }
   }
 

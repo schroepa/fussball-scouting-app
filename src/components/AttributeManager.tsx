@@ -63,7 +63,7 @@ export default function AttributeManager() {
       });
       setName("");
       setGruppe("");
-      setMessage(`Feld angelegt – erscheint im ${scopeLabel}.`);
+      setMessage(`Feld angelegt, erscheint im ${scopeLabel}.`);
       await reload();
       window.dispatchEvent(new Event("scouting:synced"));
     } catch (err) {
@@ -98,14 +98,14 @@ export default function AttributeManager() {
 
   const panels = (
     <div className="space-y-6">
-      <Card size="sm" className="shadow-sm">
+      <Card size="sm">
         <CardHeader className="border-b">
           <CardTitle>Eigenes Bewertungsfeld</CardTitle>
           <CardDescription>
             {scope === "player"
               ? "Ergänzt Technik, Taktik, Athletik, Mentalität im Spielerbericht."
               : "Ergänzt Organisation, Pressing, Umschalten, Standards im Teambericht."}{" "}
-            Skala 1–10. Nur für dich sichtbar.
+            Skala 1-10. Nur für dich sichtbar.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-4">
@@ -143,7 +143,7 @@ export default function AttributeManager() {
         </CardContent>
       </Card>
 
-      <Card size="sm" className="shadow-sm">
+      <Card size="sm">
         <CardHeader className="border-b">
           <CardTitle>Standard-Raster</CardTitle>
           <CardDescription>Fest vorgegeben, nicht löschbar.</CardDescription>
@@ -166,7 +166,7 @@ export default function AttributeManager() {
         </CardContent>
       </Card>
 
-      <Card size="sm" className="shadow-sm">
+      <Card size="sm">
         <CardHeader className="border-b">
           <CardTitle>Deine Felder</CardTitle>
           <CardDescription>

@@ -130,7 +130,7 @@ export default function TeamReportDetail({ reportId }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
         <div className="lg:col-span-4 space-y-4">
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Rahmendaten</CardTitle>
             </CardHeader>
@@ -154,7 +154,7 @@ export default function TeamReportDetail({ reportId }: Props) {
           <MatchVideoSummary match={match} />
 
           {keyPlayers.length > 0 && (
-            <Card size="sm" className="shadow-sm">
+            <Card size="sm">
               <CardHeader className="border-b">
                 <CardTitle>Schlüsselspieler</CardTitle>
               </CardHeader>
@@ -169,7 +169,7 @@ export default function TeamReportDetail({ reportId }: Props) {
           )}
 
           {photoUrls.length > 0 && (
-            <Card size="sm" className="shadow-sm">
+            <Card size="sm">
               <CardHeader className="border-b">
                 <CardTitle>Fotos</CardTitle>
               </CardHeader>
@@ -179,7 +179,7 @@ export default function TeamReportDetail({ reportId }: Props) {
                     key={url}
                     src={url}
                     alt="Foto zum Bericht"
-                    className="w-28 h-28 object-cover rounded-lg border border-border"
+                    className="w-28 h-28 object-cover panel"
                   />
                 ))}
               </CardContent>
@@ -189,7 +189,7 @@ export default function TeamReportDetail({ reportId }: Props) {
 
         <div className="lg:col-span-8 space-y-4">
           {report.ratings && report.ratings.length > 0 ? (
-            <Card size="sm" className="shadow-sm">
+            <Card size="sm">
               <CardHeader className="border-b">
                 <CardTitle>Bewertungsraster</CardTitle>
               </CardHeader>
@@ -213,7 +213,7 @@ export default function TeamReportDetail({ reportId }: Props) {
             </Card>
           ) : null}
 
-          <Card size="sm" className="shadow-sm">
+          <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Analyse</CardTitle>
             </CardHeader>
