@@ -125,11 +125,11 @@ export default function HomeDashboard() {
   const isTrainer = stats.mode === "trainer";
 
   return (
-    <div id="page-home-dashboard" className="space-y-6 md:space-y-8">
+    <div id="page-home-dashboard" className="space-y-6 md:space-y-7">
       <section aria-labelledby="home-dash-title" className="space-y-1">
         <h1
           id="home-dash-title"
-          className="text-xl font-semibold tracking-tight"
+          className="text-xl md:text-2xl font-semibold tracking-tight"
         >
           {firstName}
         </h1>
@@ -137,19 +137,20 @@ export default function HomeDashboard() {
           {isTrainer
             ? stats.team
               ? `${stats.team.name} · ${stats.team.ageGroup}`
-              : "Trainer – Team unter Kader anlegen"
-            : "Scout – Beobachtungen & Auswertung"}
+              : "Kein Team – unter Kader anlegen"
+            : "Beobachtungen und Auswertung"}
         </p>
       </section>
 
       {stats.pendingSync > 0 ? (
         <div
-          className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3"
+          className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3"
           role="status"
+          aria-live="polite"
         >
-          <AlertTriangle className="size-5 text-destructive shrink-0" aria-hidden="true" />
+          <AlertTriangle className="size-5 text-destructive shrink-0" aria-hidden="true" strokeWidth={1.75} />
           <div className="flex-1 text-sm">
-            <strong>{stats.pendingSync}</strong> Änderung
+            <strong className="font-semibold tabular-nums">{stats.pendingSync}</strong> Änderung
             {stats.pendingSync === 1 ? "" : "en"} warten auf Sync.
           </div>
           <Button type="button" size="sm" variant="outline" render={<a href="#app-sidebar-footer" />}>
@@ -177,18 +178,18 @@ export default function HomeDashboard() {
           </a>
         </div>
         {stats.recentReports.length === 0 ? (
-          <p className="text-sm text-muted-foreground rounded-xl border border-dashed border-border px-4 py-6">
+          <p className="text-sm text-muted-foreground rounded-lg border border-dashed border-border px-4 py-8 text-center">
             Noch keine Berichte. Starte mit einem Spielerbericht.
           </p>
         ) : (
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
             {stats.recentReports.map((r) => (
               <li key={r.id}>
                 <a
                   href={`/reports/player/${r.id}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:bg-muted/50"
+                  className="flex items-center justify-between gap-3 px-4 py-3 text-sm min-h-11 hover:bg-muted/60 focus-ring rounded-[inherit] first:rounded-t-lg last:rounded-b-lg"
                 >
-                  <span>
+                  <span className="tabular-nums">
                     {new Date(r.datum).toLocaleDateString("de-DE")}
                     {typeof r.gesamtbewertung === "number"
                       ? ` · ${r.gesamtbewertung}/10`
@@ -207,13 +208,13 @@ export default function HomeDashboard() {
       {!hasRole(stats.scout, "trainer") ? (
         <a
           href="/einstellungen/profil"
-          className="flex items-start gap-3 rounded-xl border border-border bg-card p-4 hover:bg-muted/50 transition-colors"
+          className="flex items-start gap-3 rounded-lg border border-border bg-card p-4 hover:bg-muted/60 transition-colors focus-ring"
         >
-          <UsersRound className="size-5 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
+          <UsersRound className="size-5 shrink-0 mt-0.5 text-primary" aria-hidden="true" strokeWidth={1.75} />
           <div>
-            <div className="font-semibold tracking-tight text-sm">Trainer werden?</div>
+            <div className="font-semibold tracking-tight text-sm">Trainerrolle aktivieren</div>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Rolle unter Profil aktivieren – Kader, Entwicklung, Aufstellung.
+              Unter Profil freischalten: Kader, Entwicklung, Aufstellung.
             </p>
           </div>
         </a>
@@ -362,16 +363,19 @@ function StatCard({
     <a
       href={href}
       className={cn(
-        "rounded-xl border px-3 py-2.5 md:px-4 md:py-3 transition-colors hover:bg-muted/50",
-        warn ? "border-amber-500/40 bg-amber-500/5" : "border-border bg-card",
+        "rounded-lg border px-3 py-3 md:px-4 transition-colors hover:bg-muted/60 focus-ring min-h-[4.5rem]",
+        warn
+          ? "border-amber-700/35 bg-amber-500/10 dark:border-amber-400/35"
+          : "border-border bg-card",
         className
       )}
     >
-      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
       <div
         className={cn(
-          "mt-0.5 text-xl md:text-2xl font-semibold tabular-nums tracking-tight",
-          muted && "text-muted-foreground"
+          "mt-1 text-2xl font-semibold tabular-nums tracking-tight",
+          muted && "text-muted-foreground",
+          warn && "text-amber-800 dark:text-amber-300"
         )}
       >
         {value}
@@ -399,10 +403,10 @@ function ActionCard({
     <a
       href={href}
       className={cn(
-        "flex items-start gap-3 rounded-xl p-3.5 md:p-4 transition-colors",
+        "flex items-start gap-3 rounded-lg p-3.5 md:p-4 transition-colors focus-ring min-h-14",
         primary
           ? "bg-primary text-primary-foreground hover:bg-primary/90"
-          : "border border-border bg-card hover:bg-muted/50",
+          : "border border-border bg-card hover:bg-muted/60",
         className
       )}
     >
@@ -412,13 +416,14 @@ function ActionCard({
           primary ? "opacity-90" : "text-primary"
         )}
         aria-hidden="true"
+        strokeWidth={1.75}
       />
       <div className="min-w-0">
         <div className="font-semibold tracking-tight text-sm">{title}</div>
         <div
           className={cn(
             "text-sm mt-0.5",
-            primary ? "text-primary-foreground/80" : "text-muted-foreground"
+            primary ? "text-primary-foreground/90" : "text-muted-foreground"
           )}
         >
           {description}

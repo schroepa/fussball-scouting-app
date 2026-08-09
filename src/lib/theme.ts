@@ -29,7 +29,7 @@ export function applyColorMode(mode: ColorMode): void {
   root.style.colorScheme = mode;
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.setAttribute("content", mode === "dark" ? "#1c1b1f" : "#2f6b3a");
+    meta.setAttribute("content", mode === "dark" ? "#1c1c22" : "#fafafa");
   }
 }
 

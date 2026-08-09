@@ -45,7 +45,7 @@ export default function ModeSwitcher({
   return (
     <div
       className={cn(
-        "inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs",
+        "inline-flex rounded-md border border-border bg-muted/50 p-0.5 text-xs",
         className
       )}
       role="group"
@@ -55,9 +55,9 @@ export default function ModeSwitcher({
         type="button"
         onClick={() => switchMode("scout")}
         className={cn(
-          "rounded-md px-2.5 py-1.5 font-medium min-h-8",
+          "rounded-[5px] px-2.5 py-2 font-medium min-h-10 focus-ring transition-colors",
           mode === "scout"
-            ? "bg-primary text-primary-foreground"
+            ? "bg-background text-foreground shadow-xs"
             : "text-muted-foreground hover:text-foreground"
         )}
         aria-pressed={mode === "scout"}
@@ -68,9 +68,9 @@ export default function ModeSwitcher({
         type="button"
         onClick={() => switchMode("trainer")}
         className={cn(
-          "rounded-md px-2.5 py-1.5 font-medium min-h-8",
+          "rounded-[5px] px-2.5 py-2 font-medium min-h-10 focus-ring transition-colors",
           mode === "trainer"
-            ? "bg-primary text-primary-foreground"
+            ? "bg-background text-foreground shadow-xs"
             : "text-muted-foreground hover:text-foreground"
         )}
         aria-pressed={mode === "trainer"}

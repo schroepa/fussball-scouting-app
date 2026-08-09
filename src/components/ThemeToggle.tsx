@@ -35,13 +35,18 @@ export default function ThemeToggle({
       type="button"
       onClick={() => setMode(toggleColorMode())}
       className={cn(
-        "inline-flex size-9 items-center justify-center rounded-md border border-border bg-card text-foreground transition-colors hover:bg-muted",
-        variant === "sidebar" && "size-8"
+        "inline-flex size-10 items-center justify-center rounded-md border border-border bg-card text-foreground transition-colors hover:bg-muted focus-ring",
+        variant === "sidebar" && "size-9"
       )}
       title={isDark ? "Hellmodus" : "Dunkelmodus"}
       aria-label={isDark ? "Hellmodus aktivieren" : "Dunkelmodus aktivieren"}
+      aria-pressed={isDark}
     >
-      {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      {isDark ? (
+        <Sun className="size-4" aria-hidden="true" strokeWidth={1.75} />
+      ) : (
+        <Moon className="size-4" aria-hidden="true" strokeWidth={1.75} />
+      )}
     </button>
   );
 }

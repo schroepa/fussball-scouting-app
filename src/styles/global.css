@@ -3,117 +3,132 @@
 @import "@fontsource-variable/geist-mono/wght.css";
 
 /*
- * Fusca-Theme (shadcn studio) – CSS-Variablen aus dem Studio-Export.
- * Schrift: Geist / Geist Mono (Vercel), self-hosted via @fontsource-variable.
+ * Fusca – Linear-clean product UI
+ * Neutrale Zinc-Basis, ein Indigo-Akzent, WCAG-AA-Kontraste (Text 4.5:1, Fokus 3:1).
+ * Schrift: Geist / Geist Mono (self-hosted).
  */
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.370 0.013 285.812);
+  /* Cool zinc – kein Sport-Grün in der Brand-Palette */
+  --background: oklch(0.99 0.002 260);
+  --foreground: oklch(0.21 0.02 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.274 0.006 286.033);
+  --card-foreground: oklch(0.21 0.02 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.274 0.006 286.033);
-  --primary: oklch(0.461 0.13 146.843);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.922 0 0);
-  --secondary-foreground: oklch(0.274 0.006 286.033);
-  --muted: oklch(0.98 0 0);
-  --muted-foreground: oklch(0.45 0.02 264.41);
-  --accent: oklch(0.962 0.044 156.743);
-  --accent-foreground: oklch(0.461 0.13 146.843);
-  --destructive: oklch(0.64 0.21 25.39);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.871 0.006 286.3);
-  --ring: oklch(0.548 0.167 146.888);
-  --chart-1: oklch(0.641 0.202 146.573);
-  --chart-2: oklch(0.548 0.167 146.888);
-  --chart-3: oklch(0.461 0.13 146.843);
-  --chart-4: oklch(0.393 0.103 147.717);
-  --chart-5: oklch(0.266 0.065 148.997);
-  --sidebar: oklch(0.98 0 0);
-  --sidebar-foreground: oklch(0.14 0 0);
-  --sidebar-primary: oklch(0.2 0 0);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.2 0 0);
-  --sidebar-border: oklch(0.92 0 0);
-  --sidebar-ring: oklch(0.71 0 0);
+  --popover-foreground: oklch(0.21 0.02 260);
+
+  /* Linear-ähnlicher Indigo – Sättigung < 80%, AA mit Weiß */
+  --primary: oklch(0.45 0.14 277);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.96 0.005 260);
+  --secondary-foreground: oklch(0.28 0.02 260);
+  --muted: oklch(0.965 0.004 260);
+  /* ≥ 4.5:1 auf --background */
+  --muted-foreground: oklch(0.42 0.02 260);
+  --accent: oklch(0.955 0.02 277);
+  --accent-foreground: oklch(0.38 0.12 277);
+  --destructive: oklch(0.5 0.19 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.008 260);
+  --input: oklch(0.86 0.01 260);
+  --ring: oklch(0.45 0.14 277);
+
+  --chart-1: oklch(0.5 0.14 277);
+  --chart-2: oklch(0.55 0.1 230);
+  --chart-3: oklch(0.45 0.08 200);
+  --chart-4: oklch(0.6 0.06 260);
+  --chart-5: oklch(0.35 0.05 277);
+
+  --sidebar: oklch(0.985 0.003 260);
+  --sidebar-foreground: oklch(0.28 0.02 260);
+  --sidebar-primary: oklch(0.45 0.14 277);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.955 0.015 277);
+  --sidebar-accent-foreground: oklch(0.28 0.04 277);
+  --sidebar-border: oklch(0.91 0.008 260);
+  --sidebar-ring: oklch(0.45 0.14 277);
 
   --font-geist-sans: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-geist-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
   --font-heading: var(--font-geist-sans);
   --font-body: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  /* Aliase für älteren Theme-Export / shadcn-Kompatibilität */
   --font-inter: var(--font-geist-sans);
   --font-source-serif-4: var(--font-geist-sans);
   --font-jetbrains-mono: var(--font-geist-mono);
 
   /*
-   * Radius-System (Werkzeug-UI, nicht „pillig“):
-   * - Basis 8px (--radius)
-   * - Äußere Cards/Panels: max. 16px (--radius-outer)
-   * - Nested: R_außen ≈ R_innen + Padding
-   * - 2xl/3xl/4xl gekappt auf max. 16px (kein 31px-Pill mehr)
+   * Radius: Linear-nah, Werkzeug-UI
+   * Außen max. 12px – weniger „App-Card“, mehr Dashboard
    */
   --radius: 0.5rem;
-  --radius-outer: 1rem; /* 16px – hartes Maximum für äußere Surfaces */
-  --color-pitch: var(--primary);
+  --radius-outer: 0.75rem;
+  /* Nur für Taktik-/Spielfeld-UI, nicht Brand */
+  --color-pitch: oklch(0.42 0.08 145);
 
-  --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-  --shadow-xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-  --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-  --shadow-md: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 2px 4px -1px oklch(0 0 0 / 0.1);
-  --shadow-lg: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 4px 6px -1px oklch(0 0 0 / 0.1);
-  --shadow-xl: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 8px 10px -1px oklch(0 0 0 / 0.1);
-  --shadow-2xl: 0 1px 3px 0px oklch(0 0 0 / 0.25);
+  --shadow-2xs: 0 1px 2px 0px oklch(0.3 0.02 260 / 0.04);
+  --shadow-xs: 0 1px 2px 0px oklch(0.3 0.02 260 / 0.05);
+  --shadow-sm: 0 1px 2px 0px oklch(0.3 0.02 260 / 0.06), 0 1px 3px -1px oklch(0.3 0.02 260 / 0.06);
+  --shadow: 0 1px 3px 0px oklch(0.3 0.02 260 / 0.08), 0 1px 2px -1px oklch(0.3 0.02 260 / 0.06);
+  --shadow-md: 0 2px 6px -1px oklch(0.3 0.02 260 / 0.08), 0 2px 4px -2px oklch(0.3 0.02 260 / 0.06);
+  --shadow-lg: 0 8px 16px -4px oklch(0.3 0.02 260 / 0.1), 0 4px 6px -4px oklch(0.3 0.02 260 / 0.06);
+  --shadow-xl: 0 16px 24px -8px oklch(0.3 0.02 260 / 0.12);
+  --shadow-2xl: 0 24px 40px -12px oklch(0.3 0.02 260 / 0.18);
+
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
 }
 
 .dark {
-  --background: oklch(0.18 0.008 150);
-  --foreground: oklch(0.95 0.005 150);
-  --card: oklch(0.22 0.01 150);
-  --card-foreground: oklch(0.96 0.005 150);
-  --popover: oklch(0.22 0.01 150);
-  --popover-foreground: oklch(0.96 0.005 150);
-  --primary: oklch(0.72 0.16 148);
-  --primary-foreground: oklch(0.18 0.04 148);
-  --secondary: oklch(0.28 0.012 150);
-  --secondary-foreground: oklch(0.94 0.005 150);
-  --muted: oklch(0.26 0.01 150);
-  --muted-foreground: oklch(0.78 0.015 150);
-  --accent: oklch(0.3 0.05 148);
-  --accent-foreground: oklch(0.9 0.04 156);
-  --destructive: oklch(0.68 0.19 25);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.68 0.15 148);
-  --chart-1: oklch(0.72 0.16 148);
-  --chart-2: oklch(0.65 0.12 160);
-  --chart-3: oklch(0.58 0.1 140);
-  --chart-4: oklch(0.52 0.08 170);
-  --chart-5: oklch(0.45 0.06 150);
-  --sidebar: oklch(0.16 0.01 150);
-  --sidebar-foreground: oklch(0.95 0.005 150);
-  --sidebar-primary: oklch(0.72 0.16 148);
-  --sidebar-primary-foreground: oklch(0.18 0.04 148);
-  --sidebar-accent: oklch(0.24 0.015 150);
-  --sidebar-accent-foreground: oklch(0.95 0.005 150);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.68 0.15 148);
+  --background: oklch(0.145 0.012 260);
+  --foreground: oklch(0.95 0.005 260);
+  --card: oklch(0.18 0.014 260);
+  --card-foreground: oklch(0.95 0.005 260);
+  --popover: oklch(0.18 0.014 260);
+  --popover-foreground: oklch(0.95 0.005 260);
 
-  --shadow-2xs: 0 1px 2px 0px oklch(0 0 0 / 0.25);
-  --shadow-xs: 0 1px 2px 0px oklch(0 0 0 / 0.3);
-  --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.35), 0 1px 2px -1px oklch(0 0 0 / 0.3);
-  --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.4), 0 1px 2px -1px oklch(0 0 0 / 0.35);
-  --shadow-md: 0 2px 6px 0px oklch(0 0 0 / 0.4), 0 2px 4px -1px oklch(0 0 0 / 0.35);
-  --shadow-lg: 0 4px 12px 0px oklch(0 0 0 / 0.45), 0 4px 6px -1px oklch(0 0 0 / 0.35);
-  --shadow-xl: 0 8px 20px 0px oklch(0 0 0 / 0.5), 0 8px 10px -1px oklch(0 0 0 / 0.4);
-  --shadow-2xl: 0 12px 28px 0px oklch(0 0 0 / 0.55);
+  --primary: oklch(0.72 0.12 277);
+  --primary-foreground: oklch(0.18 0.04 277);
+
+  --secondary: oklch(0.24 0.015 260);
+  --secondary-foreground: oklch(0.92 0.005 260);
+  --muted: oklch(0.22 0.014 260);
+  /* ≥ 4.5:1 auf dark background */
+  --muted-foreground: oklch(0.72 0.015 260);
+  --accent: oklch(0.26 0.04 277);
+  --accent-foreground: oklch(0.9 0.04 277);
+  --destructive: oklch(0.7 0.17 25);
+  --destructive-foreground: oklch(0.18 0.04 25);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.72 0.12 277);
+
+  --chart-1: oklch(0.72 0.12 277);
+  --chart-2: oklch(0.68 0.1 230);
+  --chart-3: oklch(0.62 0.08 200);
+  --chart-4: oklch(0.55 0.05 260);
+  --chart-5: oklch(0.48 0.06 277);
+
+  --sidebar: oklch(0.125 0.012 260);
+  --sidebar-foreground: oklch(0.92 0.005 260);
+  --sidebar-primary: oklch(0.72 0.12 277);
+  --sidebar-primary-foreground: oklch(0.18 0.04 277);
+  --sidebar-accent: oklch(0.22 0.03 277);
+  --sidebar-accent-foreground: oklch(0.95 0.01 277);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.72 0.12 277);
+
+  --shadow-2xs: 0 1px 2px 0px oklch(0 0 0 / 0.3);
+  --shadow-xs: 0 1px 2px 0px oklch(0 0 0 / 0.35);
+  --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.4), 0 1px 2px -1px oklch(0 0 0 / 0.35);
+  --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.45), 0 1px 2px -1px oklch(0 0 0 / 0.4);
+  --shadow-md: 0 2px 6px 0px oklch(0 0 0 / 0.45), 0 2px 4px -1px oklch(0 0 0 / 0.4);
+  --shadow-lg: 0 8px 16px 0px oklch(0 0 0 / 0.5);
+  --shadow-xl: 0 16px 24px 0px oklch(0 0 0 / 0.55);
+  --shadow-2xl: 0 24px 40px 0px oklch(0 0 0 / 0.6);
 }
 
 @theme inline {
@@ -139,6 +154,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -155,35 +171,36 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-pitch: var(--color-pitch);
 
-  /* Bestehende emerald-/slate-Klassen an Fusca anbinden */
+  /* Semantic success (nicht Brand) – für Status/OK */
   --color-emerald-50: oklch(0.98 0.02 156);
-  --color-emerald-100: oklch(0.962 0.044 156.743);
-  --color-emerald-200: oklch(0.9 0.08 150);
-  --color-emerald-300: oklch(0.78 0.12 150);
-  --color-emerald-400: oklch(0.641 0.202 146.573);
-  --color-emerald-500: oklch(0.548 0.167 146.888);
-  --color-emerald-600: oklch(0.461 0.13 146.843);
-  --color-emerald-700: oklch(0.393 0.103 147.717);
-  --color-emerald-800: oklch(0.32 0.08 148);
-  --color-emerald-900: oklch(0.266 0.065 148.997);
+  --color-emerald-100: oklch(0.96 0.04 156);
+  --color-emerald-200: oklch(0.9 0.06 150);
+  --color-emerald-300: oklch(0.78 0.1 150);
+  --color-emerald-400: oklch(0.65 0.14 150);
+  --color-emerald-500: oklch(0.55 0.14 150);
+  --color-emerald-600: oklch(0.45 0.12 150);
+  --color-emerald-700: oklch(0.38 0.1 150);
+  --color-emerald-800: oklch(0.3 0.08 150);
+  --color-emerald-900: oklch(0.25 0.06 150);
 
-  --color-slate-50: oklch(0.985 0 0);
-  --color-slate-100: oklch(0.98 0 0);
-  --color-slate-200: oklch(0.922 0 0);
-  --color-slate-300: oklch(0.871 0.006 286.3);
-  --color-slate-400: oklch(0.7 0.015 285);
-  --color-slate-500: oklch(0.55 0.02 264.41);
-  --color-slate-600: oklch(0.45 0.015 285);
-  --color-slate-700: oklch(0.37 0.013 285.812);
-  --color-slate-800: oklch(0.274 0.006 286.033);
-  --color-slate-900: oklch(0.22 0.006 285.885);
-  --color-slate-950: oklch(0.145 0 0);
+  --color-slate-50: oklch(0.99 0.002 260);
+  --color-slate-100: oklch(0.965 0.004 260);
+  --color-slate-200: oklch(0.9 0.008 260);
+  --color-slate-300: oklch(0.86 0.01 260);
+  --color-slate-400: oklch(0.65 0.015 260);
+  --color-slate-500: oklch(0.5 0.02 260);
+  --color-slate-600: oklch(0.42 0.02 260);
+  --color-slate-700: oklch(0.32 0.02 260);
+  --color-slate-800: oklch(0.24 0.015 260);
+  --color-slate-900: oklch(0.18 0.014 260);
+  --color-slate-950: oklch(0.145 0.012 260);
 
-  --radius-sm: 0.25rem; /* 4px – feine Chips / nested innen */
-  --radius-md: 0.375rem; /* 6px – Rows in Cards */
-  --radius-lg: var(--radius); /* 8px – Buttons, Inputs */
-  --radius-xl: var(--radius-outer); /* 16px – äußere Cards / Panels (Maximum) */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius-outer);
   --radius-2xl: var(--radius-outer);
   --radius-3xl: var(--radius-outer);
   --radius-4xl: var(--radius-outer);
@@ -200,76 +217,101 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
   html {
     @apply font-sans;
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     min-height: 100dvh;
     font-family: var(--font-body);
-    line-height: 1.65;
+    line-height: 1.5;
+    letter-spacing: -0.011em;
   }
 
-  /* Page titles come from Layout; keep prose headings calmer so they don't fight chrome */
+  /* Sichtbarer Fokus – WCAG 2.4.7 / 2.4.13 */
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: var(--focus-ring-width) solid var(--ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
   h1 {
     font-family: var(--font-heading);
     font-size: 1.5rem;
     line-height: 1.25;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     font-weight: 600;
+    text-wrap: balance;
   }
 
   h2 {
     font-family: var(--font-heading);
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     line-height: 1.3;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
     font-weight: 600;
+    text-wrap: balance;
   }
 
   h3 {
     font-family: var(--font-heading);
-    font-size: 1.125rem;
+    font-size: 1rem;
     line-height: 1.35;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
     font-weight: 600;
   }
 
-  h4 {
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-heading);
-    font-size: 1rem;
+    font-size: 0.875rem;
     line-height: 1.4;
     letter-spacing: -0.01em;
     font-weight: 600;
   }
 
-  h5 {
-    font-family: var(--font-heading);
-    font-size: 0.9375rem;
-    line-height: 1.45;
-    letter-spacing: -0.01em;
-    font-weight: 600;
-  }
-
-  h6 {
-    font-family: var(--font-heading);
-    font-size: 1rem;
-    line-height: 1.5;
-    letter-spacing: 0;
-    font-weight: 600;
+  p {
+    text-wrap: pretty;
   }
 
   code,
-  pre {
+  pre,
+  .tabular {
     font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Größere Tap-Ziele für die mobile Nutzung am Spielfeldrand. */
+  /* iOS Zoom vermeiden + Touch-Ziele ≥ 44px wo sinnvoll */
   button,
   a,
   input,
@@ -283,12 +325,13 @@
   textarea {
     min-height: 44px;
   }
+
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
+    color: var(--foreground);
+  }
 }
 
-/*
- * Nested-Radius-Hilfen:
- * Außen max. 16px (--radius-outer) + Padding ~8–12px + Innen rounded-md (6px).
- */
 @layer utilities {
   .surface-nested-outer {
     border-radius: var(--radius-outer);
@@ -296,9 +339,13 @@
   .surface-nested-inner {
     @apply rounded-md;
   }
+
+  /* Expliziter Fokus-Utility für Links ohne Browser-Default */
+  .focus-ring {
+    @apply outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring;
+  }
 }
 
-/* Cards nie größer als 16px – unabhängig von Utility-Klassen */
 [data-slot="card"] {
   border-radius: var(--radius-outer);
 }
