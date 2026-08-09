@@ -26,6 +26,7 @@ import {
 } from "../lib/local/trainerRepository";
 import type { AppMode, PlayerReport, Scout, Team } from "../lib/types";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface HomeStats {
   mode: AppMode;
@@ -128,16 +129,16 @@ export default function HomeDashboard() {
       <section aria-labelledby="home-dash-title" className="space-y-1">
         <h1
           id="home-dash-title"
-          className="text-2xl font-bold tracking-tight md:text-xl md:font-semibold"
+          className="text-xl font-semibold tracking-tight"
         >
-          {firstName}, hier dein Überblick
+          {firstName}
         </h1>
         <p className="text-sm text-muted-foreground">
           {isTrainer
             ? stats.team
               ? `${stats.team.name} · ${stats.team.ageGroup}`
-              : "Trainer-Modus – lege ein Team unter Kader an."
-            : "Scout-Modus – Beobachtungen und Auswertung."}
+              : "Trainer – Team unter Kader anlegen"
+            : "Scout – Beobachtungen & Auswertung"}
         </p>
       </section>
 
@@ -218,7 +219,7 @@ export default function HomeDashboard() {
         </a>
       ) : null}
 
-      <div className="flex flex-wrap gap-3 text-sm">
+      <div className="hidden md:flex flex-wrap gap-3 text-sm">
         <a
           href="/hilfe"
           className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
@@ -241,21 +242,27 @@ function ScoutDash({ stats }: { stats: HomeStats }) {
   return (
     <>
       <section
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+        className="grid grid-cols-2 gap-2 md:gap-3"
         aria-label="Kennzahlen"
       >
         <StatCard label="Spieler" value={String(stats.playerCount)} href="/players" />
         <StatCard label="Berichte" value={String(stats.reportCount)} href="/reports" />
         <StatCard
-          label="Offener Sync"
+          label="Sync offen"
           value={String(stats.pendingSync)}
           href="/"
           muted={stats.pendingSync === 0}
+          className="hidden md:block"
         />
-        <StatCard label="Auswertung" value="→" href="/dashboard" />
+        <StatCard
+          label="Auswertung"
+          value="→"
+          href="/dashboard"
+          className="hidden md:block"
+        />
       </section>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3" aria-label="Schnellaktionen">
+      <section className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-3" aria-label="Schnellaktionen">
         <ActionCard
           href="/reports/new-player"
           title="Spielerbericht"
@@ -268,18 +275,7 @@ function ScoutDash({ stats }: { stats: HomeStats }) {
           title="Dashboard"
           description="Auswerten & vergleichen"
           Icon={ChartColumn}
-        />
-        <ActionCard
-          href="/reports"
-          title="Berichte"
-          description="Liste nachbereiten"
-          Icon={ClipboardList}
-        />
-        <ActionCard
-          href="/players"
-          title="Spieler"
-          description="Stammdaten pflegen"
-          Icon={Users}
+          className="hidden md:flex"
         />
       </section>
     </>
@@ -290,14 +286,10 @@ function TrainerDash({ stats }: { stats: HomeStats }) {
   return (
     <>
       <section
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+        className="grid grid-cols-2 gap-2 md:gap-3"
         aria-label="Kennzahlen"
       >
-        <StatCard
-          label="Kader"
-          value={String(stats.squadCount)}
-          href="/kader"
-        />
+        <StatCard label="Kader" value={String(stats.squadCount)} href="/kader" />
         <StatCard
           label="Einwilligung offen"
           value={String(stats.consentPending)}
@@ -308,33 +300,23 @@ function TrainerDash({ stats }: { stats: HomeStats }) {
           label="Freigaben"
           value={String(stats.openShares)}
           href="/freigaben"
+          className="hidden md:block"
         />
         <StatCard
           label="Beobachtungen"
           value={String(stats.reportCount)}
           href="/reports"
+          className="hidden md:block"
         />
       </section>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3" aria-label="Schnellaktionen">
-        <ActionCard
-          href="/kader"
-          title="Kader"
-          description="Spieler & Einwilligung"
-          primary
-          Icon={UsersRound}
-        />
+      <section className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-3" aria-label="Schnellaktionen">
         <ActionCard
           href="/reports/new-player"
           title="Beobachtung"
           description="Neuen Eintrag erfassen"
+          primary
           Icon={ClipboardList}
-        />
-        <ActionCard
-          href="/entwicklung"
-          title="Entwicklung"
-          description="Verlauf über die Saison"
-          Icon={TrendingUp}
         />
         <ActionCard
           href="/aufstellung"
@@ -343,16 +325,18 @@ function TrainerDash({ stats }: { stats: HomeStats }) {
           Icon={LayoutGrid}
         />
         <ActionCard
+          href="/entwicklung"
+          title="Entwicklung"
+          description="Verlauf über die Saison"
+          Icon={TrendingUp}
+          className="hidden md:flex"
+        />
+        <ActionCard
           href="/freigaben"
           title="Freigaben"
           description="Codes & Zugriffe"
           Icon={Share2}
-        />
-        <ActionCard
-          href="/dashboard"
-          title="Auswertung"
-          description="Scout-Dashboard"
-          Icon={ChartColumn}
+          className="hidden md:flex"
         />
       </section>
     </>
@@ -365,27 +349,30 @@ function StatCard({
   href,
   warn,
   muted,
+  className,
 }: {
   label: string;
   value: string;
   href: string;
   warn?: boolean;
   muted?: boolean;
+  className?: string;
 }) {
   return (
     <a
       href={href}
-      className={`rounded-xl border px-4 py-3 transition-colors hover:bg-muted/50 ${
-        warn
-          ? "border-amber-500/40 bg-amber-500/5"
-          : "border-border bg-card"
-      }`}
+      className={cn(
+        "rounded-xl border px-3 py-2.5 md:px-4 md:py-3 transition-colors hover:bg-muted/50",
+        warn ? "border-amber-500/40 bg-amber-500/5" : "border-border bg-card",
+        className
+      )}
     >
       <div className="text-xs text-muted-foreground">{label}</div>
       <div
-        className={`mt-1 text-2xl font-semibold tabular-nums tracking-tight ${
-          muted ? "text-muted-foreground" : ""
-        }`}
+        className={cn(
+          "mt-0.5 text-xl md:text-2xl font-semibold tabular-nums tracking-tight",
+          muted && "text-muted-foreground"
+        )}
       >
         {value}
       </div>
@@ -399,32 +386,40 @@ function ActionCard({
   description,
   Icon,
   primary,
+  className,
 }: {
   href: string;
   title: string;
   description: string;
   Icon: typeof Users;
   primary?: boolean;
+  className?: string;
 }) {
   return (
     <a
       href={href}
-      className={
+      className={cn(
+        "flex items-start gap-3 rounded-xl p-3.5 md:p-4 transition-colors",
         primary
-          ? "flex items-start gap-3 rounded-xl bg-primary text-primary-foreground p-4 hover:bg-primary/90 transition-colors"
-          : "flex items-start gap-3 rounded-xl border border-border bg-card p-4 hover:bg-muted/50 transition-colors"
-      }
+          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+          : "border border-border bg-card hover:bg-muted/50",
+        className
+      )}
     >
       <Icon
-        className={`size-5 shrink-0 mt-0.5 ${primary ? "opacity-90" : "text-primary"}`}
+        className={cn(
+          "size-5 shrink-0 mt-0.5",
+          primary ? "opacity-90" : "text-primary"
+        )}
         aria-hidden="true"
       />
-      <div>
+      <div className="min-w-0">
         <div className="font-semibold tracking-tight text-sm">{title}</div>
         <div
-          className={`text-sm mt-0.5 ${
+          className={cn(
+            "text-sm mt-0.5",
             primary ? "text-primary-foreground/80" : "text-muted-foreground"
-          }`}
+          )}
         >
           {description}
         </div>

@@ -9,7 +9,7 @@ import { isSupabaseConfigured } from "../lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { RefreshCw, X } from "lucide-react";
 
-type Variant = "header" | "sidebar";
+type Variant = "header" | "header-compact" | "sidebar";
 
 const emptyStats: SyncQueueStats = { pending: 0, error: 0, total: 0 };
 
@@ -75,7 +75,8 @@ export default function SyncStatusBar({
     }
   };
 
-  const isHeader = variant === "header";
+  const isHeader = variant === "header" || variant === "header-compact";
+  const compact = variant === "header-compact";
   const hasErrors = stats.error > 0 || (lastResult != null && !lastResult.ok);
   const queueLabel =
     stats.error > 0
@@ -85,35 +86,38 @@ export default function SyncStatusBar({
         : null;
 
   return (
-    <div className="relative flex items-center gap-1.5 text-xs text-foreground">
-      <span
-        className={cn(
-          "inline-flex items-center gap-1",
-          online ? "text-primary" : "text-amber-600 dark:text-amber-400"
-        )}
-        title={online ? "Online" : "Offline"}
-      >
-        <span className="text-[10px]" aria-hidden>
-          ●
+    <div className="relative flex items-center gap-1 text-xs text-foreground shrink-0">
+      {!compact ? (
+        <span
+          className={cn(
+            "inline-flex items-center gap-1",
+            online ? "text-primary" : "text-amber-600 dark:text-amber-400"
+          )}
+          title={online ? "Online" : "Offline"}
+        >
+          <span className="text-[10px]" aria-hidden>
+            ●
+          </span>
+          <span className={isHeader ? "sr-only sm:not-sr-only sm:inline" : undefined}>
+            {online ? "Online" : "Offline"}
+          </span>
         </span>
-        <span className={isHeader ? "sr-only sm:not-sr-only sm:inline" : undefined}>
-          {online ? "Online" : "Offline"}
-        </span>
-      </span>
+      ) : null}
 
       {queueLabel ? (
         <button
           type="button"
           onClick={() => setPanelOpen((o) => !o)}
           className={cn(
-            "rounded-md px-2.5 py-1.5 font-semibold min-h-9",
+            "rounded-md font-semibold min-h-9",
+            compact ? "px-2 py-1.5 text-[10px]" : "px-2.5 py-1.5",
             stats.error > 0
               ? "bg-destructive text-destructive-foreground"
               : "bg-amber-500/90 text-foreground"
           )}
           title="Sync-Details"
         >
-          {queueLabel}
+          {compact ? (stats.error > 0 ? "!" : stats.pending) : queueLabel}
         </button>
       ) : null}
 
@@ -123,7 +127,8 @@ export default function SyncStatusBar({
           onClick={() => void runSync(stats.error > 0)}
           disabled={syncing || !online}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium min-h-9 disabled:opacity-40",
+            "inline-flex items-center justify-center gap-1.5 rounded-md font-medium min-h-9 min-w-9 disabled:opacity-40",
+            compact ? "px-2" : "px-2.5 py-1.5",
             hasErrors
               ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
               : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -133,19 +138,22 @@ export default function SyncStatusBar({
               ? "Fehlerhafte Uploads erneut versuchen"
               : "Jetzt synchronisieren"
           }
+          aria-label={syncing ? "Synchronisiere" : "Sync"}
         >
-          <RefreshCw className={cn("size-3", syncing && "animate-spin")} />
-          {syncing ? "Sync…" : stats.error > 0 ? "Retry" : "Sync"}
+          <RefreshCw className={cn("size-3.5", syncing && "animate-spin")} />
+          {!compact ? (
+            <span>{syncing ? "Sync…" : stats.error > 0 ? "Retry" : "Sync"}</span>
+          ) : null}
         </button>
       ) : (
-        <span className="text-muted-foreground">Lokal</span>
+        <span className="text-muted-foreground px-1">Lokal</span>
       )}
 
       {panelOpen && (lastResult || stats.total > 0) ? (
         <div
           role="status"
           className={cn(
-            "absolute z-50 w-72 rounded-lg border border-border bg-card text-card-foreground px-3 py-2.5 shadow-lg text-[11px] leading-snug",
+            "absolute z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-lg border border-border bg-card text-card-foreground px-3 py-2.5 shadow-lg text-[11px] leading-snug",
             isHeader ? "top-full right-0 mt-2" : "bottom-full left-0 mb-2"
           )}
         >

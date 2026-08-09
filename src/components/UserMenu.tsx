@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { getCurrentSession, signOut } from "../lib/auth/session";
 import type { Scout } from "../lib/types";
 import { cn } from "@/lib/utils";
+import { LogOut } from "lucide-react";
 
-type Variant = "header" | "sidebar";
+type Variant = "header" | "header-compact" | "sidebar";
 
 export default function UserMenu({
   variant = "header",
@@ -28,7 +29,22 @@ export default function UserMenu({
   };
 
   const shortName = scout.name.split(" ")[0] || scout.email || "Scout";
-  const isHeader = variant === "header";
+  const compact = variant === "header-compact";
+  const isHeader = variant === "header" || compact;
+
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-border bg-card text-foreground hover:bg-muted"
+        title={`Abmelden (${shortName})`}
+        aria-label="Abmelden"
+      >
+        <LogOut className="size-4" aria-hidden="true" />
+      </button>
+    );
+  }
 
   return (
     <div
