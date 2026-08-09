@@ -4,21 +4,23 @@ import LoginForm from "../components/LoginForm";
 ---
 
 <Layout title="Anmelden" requireAuth={false} showNav={false}>
-  <div class="max-w-md mx-auto pt-6 md:pt-12">
-    <div class="text-center mb-8">
-      <div
-        class="mx-auto size-10 rounded-md bg-primary text-primary-foreground grid place-items-center text-xs font-semibold tracking-tight"
-        aria-hidden="true"
-      >
-        FS
+  <div class="max-w-md mx-auto pt-8 md:pt-16">
+    <div class="panel p-6 md:p-8">
+      <div class="text-center mb-6">
+        <div
+          class="mx-auto size-11 rounded-xl bg-primary text-primary-foreground grid place-items-center text-xs font-semibold tracking-tight shadow-sm"
+          aria-hidden="true"
+        >
+          FS
+        </div>
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground mt-4">
+          Fusca
+        </h1>
+        <p class="text-muted-foreground text-sm mt-1.5 max-w-[34ch] mx-auto">
+          Anmelden, um Scouting- und Trainerdaten zu synchronisieren.
+        </p>
       </div>
-      <h1 class="text-2xl font-semibold tracking-tight text-foreground mt-4">
-        Fusca
-      </h1>
-      <p class="text-muted-foreground text-sm mt-1.5 max-w-[36ch] mx-auto">
-        Anmelden, um Scouting- und Trainerdaten zu synchronisieren.
-      </p>
+      <LoginForm client:load />
     </div>
-    <LoginForm client:load />
   </div>
 </Layout>

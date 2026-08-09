@@ -7,7 +7,6 @@ import {
   Users,
   UsersRound,
   AlertTriangle,
-  CircleHelp,
   Share2,
 } from "lucide-react";
 import { getCurrentSession } from "../lib/auth/session";
@@ -39,13 +38,6 @@ interface HomeStats {
   consentPending: number;
   openShares: number;
 }
-
-type Metric = {
-  label: string;
-  value: string;
-  href: string;
-  warn?: boolean;
-};
 
 export default function HomeDashboard() {
   const [stats, setStats] = useState<HomeStats | null>(null);
@@ -90,7 +82,7 @@ export default function HomeDashboard() {
       reportCount: playerReports.length + teamReports.length,
       recentReports: playerReports
         .sort((a, b) => b.datum.localeCompare(a.datum))
-        .slice(0, 6),
+        .slice(0, 7),
       team,
       squadCount,
       consentPending,
@@ -115,10 +107,14 @@ export default function HomeDashboard() {
 
   if (!stats) {
     return (
-      <div id="page-home-dashboard" className="space-y-4 animate-pulse" aria-busy="true">
-        <div className="h-10 w-56 rounded-lg bg-muted" />
-        <div className="h-28 rounded-xl bg-muted" />
-        <div className="h-40 rounded-xl bg-muted" />
+      <div
+        id="page-home-dashboard"
+        className="grid gap-3 md:grid-cols-12 animate-pulse"
+        aria-busy="true"
+      >
+        <div className="md:col-span-8 h-40 rounded-[1.25rem] bg-muted" />
+        <div className="md:col-span-4 h-40 rounded-[1.25rem] bg-muted" />
+        <div className="md:col-span-12 h-56 rounded-[1.25rem] bg-muted" />
       </div>
     );
   }
@@ -126,44 +122,26 @@ export default function HomeDashboard() {
   const firstName = stats.scout.name.split(" ")[0] || "Hallo";
   const isTrainer = stats.mode === "trainer";
 
-  const metrics: Metric[] = isTrainer
+  const metrics = isTrainer
     ? [
-        { label: "Kader", value: String(stats.squadCount), href: "/kader" },
+        { label: "Kader", value: stats.squadCount, href: "/kader" },
         {
           label: "Einwilligung",
-          value: String(stats.consentPending),
+          value: stats.consentPending,
           href: "/kader",
           warn: stats.consentPending > 0,
         },
-        { label: "Beobachtungen", value: String(stats.reportCount), href: "/reports" },
-        { label: "Freigaben", value: String(stats.openShares), href: "/freigaben" },
+        { label: "Berichte", value: stats.reportCount, href: "/reports" },
+        { label: "Freigaben", value: stats.openShares, href: "/freigaben" },
       ]
     : [
-        { label: "Spieler", value: String(stats.playerCount), href: "/players" },
-        { label: "Berichte", value: String(stats.reportCount), href: "/reports" },
-        {
-          label: "Sync offen",
-          value: String(stats.pendingSync),
-          href: "#app-sidebar-footer",
-        },
-        { label: "Auswertung", value: "Öffnen", href: "/dashboard" },
+        { label: "Spieler", value: stats.playerCount, href: "/players" },
+        { label: "Berichte", value: stats.reportCount, href: "/reports" },
+        { label: "Sync", value: stats.pendingSync, href: "#app-sidebar-footer" },
+        { label: "Auswertung", value: "→", href: "/dashboard", isLink: true },
       ];
 
-  const primaryAction = isTrainer
-    ? {
-        href: "/reports/new-player",
-        title: "Beobachtung erfassen",
-        hint: "Neuer Eintrag mit Bewertungsraster",
-        Icon: ClipboardList,
-      }
-    : {
-        href: "/reports/new-player",
-        title: "Spielerbericht",
-        hint: "Beobachtung erfassen",
-        Icon: Users,
-      };
-
-  const secondaryActions = isTrainer
+  const sideLinks = isTrainer
     ? [
         { href: "/aufstellung", label: "Aufstellung", Icon: LayoutGrid },
         { href: "/entwicklung", label: "Entwicklung", Icon: TrendingUp },
@@ -171,132 +149,153 @@ export default function HomeDashboard() {
       ]
     : [
         { href: "/dashboard", label: "Auswertung", Icon: TrendingUp },
-        { href: "/reports", label: "Berichte", Icon: ClipboardList },
+        { href: "/players", label: "Spieler", Icon: Users },
+        { href: "/import", label: "Import", Icon: Share2 },
       ];
 
   return (
-    <div id="page-home-dashboard" className="space-y-5 md:space-y-6">
-      <header className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground tabular-nums">
-            {isTrainer ? "Trainer" : "Scout"}
-            {stats.team ? ` · ${stats.team.ageGroup}` : ""}
-          </p>
-          <h1 id="home-dash-title" className="text-2xl md:text-[1.75rem] font-semibold tracking-tight">
-            {firstName}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {isTrainer
-              ? stats.team
-                ? stats.team.name
-                : "Kein Team – unter Kader anlegen"
-              : "Beobachtungen und Auswertung"}
-          </p>
-        </div>
-      </header>
-
-      {stats.pendingSync > 0 ? (
+    <div id="page-home-dashboard" className="grid gap-3 md:gap-4 md:grid-cols-12">
+      {/* Hero / welcome – wide */}
+      <section className="panel md:col-span-8 relative overflow-hidden min-h-[11rem]">
         <div
-          className="flex flex-col sm:flex-row sm:items-center gap-3 panel px-4 py-3 border-destructive/35 bg-destructive/5"
-          role="status"
-          aria-live="polite"
-        >
-          <AlertTriangle
-            className="size-5 text-destructive shrink-0"
-            aria-hidden="true"
-            strokeWidth={1.75}
-          />
-          <div className="flex-1 text-sm">
-            <strong className="font-semibold tabular-nums">{stats.pendingSync}</strong>{" "}
-            Änderung{stats.pendingSync === 1 ? "" : "en"} warten auf Sync.
+          className="pointer-events-none absolute inset-0 opacity-90"
+          aria-hidden="true"
+          style={{
+            background:
+              "radial-gradient(120% 80% at 100% 0%, color-mix(in oklch, var(--primary) 22%, transparent), transparent 55%)",
+          }}
+        />
+        <div className="relative flex h-full flex-col justify-between gap-6 p-5 md:p-6">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">
+              {isTrainer ? "Trainer" : "Scout"}
+              {stats.team ? ` · ${stats.team.ageGroup}` : ""}
+            </p>
+            <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">
+              {firstName}
+            </h1>
+            <p className="mt-1.5 text-sm text-muted-foreground max-w-[40ch]">
+              {isTrainer
+                ? stats.team
+                  ? stats.team.name
+                  : "Kein Team – unter Kader anlegen"
+                : "Beobachtungen erfassen und auswerten"}
+            </p>
           </div>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            render={<a href="#app-sidebar-footer" />}
-          >
-            Sync prüfen
-          </Button>
-        </div>
-      ) : null}
-
-      {/* Metrics strip – one panel, not card grid */}
-      <section aria-label="Kennzahlen" className="panel overflow-hidden">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border">
-          {metrics.map((m) => (
+          <div className="flex flex-wrap gap-2">
             <a
-              key={m.label}
-              href={m.href}
-              className={cn(
-                "px-4 py-3.5 min-h-[4.75rem] hover:bg-muted/50 focus-ring transition-colors",
-                m.warn && "bg-amber-500/8"
-              )}
+              href="/reports/new-player"
+              className="inline-flex h-11 min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus-ring"
             >
-              <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                {m.label}
-              </div>
-              <div
-                className={cn(
-                  "mt-1.5 text-2xl font-semibold tabular-nums tracking-tight",
-                  m.warn && "text-amber-800 dark:text-amber-300"
-                )}
-              >
-                {m.value}
-              </div>
+              {isTrainer ? (
+                <ClipboardList className="size-4" aria-hidden="true" strokeWidth={1.75} />
+              ) : (
+                <Users className="size-4" aria-hidden="true" strokeWidth={1.75} />
+              )}
+              {isTrainer ? "Beobachtung" : "Spielerbericht"}
             </a>
-          ))}
+            {isTrainer ? (
+              <a
+                href="/aufstellung"
+                className="inline-flex h-11 min-h-11 items-center gap-2 rounded-xl border border-border bg-card/80 px-4 text-sm font-medium hover:bg-muted focus-ring"
+              >
+                <LayoutGrid className="size-4" aria-hidden="true" strokeWidth={1.75} />
+                Aufstellung
+              </a>
+            ) : (
+              <a
+                href="/dashboard"
+                className="inline-flex h-11 min-h-11 items-center gap-2 rounded-xl border border-border bg-card/80 px-4 text-sm font-medium hover:bg-muted focus-ring"
+              >
+                <TrendingUp className="size-4" aria-hidden="true" strokeWidth={1.75} />
+                Auswertung
+              </a>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Primary + secondary actions */}
-      <section
-        className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"
-        aria-label="Aktionen"
-      >
-        <a
-          href={primaryAction.href}
-          className="panel flex items-center gap-4 px-4 py-4 min-h-[5.5rem] bg-primary text-primary-foreground border-transparent hover:bg-primary/92 focus-ring transition-colors"
-        >
-          <primaryAction.Icon
-            className="size-6 shrink-0 opacity-90"
-            aria-hidden="true"
-            strokeWidth={1.75}
-          />
-          <div className="min-w-0 flex-1">
-            <div className="font-semibold tracking-tight">{primaryAction.title}</div>
-            <div className="text-sm text-primary-foreground/85 mt-0.5">
-              {primaryAction.hint}
-            </div>
-          </div>
-          <ArrowUpRight className="size-5 shrink-0 opacity-80" aria-hidden="true" />
-        </a>
-
-        <div className="panel p-2 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-1">
-          {secondaryActions.map((a) => (
-            <a
-              key={a.href}
-              href={a.href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 min-h-11 text-sm font-medium hover:bg-muted focus-ring transition-colors"
-            >
-              <a.Icon
-                className="size-4 shrink-0 text-muted-foreground"
+      {/* Side stack – metrics + links */}
+      <aside className="md:col-span-4 grid gap-3 content-start">
+        {stats.pendingSync > 0 ? (
+          <div
+            className="panel p-4 border-destructive/40 bg-destructive/5"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex items-start gap-2.5">
+              <AlertTriangle
+                className="size-4 text-destructive mt-0.5 shrink-0"
                 aria-hidden="true"
                 strokeWidth={1.75}
               />
-              <span className="flex-1">{a.label}</span>
-              <ArrowUpRight
-                className="size-3.5 text-muted-foreground opacity-70"
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">
+                  <span className="display-num">{stats.pendingSync}</span> Sync offen
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="mt-2"
+                  render={<a href="#app-sidebar-footer" />}
+                >
+                  Prüfen
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="panel overflow-hidden">
+          <div className="grid grid-cols-2 divide-x divide-y divide-border">
+            {metrics.map((m) => (
+              <a
+                key={m.label}
+                href={m.href}
+                className={cn(
+                  "px-3.5 py-3.5 min-h-[4.75rem] hover:bg-muted/40 focus-ring transition-colors",
+                  m.warn && "bg-warning/10"
+                )}
+              >
+                <div className="text-[11px] font-medium text-muted-foreground">
+                  {m.label}
+                </div>
+                <div
+                  className={cn(
+                    "mt-1 text-2xl display-num tracking-tight",
+                    m.warn && "text-warning-foreground dark:text-warning"
+                  )}
+                >
+                  {m.value}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <nav className="panel p-2 space-y-0.5" aria-label="Schnellzugriff">
+          {sideLinks.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 min-h-11 text-sm font-medium hover:bg-muted focus-ring"
+            >
+              <l.Icon
+                className="size-4 text-muted-foreground"
                 aria-hidden="true"
+                strokeWidth={1.75}
               />
+              <span className="flex-1">{l.label}</span>
+              <ArrowUpRight className="size-3.5 text-muted-foreground" aria-hidden="true" />
             </a>
           ))}
-        </div>
-      </section>
+        </nav>
+      </aside>
 
-      {/* Dense recent list */}
-      <section aria-labelledby="home-recent-title" className="panel overflow-hidden">
-        <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
+      {/* Recent table – full width */}
+      <section className="panel md:col-span-12 overflow-hidden" aria-labelledby="home-recent-title">
+        <div className="flex items-center justify-between gap-3 px-4 md:px-5 py-3.5 border-b border-border">
           <h2 id="home-recent-title" className="text-sm font-semibold tracking-tight">
             {isTrainer ? "Letzte Beobachtungen" : "Zuletzt erfasst"}
           </h2>
@@ -304,43 +303,71 @@ export default function HomeDashboard() {
             href="/reports"
             className="text-xs font-medium text-primary underline-offset-2 hover:underline focus-ring rounded-sm"
           >
-            Alle
+            Alle anzeigen
           </a>
         </div>
+
         {stats.recentReports.length === 0 ? (
-          <p className="text-sm text-muted-foreground px-4 py-10 text-center">
+          <p className="text-sm text-muted-foreground px-5 py-12 text-center">
             Noch keine Berichte. Starte mit einem Spielerbericht.
           </p>
         ) : (
-          <ul className="divide-y divide-border">
-            {stats.recentReports.map((r) => (
-              <li key={r.id}>
-                <a
-                  href={`/reports/player/${r.id}`}
-                  className="grid grid-cols-[7rem_minmax(0,1fr)_auto] gap-3 items-center px-4 py-3 text-sm min-h-12 hover:bg-muted/50 focus-ring"
-                >
-                  <span className="tabular-nums text-muted-foreground">
-                    {new Date(r.datum).toLocaleDateString("de-DE")}
-                  </span>
-                  <span className="truncate">
-                    {r.positionBeobachtet || "Bericht"}
-                  </span>
-                  <span className="tabular-nums font-medium text-muted-foreground">
-                    {typeof r.gesamtbewertung === "number"
-                      ? `${r.gesamtbewertung}/10`
-                      : "—"}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[11px] uppercase tracking-[0.08em] text-muted-foreground border-b border-border">
+                  <th scope="col" className="px-4 md:px-5 py-2.5 font-medium">
+                    Datum
+                  </th>
+                  <th scope="col" className="px-4 py-2.5 font-medium">
+                    Position
+                  </th>
+                  <th scope="col" className="px-4 md:px-5 py-2.5 font-medium text-right">
+                    Note
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {stats.recentReports.map((r: PlayerReport) => (
+                  <tr key={r.id} className="hover:bg-muted/35 transition-colors">
+                    <td className="px-4 md:px-5 py-3">
+                      <a
+                        href={`/reports/player/${r.id}`}
+                        className="block tabular-nums text-muted-foreground focus-ring rounded-sm min-h-10 leading-10"
+                      >
+                        {new Date(r.datum).toLocaleDateString("de-DE")}
+                      </a>
+                    </td>
+                    <td className="px-4 py-3">
+                      <a
+                        href={`/reports/player/${r.id}`}
+                        className="block truncate max-w-[14rem] focus-ring rounded-sm min-h-10 leading-10"
+                      >
+                        {r.positionBeobachtet || "Bericht"}
+                      </a>
+                    </td>
+                    <td className="px-4 md:px-5 py-3 text-right">
+                      <a
+                        href={`/reports/player/${r.id}`}
+                        className="block display-num focus-ring rounded-sm min-h-10 leading-10"
+                      >
+                        {typeof r.gesamtbewertung === "number"
+                          ? `${r.gesamtbewertung}/10`
+                          : "—"}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 
       {!hasRole(stats.scout, "trainer") ? (
         <a
           href="/einstellungen/profil"
-          className="panel-quiet flex items-start gap-3 p-4 hover:bg-muted/40 transition-colors focus-ring"
+          className="panel md:col-span-12 flex items-start gap-3 p-5 hover:bg-muted/30 transition-colors focus-ring"
         >
           <UsersRound
             className="size-5 shrink-0 mt-0.5 text-primary"
@@ -357,22 +384,6 @@ export default function HomeDashboard() {
           </div>
         </a>
       ) : null}
-
-      <div className="hidden md:flex flex-wrap gap-4 text-sm px-1">
-        <a
-          href="/hilfe"
-          className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground focus-ring rounded-sm"
-        >
-          <CircleHelp className="size-4" aria-hidden="true" strokeWidth={1.75} />
-          Hilfe
-        </a>
-        <a
-          href="/einstellungen/attribute"
-          className="text-muted-foreground hover:text-foreground focus-ring rounded-sm"
-        >
-          Bewertungsfelder
-        </a>
-      </div>
     </div>
   );
 }

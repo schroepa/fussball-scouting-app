@@ -158,7 +158,7 @@ export default function AppNavigation({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-md text-[11px] font-medium min-h-14 min-w-0 focus-ring",
+                "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-xl text-[11px] font-medium min-h-14 min-w-0 focus-ring",
                 active
                   ? "text-foreground bg-muted"
                   : "text-muted-foreground hover:text-foreground"
@@ -177,7 +177,7 @@ export default function AppNavigation({
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
           <SheetTrigger
             className={cn(
-              "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-md text-[11px] font-medium min-h-14 min-w-0 focus-ring",
+              "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-xl text-[11px] font-medium min-h-14 min-w-0 focus-ring",
               moreActive
                 ? "text-foreground bg-muted"
                 : "text-muted-foreground hover:text-foreground"
@@ -190,7 +190,7 @@ export default function AppNavigation({
           </SheetTrigger>
           <SheetContent
             side="bottom"
-            className="max-h-[85dvh] rounded-t-xl pb-[max(1rem,env(safe-area-inset-bottom))]"
+            className="max-h-[85dvh] rounded-t-[1.25rem] pb-[max(1rem,env(safe-area-inset-bottom))] border-border bg-card"
           >
             <SheetHeader className="px-4 pt-4 pb-2">
               <SheetTitle>Mehr</SheetTitle>
@@ -208,14 +208,14 @@ export default function AppNavigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium min-h-11 focus-ring",
+                      "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium min-h-11 focus-ring",
                       active
-                        ? "bg-accent text-accent-foreground"
+                        ? "bg-primary text-primary-foreground"
                         : "text-foreground hover:bg-muted"
                     )}
                     onClick={() => setMoreOpen(false)}
                   >
-                    <Icon className="size-4 shrink-0 opacity-70" aria-hidden="true" strokeWidth={1.75} />
+                    <Icon className="size-4 shrink-0 opacity-80" aria-hidden="true" strokeWidth={1.75} />
                     {item.label}
                   </a>
                 );
@@ -229,9 +229,12 @@ export default function AppNavigation({
 
   return (
     <div className="space-y-1 flex-1 flex flex-col min-h-0">
-      <div className="px-1 pb-2">
+      <div className="px-0.5 pb-3">
         <ModeSwitcher className="w-full justify-stretch [&>button]:flex-1" />
       </div>
+      <p className="px-2.5 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        Navigation
+      </p>
       <div className="space-y-0.5 flex-1 overflow-y-auto">
         {sidebarItems.map((item) => {
           const active = isActive(activeNav, item.key);
@@ -242,10 +245,10 @@ export default function AppNavigation({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors min-h-10 focus-ring",
+                "flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm font-medium transition-colors min-h-11 focus-ring",
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-xs"
+                  : "text-sidebar-foreground/75 hover:bg-muted/70 hover:text-sidebar-foreground"
               )}
             >
               <Icon className="size-4 shrink-0 opacity-70" aria-hidden="true" strokeWidth={1.75} />

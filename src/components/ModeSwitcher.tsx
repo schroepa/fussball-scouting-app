@@ -45,38 +45,28 @@ export default function ModeSwitcher({
   return (
     <div
       className={cn(
-        "inline-flex rounded-md border border-border bg-muted/50 p-0.5 text-xs",
+        "inline-flex rounded-full border border-border bg-muted/60 p-1 text-xs",
         className
       )}
       role="group"
       aria-label="Ansicht wechseln"
     >
-      <button
-        type="button"
-        onClick={() => switchMode("scout")}
-        className={cn(
-          "rounded-[5px] px-2.5 py-2 font-medium min-h-10 focus-ring transition-colors",
-          mode === "scout"
-            ? "bg-background text-foreground shadow-xs"
-            : "text-muted-foreground hover:text-foreground"
-        )}
-        aria-pressed={mode === "scout"}
-      >
-        Scout
-      </button>
-      <button
-        type="button"
-        onClick={() => switchMode("trainer")}
-        className={cn(
-          "rounded-[5px] px-2.5 py-2 font-medium min-h-10 focus-ring transition-colors",
-          mode === "trainer"
-            ? "bg-background text-foreground shadow-xs"
-            : "text-muted-foreground hover:text-foreground"
-        )}
-        aria-pressed={mode === "trainer"}
-      >
-        Trainer
-      </button>
+      {(["scout", "trainer"] as const).map((value) => (
+        <button
+          key={value}
+          type="button"
+          onClick={() => switchMode(value)}
+          className={cn(
+            "rounded-full px-3 py-2 font-medium min-h-10 focus-ring transition-colors capitalize",
+            mode === value
+              ? "bg-card text-foreground shadow-xs border border-border/80"
+              : "text-muted-foreground hover:text-foreground border border-transparent"
+          )}
+          aria-pressed={mode === value}
+        >
+          {value === "scout" ? "Scout" : "Trainer"}
+        </button>
+      ))}
     </div>
   );
 }

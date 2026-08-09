@@ -60,7 +60,7 @@ const sidebarExtra = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#eef0f4" />
+    <meta name="theme-color" content="#e8ebf2" />
     <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
@@ -92,7 +92,7 @@ const sidebarExtra = [
           root.style.colorScheme = mode;
           root.dataset.theme = mode;
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", mode === "dark" ? "#0b0d12" : "#eef0f4");
+          if (meta) meta.setAttribute("content", mode === "dark" ? "#0b0d14" : "#e8ebf2");
         } catch (e) {}
       })();
     </script>
@@ -100,7 +100,7 @@ const sidebarExtra = [
   <body class="font-sans antialiased bg-background text-foreground min-h-dvh overflow-x-hidden">
     <a
       href="#app-main"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2.5 focus:text-sm focus:font-medium focus:text-primary-foreground focus:outline-none"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-primary focus:px-3 focus:py-2.5 focus:text-sm focus:font-medium focus:text-primary-foreground focus:outline-none"
     >
       Zum Inhalt springen
     </a>
@@ -111,102 +111,116 @@ const sidebarExtra = [
 
     {
       showNav ? (
-        <div id="app-shell" class="min-h-dvh md:flex overflow-x-hidden">
-          <aside
-            id="app-sidebar"
-            class="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
-            aria-label="Hauptnavigation"
-          >
-            <div class="flex h-14 items-center gap-2.5 px-4 border-b border-sidebar-border">
-              <div
-                class="size-7 rounded-lg bg-primary text-primary-foreground grid place-items-center text-[10px] font-semibold tracking-tight"
-                aria-hidden="true"
+        <div
+          id="app-shell"
+          class="min-h-dvh overflow-x-hidden md:p-3 lg:p-4"
+        >
+          <div class="md:flex md:gap-3 lg:gap-4 md:min-h-[calc(100dvh-1.5rem)] lg:min-h-[calc(100dvh-2rem)]">
+            <aside
+              id="app-sidebar"
+              class="hidden md:flex md:w-[15.5rem] lg:w-64 md:flex-col md:sticky md:top-3 lg:top-4 md:h-[calc(100dvh-1.5rem)] lg:h-[calc(100dvh-2rem)] panel text-sidebar-foreground bg-sidebar shrink-0"
+              aria-label="Hauptnavigation"
+            >
+              <div class="flex h-16 items-center gap-3 px-4">
+                <div
+                  class="size-9 rounded-xl bg-primary text-primary-foreground grid place-items-center text-[11px] font-semibold tracking-tight shadow-sm"
+                  aria-hidden="true"
+                >
+                  FS
+                </div>
+                <div class="min-w-0">
+                  <div class="font-semibold tracking-tight text-[15px] truncate">Fusca</div>
+                  <div class="text-[11px] text-muted-foreground truncate">Ops workspace</div>
+                </div>
+              </div>
+
+              <nav
+                id="nav-sidebar"
+                class="flex-1 px-2.5 pb-2 space-y-1 flex flex-col min-h-0"
+                aria-label="Bereiche"
               >
-                FS
+                <AppNavigation client:load variant="sidebar" activeNav={activeNav} />
+                <div class="mt-auto pt-3 space-y-0.5">
+                  <p class="px-2.5 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    Einstellungen
+                  </p>
+                  {
+                    sidebarExtra.map((item) => {
+                      const active = activeNav === item.key;
+                      const Icon = item.Icon;
+                      return (
+                        <a
+                          href={item.href}
+                          aria-current={active ? "page" : undefined}
+                          class:list={[
+                            "flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm font-medium transition-colors focus-ring min-h-11",
+                            active
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground/75 hover:bg-muted/70 hover:text-sidebar-foreground",
+                          ]}
+                        >
+                          <Icon className="size-4 shrink-0 opacity-70" aria-hidden="true" strokeWidth={1.75} />
+                          {item.label}
+                        </a>
+                      );
+                    })
+                  }
+                </div>
+              </nav>
+
+              <div id="app-sidebar-footer" class="p-3 pt-1 space-y-2">
+                <div class="panel-inset px-2.5 py-2">
+                  <SyncStatusBar client:load variant="sidebar" />
+                </div>
+                <div class="flex items-center justify-between gap-2 px-0.5">
+                  <UserMenu client:load variant="sidebar" />
+                  <ThemeToggle client:load variant="sidebar" />
+                </div>
               </div>
-              <div class="min-w-0">
-                <div class="font-semibold tracking-tight text-sm truncate">Fusca</div>
-                <div class="text-[11px] text-muted-foreground truncate">Workspace</div>
-              </div>
+            </aside>
+
+            <div id="app-content-column" class="flex-1 min-w-0 flex flex-col min-h-dvh md:min-h-0">
+              <MobileHeader client:load />
+
+              <header
+                id="app-header-desktop"
+                class="hidden md:flex sticky top-3 lg:top-4 z-10 mb-3 lg:mb-4 h-14 items-center justify-between panel px-4 lg:px-5"
+              >
+                <div class="min-w-0">
+                  <h1 class="text-[15px] font-semibold tracking-tight text-foreground truncate">{title}</h1>
+                </div>
+                <div class="flex items-center gap-2 shrink-0" aria-label="Schnellaktionen">
+                  <a
+                    href="/reports/new-player"
+                    class="inline-flex h-9 min-h-9 items-center rounded-xl bg-primary px-3.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-ring shadow-sm"
+                  >
+                    Spielerbericht
+                  </a>
+                  <a
+                    href="/reports/new-team"
+                    class="inline-flex h-9 min-h-9 items-center rounded-xl border border-border bg-background/60 px-3.5 text-sm font-medium text-foreground hover:bg-muted focus-ring"
+                  >
+                    Teambericht
+                  </a>
+                </div>
+              </header>
+
+              <main
+                id="app-main"
+                class="flex-1 w-full max-w-[1400px] mx-auto px-4 py-4 pb-28 md:px-1 md:py-0 md:pb-2 min-w-0"
+                tabindex="-1"
+              >
+                <slot />
+              </main>
+
+              <nav
+                id="nav-mobile"
+                class="md:hidden fixed bottom-3 inset-x-3 z-20 panel flex justify-around gap-0.5 px-1 pt-1.5 pb-[max(0.4rem,env(safe-area-inset-bottom))] min-w-0 overflow-hidden shadow-lg"
+                aria-label="Mobile Navigation"
+              >
+                <AppNavigation client:load variant="mobile" activeNav={activeNav} />
+              </nav>
             </div>
-            <nav
-              id="nav-sidebar"
-              class="flex-1 p-2 space-y-1 flex flex-col min-h-0"
-              aria-label="Bereiche"
-            >
-              <AppNavigation client:load variant="sidebar" activeNav={activeNav} />
-              <div class="space-y-0.5 pt-2 border-t border-sidebar-border mt-auto">
-                {
-                  sidebarExtra.map((item) => {
-                    const active = activeNav === item.key;
-                    const Icon = item.Icon;
-                    return (
-                      <a
-                        href={item.href}
-                        aria-current={active ? "page" : undefined}
-                        class:list={[
-                          "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors focus-ring min-h-10",
-                          active
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground",
-                        ]}
-                      >
-                        <Icon className="size-4 shrink-0 opacity-70" aria-hidden="true" />
-                        {item.label}
-                      </a>
-                    );
-                  })
-                }
-              </div>
-            </nav>
-            <div id="app-sidebar-footer" class="border-t border-sidebar-border p-3 space-y-2">
-              <div class="rounded-md border border-border/60 bg-background/50 px-2.5 py-2">
-                <SyncStatusBar client:load variant="sidebar" />
-              </div>
-              <div class="flex items-center justify-between gap-2 px-0.5">
-                <UserMenu client:load variant="sidebar" />
-                <ThemeToggle client:load variant="sidebar" />
-              </div>
-            </div>
-          </aside>
-
-          <div id="app-content-column" class="md:pl-60 flex-1 min-w-0 flex flex-col min-h-dvh overflow-x-hidden">
-            <MobileHeader client:load />
-
-            <header
-              id="app-header-desktop"
-              class="hidden md:flex sticky top-0 z-10 h-14 items-center justify-between border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-6 lg:px-8"
-            >
-              <div class="min-w-0">
-                <h1 class="text-base font-semibold tracking-tight text-foreground truncate">{title}</h1>
-              </div>
-              <div class="flex items-center gap-2 shrink-0" aria-label="Schnellaktionen">
-                <a
-                  href="/reports/new-player"
-                  class="inline-flex h-9 min-h-9 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-ring"
-                >
-                  Spielerbericht
-                </a>
-                <a
-                  href="/reports/new-team"
-                  class="inline-flex h-9 min-h-9 items-center rounded-md border border-border bg-card px-3 text-sm font-medium text-foreground hover:bg-muted focus-ring"
-                >
-                  Teambericht
-                </a>
-              </div>
-            </header>
-
-            <main id="app-main" class="flex-1 w-full max-w-6xl mx-auto px-4 py-5 pb-24 md:px-6 md:py-6 lg:px-8 md:pb-8 min-w-0" tabindex="-1">
-              <slot />
-            </main>
-
-            <nav
-              id="nav-mobile"
-              class="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90 flex justify-around gap-0 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-w-0 overflow-hidden"
-              aria-label="Mobile Navigation"
-            >
-              <AppNavigation client:load variant="mobile" activeNav={activeNav} />
-            </nav>
           </div>
         </div>
       ) : (
