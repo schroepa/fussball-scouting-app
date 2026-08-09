@@ -25,6 +25,7 @@ import {
   type Team,
 } from "../lib/types";
 import { getActiveTeamId } from "../lib/trainer/mode";
+import { formatJahrgang, parseJahrgang } from "../lib/trainer/jahrgang";
 
 type Row = { membership: SquadMembership; player: Player };
 
@@ -34,6 +35,8 @@ export default function KaderPage() {
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [filter, setFilter] = useState("");
   const [consentFilter, setConsentFilter] = useState<string>("alle");
+  const [positionFilter, setPositionFilter] = useState<string>("alle");
+  const [jahrgangFilter, setJahrgangFilter] = useState<string>("alle");
   const [adding, setAdding] = useState(false);
   const [vorname, setVorname] = useState("");
   const [nachname, setNachname] = useState("");
@@ -74,24 +77,51 @@ export default function KaderPage() {
     if (consentFilter !== "alle" && r.membership.consentStatus !== consentFilter) {
       return false;
     }
+    if (positionFilter !== "alle") {
+      const positions = r.player.positionen.map((p) => p.toLowerCase());
+      if (!positions.includes(positionFilter.toLowerCase())) return false;
+    }
+    const jg = parseJahrgang(r.player.jahrgang);
+    if (jahrgangFilter !== "alle") {
+      if (String(jg ?? "") !== jahrgangFilter) return false;
+    }
     if (!filter.trim()) return true;
     const q = filter.toLowerCase();
     return (
       r.player.vorname.toLowerCase().includes(q) ||
       r.player.nachname.toLowerCase().includes(q) ||
-      String(r.player.jahrgang ?? "").includes(q)
+      String(jg ?? "").includes(q) ||
+      r.player.positionen.some((p) => p.toLowerCase().includes(q))
     );
   });
+
+  const positionOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of rows) {
+      for (const p of r.player.positionen) {
+        if (p.trim()) set.add(p.trim());
+      }
+    }
+    return [...set].sort((a, b) => a.localeCompare(b, "de"));
+  }, [rows]);
+
+  const jahrgangOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of rows) {
+      const j = parseJahrgang(r.player.jahrgang);
+      if (j !== undefined) set.add(String(j));
+    }
+    return [...set].sort((a, b) => a.localeCompare(b));
+  }, [rows]);
 
   const byJahrgang = useMemo(() => {
     const map = new Map<string, Row[]>();
     for (const row of filtered) {
-      const key = row.player.jahrgang
-        ? String(row.player.jahrgang)
-        : "Ohne Jahrgang";
-      const list = map.get(key) ?? [];
+      const key = formatJahrgang(row.player.jahrgang);
+      const label = key === "–" ? "Ohne Jahrgang" : key;
+      const list = map.get(label) ?? [];
       list.push(row);
-      map.set(key, list);
+      map.set(label, list);
     }
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [filtered]);
@@ -108,11 +138,16 @@ export default function KaderPage() {
       return;
     }
     setError(null);
+    const parsedJahrgang = parseJahrgang(jahrgang);
+    if (jahrgang.trim() && parsedJahrgang === undefined) {
+      setError("Jahrgang ungültig – bitte als Jahreszahl angeben (z. B. 2012).");
+      return;
+    }
     const player = await createPlayer({
       vorname: vorname.trim(),
       nachname: nachname.trim(),
       positionen: position.trim() ? [position.trim()] : [],
-      jahrgang: jahrgang ? Number(jahrgang) : undefined,
+      jahrgang: parsedJahrgang,
     });
     await addSquadMember({ teamId, playerId: player.id });
     setVorname("");
@@ -154,28 +189,58 @@ export default function KaderPage() {
         onLinked={() => void reload(team)}
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col sm:flex-row gap-2 flex-1">
-          <Input
-            type="search"
-            placeholder="Kader filtern…"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="sm:max-w-xs"
-          />
-          <SimpleSelect
-            value={consentFilter}
-            onValueChange={setConsentFilter}
-            className="sm:max-w-[12rem]"
-            options={[
-              { value: "alle", label: "Alle Einwilligungen" },
-              { value: "ausstehend", label: "Ausstehend" },
-              { value: "erteilt", label: "Erteilt" },
-              { value: "verweigert", label: "Verweigert" },
-            ]}
-          />
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 flex-1">
+          <div className="space-y-1.5">
+            <Label htmlFor="kader-search">Suche</Label>
+            <Input
+              id="kader-search"
+              type="search"
+              placeholder="Name, Position…"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="kader-consent">Einwilligung</Label>
+            <SimpleSelect
+              id="kader-consent"
+              value={consentFilter}
+              onValueChange={setConsentFilter}
+              options={[
+                { value: "alle", label: "Alle" },
+                { value: "ausstehend", label: "Ausstehend" },
+                { value: "erteilt", label: "Erteilt" },
+                { value: "verweigert", label: "Verweigert" },
+              ]}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="kader-pos-filter">Position</Label>
+            <SimpleSelect
+              id="kader-pos-filter"
+              value={positionFilter}
+              onValueChange={setPositionFilter}
+              options={[
+                { value: "alle", label: "Alle Positionen" },
+                ...positionOptions.map((p) => ({ value: p, label: p })),
+              ]}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="kader-jg-filter">Jahrgang</Label>
+            <SimpleSelect
+              id="kader-jg-filter"
+              value={jahrgangFilter}
+              onValueChange={setJahrgangFilter}
+              options={[
+                { value: "alle", label: "Alle Jahrgänge" },
+                ...jahrgangOptions.map((j) => ({ value: j, label: j })),
+              ]}
+            />
+          </div>
         </div>
-        <Button type="button" onClick={() => setAdding((v) => !v)}>
+        <Button type="button" onClick={() => setAdding((v) => !v)} className="shrink-0">
           {adding ? "Abbrechen" : "+ Spieler"}
         </Button>
       </div>
@@ -205,9 +270,11 @@ export default function KaderPage() {
                 id="k-jahrgang"
                 inputMode="numeric"
                 placeholder="2012"
+                pattern="[12][0-9]{3}"
                 value={jahrgang}
-                onChange={(e) => setJahrgang(e.target.value)}
+                onChange={(e) => setJahrgang(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
               />
+              <p className="text-[11px] text-muted-foreground">Vierstellige Jahreszahl, z.&nbsp;B. 2012</p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="k-pos">Position</Label>
@@ -238,7 +305,9 @@ export default function KaderPage() {
                   options={availablePlayers.map((p) => ({
                     value: p.id,
                     label: `${p.nachname}, ${p.vorname}${
-                      p.jahrgang ? ` (${p.jahrgang})` : ""
+                      parseJahrgang(p.jahrgang)
+                        ? ` (${parseJahrgang(p.jahrgang)})`
+                        : ""
                     }`,
                   }))}
                 />
@@ -263,8 +332,12 @@ export default function KaderPage() {
         />
       ) : filtered.length === 0 ? (
         <EmptyState
-          title="Kader ist leer"
-          description="Füge Spieler hinzu – mit Jahrgang und Einwilligungsstatus."
+          title={rows.length === 0 ? "Kader ist leer" : "Keine Treffer"}
+          description={
+            rows.length === 0
+              ? "Füge Spieler hinzu – mit Jahrgang und Einwilligungsstatus."
+              : "Filter zurücksetzen oder anderen Suchbegriff verwenden."
+          }
         />
       ) : (
         <div className="space-y-6">
@@ -294,7 +367,7 @@ export default function KaderPage() {
                           : ""}
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-end gap-2">
                       <Badge
                         variant={
                           membership.consentStatus === "erteilt"
@@ -306,24 +379,34 @@ export default function KaderPage() {
                       >
                         {CONSENT_STATUS_LABELS[membership.consentStatus]}
                       </Badge>
-                      <SimpleSelect
-                        value={membership.consentStatus}
-                        onValueChange={(v) =>
-                          void setConsent(membership.id, v as ConsentStatus)
-                        }
-                        className="w-[10rem]"
-                        size="sm"
-                        options={[
-                          { value: "ausstehend", label: "Ausstehend" },
-                          { value: "erteilt", label: "Erteilt" },
-                          { value: "verweigert", label: "Verweigert" },
-                        ]}
-                      />
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor={`consent-${membership.id}`}
+                          className="text-[11px] text-muted-foreground"
+                        >
+                          Einwilligung ändern
+                        </Label>
+                        <SimpleSelect
+                          id={`consent-${membership.id}`}
+                          value={membership.consentStatus}
+                          onValueChange={(v) =>
+                            void setConsent(membership.id, v as ConsentStatus)
+                          }
+                          className="w-[10rem]"
+                          size="sm"
+                          options={[
+                            { value: "ausstehend", label: "Ausstehend" },
+                            { value: "erteilt", label: "Erteilt" },
+                            { value: "verweigert", label: "Verweigert" },
+                          ]}
+                        />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.stopPropagation();
                           await removeSquadMember(membership.id);
                           await reload(team);
                         }}
