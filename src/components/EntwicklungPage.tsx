@@ -6,6 +6,7 @@ import { listSquadPlayers, getPlayerDevelopment, summarizeParticipationsForPlaye
 import { getActiveTeamId } from "../lib/trainer/mode";
 import type { Player, PlayerReport, Team } from "../lib/types";
 import { BEZUGSTYP_LABELS } from "../lib/types";
+import { formatJahrgang, parseJahrgang } from "../lib/trainer/jahrgang";
 import RatingTrendChart from "./dashboard/RatingTrendChart";
 
 export default function EntwicklungPage() {
@@ -95,7 +96,9 @@ export default function EntwicklungPage() {
               options={players.map((p) => ({
                 value: p.id,
                 label: `${p.nachname}, ${p.vorname}${
-                  p.jahrgang ? ` (${p.jahrgang})` : ""
+                  parseJahrgang(p.jahrgang)
+                    ? ` (${formatJahrgang(p.jahrgang)})`
+                    : ""
                 }`,
               }))}
             />

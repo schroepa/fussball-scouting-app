@@ -33,6 +33,7 @@ import type {
 import { parsePhasesFromRemote } from "../match/formations";
 import { parseVideoMarkersFromRemote } from "../match/video";
 import { saveLocalProfileOverlay } from "../trainer/mode";
+import { parseJahrgang } from "../trainer/jahrgang";
 import type { AppMode, AppRole } from "../types";
 
 export interface SyncResult {
@@ -194,7 +195,7 @@ export async function pushPendingChanges(): Promise<SyncResult> {
       vorname: p.vorname,
       nachname: p.nachname,
       geburtsdatum: p.geburtsdatum ?? null,
-      jahrgang: p.jahrgang ?? null,
+      jahrgang: parseJahrgang(p.jahrgang) ?? null,
       nationalitaet: p.nationalitaet ?? null,
       positionen: p.positionen,
       starker_fuss: p.starkerFuss ?? null,
@@ -499,7 +500,7 @@ export async function pullRemoteChanges(): Promise<SyncResult> {
       vorname: String(row.vorname ?? ""),
       nachname: String(row.nachname ?? ""),
       geburtsdatum: (row.geburtsdatum as string | null) ?? undefined,
-      jahrgang: (row.jahrgang as number | null) ?? undefined,
+      jahrgang: parseJahrgang(row.jahrgang),
       nationalitaet: (row.nationalitaet as string | null) ?? undefined,
       positionen: Array.isArray(row.positionen)
         ? (row.positionen as string[])

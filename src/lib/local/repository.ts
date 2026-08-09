@@ -12,6 +12,7 @@ import type {
   TeamReport,
 } from "../types";
 import { slugifyAttributeKey } from "../attributeKey";
+import { parseJahrgang } from "../trainer/jahrgang";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -123,6 +124,7 @@ export async function createPlayer(
   const ownerScoutId = input.ownerScoutId ?? (await currentScoutId());
   const player: Player = {
     ...input,
+    jahrgang: parseJahrgang(input.jahrgang),
     ownerScoutId,
     id: newId(),
     syncStatus: "pending",
@@ -169,9 +171,25 @@ export async function upsertPlayerByExternalRef(
 
 export async function listPlayers(): Promise<Player[]> {
   await ensureSeeded();
+  await repairInvalidJahrgaenge();
   const scoutId = await currentScoutId();
   const all = await db.players.orderBy("nachname").toArray();
   return all.filter((p) => !p.ownerScoutId || p.ownerScoutId === scoutId);
+}
+
+/** Repariert lokal gespeicherte Jahrgänge wie 0.2012 vor Sync/Anzeige. */
+async function repairInvalidJahrgaenge(): Promise<void> {
+  const all = await db.players.toArray();
+  for (const p of all) {
+    if (p.jahrgang === undefined || p.jahrgang === null) continue;
+    const fixed = parseJahrgang(p.jahrgang);
+    if (fixed === p.jahrgang) continue;
+    await db.players.update(p.id, {
+      jahrgang: fixed,
+      syncStatus: "pending",
+      updatedAt: nowIso(),
+    });
+  }
 }
 
 export async function getPlayer(id: string): Promise<Player | undefined> {
