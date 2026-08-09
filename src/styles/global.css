@@ -65,10 +65,18 @@
   --font-source-serif-4: var(--font-geist-sans);
   --font-jetbrains-mono: var(--font-geist-mono);
 
-  --radius: 0.875rem;
-  --radius-outer: 1.35rem;
-  --radius-pill: 999px;
+  --radius: 0.875rem; /* controls: inputs, selects, checkboxes (~14px) */
+  --radius-outer: 1.35rem; /* panels / cards (~22px) */
+  --radius-pill: 999px; /* primary CTAs, segments, badges */
   --color-pitch: oklch(0.42 0.08 145);
+
+  /*
+   * Radius-Rollen (fest):
+   * - panel  → --radius-outer
+   * - control → --radius (Input/Select/Textarea/Checkbox)
+   * - cta    → --radius-pill (Primary/Outline Buttons, Segment)
+   * - dense  → innen in Tabellen eher eckig (keine Extra-Rundung)
+   */
 
   /* Soft large-spread lift */
   --shadow-2xs: 0 1px 2px oklch(0.45 0.04 265 / 0.03);
@@ -463,6 +471,10 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.05em;
     font-weight: 650;
+  }
+
+  .control {
+    border-radius: var(--radius);
   }
 
   .cta-pill {
