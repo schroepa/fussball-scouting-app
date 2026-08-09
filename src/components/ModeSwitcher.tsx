@@ -44,10 +44,7 @@ export default function ModeSwitcher({
 
   return (
     <div
-      className={cn(
-        "inline-flex rounded-full border border-border bg-muted/60 p-1 text-xs",
-        className
-      )}
+      className={cn("seg-control w-full", className)}
       role="group"
       aria-label="Ansicht wechseln"
     >
@@ -57,10 +54,8 @@ export default function ModeSwitcher({
           type="button"
           onClick={() => switchMode(value)}
           className={cn(
-            "rounded-full px-3 py-2 font-medium min-h-10 focus-ring transition-colors capitalize",
-            mode === value
-              ? "bg-card text-foreground shadow-xs border border-border/80"
-              : "text-muted-foreground hover:text-foreground border border-transparent"
+            "flex-1 px-3 py-2 text-xs min-h-10 focus-ring transition-colors",
+            mode === value ? "seg-control__thumb" : "seg-control__item"
           )}
           aria-pressed={mode === value}
         >

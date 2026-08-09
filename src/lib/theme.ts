@@ -34,7 +34,7 @@ export function resolveInitialMode(): ColorMode {
 }
 
 export function themeColorFor(mode: ColorMode): string {
-  return mode === "dark" ? "#0b0d14" : "#e8ebf2";
+  return mode === "dark" ? "#12141c" : "#eef0f7";
 }
 
 export function applyColorMode(mode: ColorMode): void {

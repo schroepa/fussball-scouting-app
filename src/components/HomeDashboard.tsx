@@ -154,27 +154,27 @@ export default function HomeDashboard() {
       ];
 
   return (
-    <div id="page-home-dashboard" className="grid gap-3 md:gap-4 md:grid-cols-12">
+    <div id="page-home-dashboard" className="grid gap-4 md:gap-5 md:grid-cols-12">
       {/* Hero / welcome – wide */}
-      <section className="panel md:col-span-8 relative overflow-hidden min-h-[11rem]">
+      <section className="panel md:col-span-8 relative overflow-hidden min-h-[13.5rem]">
         <div
-          className="pointer-events-none absolute inset-0 opacity-90"
+          className="glow-spot -right-10 -top-16 size-[22rem] opacity-90"
           aria-hidden="true"
-          style={{
-            background:
-              "radial-gradient(120% 80% at 100% 0%, color-mix(in oklch, var(--primary) 22%, transparent), transparent 55%)",
-          }}
         />
-        <div className="relative flex h-full flex-col justify-between gap-6 p-5 md:p-6">
+        <div
+          className="glow-spot right-24 top-24 size-[14rem] opacity-50"
+          aria-hidden="true"
+        />
+        <div className="relative flex h-full flex-col justify-between gap-8 p-6 md:p-8">
           <div>
-            <p className="text-xs font-medium text-muted-foreground">
+            <p className="label-caps">
               {isTrainer ? "Trainer" : "Scout"}
               {stats.team ? ` · ${stats.team.ageGroup}` : ""}
             </p>
-            <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">
+            <h1 className="mt-2 text-3xl md:text-[2.5rem] font-semibold tracking-tight">
               {firstName}
             </h1>
-            <p className="mt-1.5 text-sm text-muted-foreground max-w-[40ch]">
+            <p className="mt-2 text-sm text-muted-foreground max-w-[40ch]">
               {isTrainer
                 ? stats.team
                   ? stats.team.name
@@ -182,10 +182,10 @@ export default function HomeDashboard() {
                 : "Beobachtungen erfassen und auswerten"}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2.5">
             <a
               href="/reports/new-player"
-              className="inline-flex h-11 min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus-ring"
+              className="inline-flex h-11 min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus-ring"
             >
               {isTrainer ? (
                 <ClipboardList className="size-4" aria-hidden="true" strokeWidth={1.75} />
@@ -197,7 +197,7 @@ export default function HomeDashboard() {
             {isTrainer ? (
               <a
                 href="/aufstellung"
-                className="inline-flex h-11 min-h-11 items-center gap-2 rounded-xl border border-border bg-card/80 px-4 text-sm font-medium hover:bg-muted focus-ring"
+                className="inline-flex h-11 min-h-11 items-center gap-2 rounded-full border border-border bg-card px-5 text-sm font-medium hover:bg-muted focus-ring"
               >
                 <LayoutGrid className="size-4" aria-hidden="true" strokeWidth={1.75} />
                 Aufstellung
@@ -205,7 +205,7 @@ export default function HomeDashboard() {
             ) : (
               <a
                 href="/dashboard"
-                className="inline-flex h-11 min-h-11 items-center gap-2 rounded-xl border border-border bg-card/80 px-4 text-sm font-medium hover:bg-muted focus-ring"
+                className="inline-flex h-11 min-h-11 items-center gap-2 rounded-full border border-border bg-card px-5 text-sm font-medium hover:bg-muted focus-ring"
               >
                 <TrendingUp className="size-4" aria-hidden="true" strokeWidth={1.75} />
                 Auswertung
@@ -216,10 +216,10 @@ export default function HomeDashboard() {
       </section>
 
       {/* Side stack – metrics + links */}
-      <aside className="md:col-span-4 grid gap-3 content-start">
+      <aside className="md:col-span-4 grid gap-4 content-start">
         {stats.pendingSync > 0 ? (
           <div
-            className="panel p-4 border-destructive/40 bg-destructive/5"
+            className="panel p-5 border-destructive/35 bg-destructive/5"
             role="status"
             aria-live="polite"
           >
@@ -237,7 +237,7 @@ export default function HomeDashboard() {
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="mt-2"
+                  className="mt-3"
                   render={<a href="#app-sidebar-footer" />}
                 >
                   Prüfen
@@ -248,22 +248,24 @@ export default function HomeDashboard() {
         ) : null}
 
         <div className="panel overflow-hidden">
-          <div className="grid grid-cols-2 divide-x divide-y divide-border">
-            {metrics.map((m) => (
+          <div className="grid grid-cols-2">
+            {metrics.map((m, idx) => (
               <a
                 key={m.label}
                 href={m.href}
                 className={cn(
-                  "px-3.5 py-3.5 min-h-[4.75rem] hover:bg-muted/40 focus-ring transition-colors",
+                  "px-4 py-4 min-h-[5.25rem] hover:bg-muted/35 focus-ring transition-colors",
+                  idx % 2 === 0 && "border-r border-border",
+                  idx < 2 && "border-b border-border",
                   m.warn && "bg-warning/10"
                 )}
               >
-                <div className="text-[11px] font-medium text-muted-foreground">
+                <div className="label-caps normal-case tracking-wide">
                   {m.label}
                 </div>
                 <div
                   className={cn(
-                    "mt-1 text-2xl display-num tracking-tight",
+                    "mt-2 text-[1.75rem] display-num tracking-tight",
                     m.warn && "text-warning-foreground dark:text-warning"
                   )}
                 >
@@ -274,12 +276,12 @@ export default function HomeDashboard() {
           </div>
         </div>
 
-        <nav className="panel p-2 space-y-0.5" aria-label="Schnellzugriff">
+        <nav className="panel p-2.5 space-y-0.5" aria-label="Schnellzugriff">
           {sideLinks.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 min-h-11 text-sm font-medium hover:bg-muted focus-ring"
+              className="flex items-center gap-3 rounded-2xl px-3 py-2.5 min-h-11 text-sm font-medium hover:bg-muted focus-ring"
             >
               <l.Icon
                 className="size-4 text-muted-foreground"
@@ -295,7 +297,7 @@ export default function HomeDashboard() {
 
       {/* Recent table – full width */}
       <section className="panel md:col-span-12 overflow-hidden" aria-labelledby="home-recent-title">
-        <div className="flex items-center justify-between gap-3 px-4 md:px-5 py-3.5 border-b border-border">
+        <div className="flex items-center justify-between gap-3 px-5 md:px-6 py-4 border-b border-border">
           <h2 id="home-recent-title" className="text-sm font-semibold tracking-tight">
             {isTrainer ? "Letzte Beobachtungen" : "Zuletzt erfasst"}
           </h2>
@@ -308,48 +310,48 @@ export default function HomeDashboard() {
         </div>
 
         {stats.recentReports.length === 0 ? (
-          <p className="text-sm text-muted-foreground px-5 py-12 text-center">
+          <p className="text-sm text-muted-foreground px-6 py-14 text-center">
             Noch keine Berichte. Starte mit einem Spielerbericht.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-[0.08em] text-muted-foreground border-b border-border">
-                  <th scope="col" className="px-4 md:px-5 py-2.5 font-medium">
+                <tr className="border-b border-border">
+                  <th scope="col" className="px-5 md:px-6 py-3 text-left label-caps font-medium">
                     Datum
                   </th>
-                  <th scope="col" className="px-4 py-2.5 font-medium">
+                  <th scope="col" className="px-4 py-3 text-center label-caps font-medium">
                     Position
                   </th>
-                  <th scope="col" className="px-4 md:px-5 py-2.5 font-medium text-right">
+                  <th scope="col" className="px-5 md:px-6 py-3 text-right label-caps font-medium">
                     Note
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {stats.recentReports.map((r: PlayerReport) => (
-                  <tr key={r.id} className="hover:bg-muted/35 transition-colors">
-                    <td className="px-4 md:px-5 py-3">
+                  <tr key={r.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-5 md:px-6 py-1">
                       <a
                         href={`/reports/player/${r.id}`}
-                        className="block tabular-nums text-muted-foreground focus-ring rounded-sm min-h-10 leading-10"
+                        className="block tabular-nums text-muted-foreground focus-ring rounded-sm min-h-11 leading-[2.75rem]"
                       >
                         {new Date(r.datum).toLocaleDateString("de-DE")}
                       </a>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-1 text-center">
                       <a
                         href={`/reports/player/${r.id}`}
-                        className="block truncate max-w-[14rem] focus-ring rounded-sm min-h-10 leading-10"
+                        className="block truncate max-w-[14rem] mx-auto focus-ring rounded-sm min-h-11 leading-[2.75rem]"
                       >
                         {r.positionBeobachtet || "Bericht"}
                       </a>
                     </td>
-                    <td className="px-4 md:px-5 py-3 text-right">
+                    <td className="px-5 md:px-6 py-1 text-right">
                       <a
                         href={`/reports/player/${r.id}`}
-                        className="block display-num focus-ring rounded-sm min-h-10 leading-10"
+                        className="block display-num focus-ring rounded-sm min-h-11 leading-[2.75rem]"
                       >
                         {typeof r.gesamtbewertung === "number"
                           ? `${r.gesamtbewertung}/10`
@@ -367,7 +369,7 @@ export default function HomeDashboard() {
       {!hasRole(stats.scout, "trainer") ? (
         <a
           href="/einstellungen/profil"
-          className="panel md:col-span-12 flex items-start gap-3 p-5 hover:bg-muted/30 transition-colors focus-ring"
+          className="panel md:col-span-12 flex items-start gap-3 p-6 hover:bg-muted/25 transition-colors focus-ring"
         >
           <UsersRound
             className="size-5 shrink-0 mt-0.5 text-primary"

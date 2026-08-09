@@ -92,7 +92,7 @@ const sidebarExtra = [
           root.style.colorScheme = mode;
           root.dataset.theme = mode;
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", mode === "dark" ? "#0b0d14" : "#e8ebf2");
+          if (meta) meta.setAttribute("content", mode === "dark" ? "#12141c" : "#eef0f7");
         } catch (e) {}
       })();
     </script>
@@ -113,12 +113,12 @@ const sidebarExtra = [
       showNav ? (
         <div
           id="app-shell"
-          class="min-h-dvh overflow-x-hidden md:p-3 lg:p-4"
+          class="min-h-dvh overflow-x-hidden md:p-4 lg:p-5"
         >
-          <div class="md:flex md:gap-3 lg:gap-4 md:min-h-[calc(100dvh-1.5rem)] lg:min-h-[calc(100dvh-2rem)]">
+          <div class="md:flex md:gap-4 lg:gap-5 md:min-h-[calc(100dvh-2rem)] lg:min-h-[calc(100dvh-2.5rem)]">
             <aside
               id="app-sidebar"
-              class="hidden md:flex md:w-[15.5rem] lg:w-64 md:flex-col md:sticky md:top-3 lg:top-4 md:h-[calc(100dvh-1.5rem)] lg:h-[calc(100dvh-2rem)] panel text-sidebar-foreground bg-sidebar shrink-0"
+              class="hidden md:flex md:w-[16rem] lg:w-[17rem] md:flex-col md:sticky md:top-4 lg:top-5 md:h-[calc(100dvh-2rem)] lg:h-[calc(100dvh-2.5rem)] panel text-sidebar-foreground bg-sidebar shrink-0"
               aria-label="Hauptnavigation"
             >
               <div class="flex h-16 items-center gap-3 px-4">
@@ -141,9 +141,7 @@ const sidebarExtra = [
               >
                 <AppNavigation client:load variant="sidebar" activeNav={activeNav} />
                 <div class="mt-auto pt-3 space-y-0.5">
-                  <p class="px-2.5 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                    Einstellungen
-                  </p>
+                  <p class="px-2.5 pb-1.5 label-caps">Einstellungen</p>
                   {
                     sidebarExtra.map((item) => {
                       const active = activeNav === item.key;
@@ -153,13 +151,13 @@ const sidebarExtra = [
                           href={item.href}
                           aria-current={active ? "page" : undefined}
                           class:list={[
-                            "flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm font-medium transition-colors focus-ring min-h-11",
+                            "flex items-center gap-2.5 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors focus-ring min-h-11",
                             active
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                              : "text-sidebar-foreground/75 hover:bg-muted/70 hover:text-sidebar-foreground",
+                              ? "nav-active"
+                              : "text-sidebar-foreground/70 hover:bg-muted/60 hover:text-sidebar-foreground",
                           ]}
                         >
-                          <Icon className="size-4 shrink-0 opacity-70" aria-hidden="true" strokeWidth={1.75} />
+                          <Icon className="size-4 shrink-0 opacity-75" aria-hidden="true" strokeWidth={1.75} />
                           {item.label}
                         </a>
                       );
@@ -184,21 +182,21 @@ const sidebarExtra = [
 
               <header
                 id="app-header-desktop"
-                class="hidden md:flex sticky top-3 lg:top-4 z-10 mb-3 lg:mb-4 h-14 items-center justify-between panel px-4 lg:px-5"
+                class="hidden md:flex sticky top-4 lg:top-5 z-10 mb-4 lg:mb-5 h-14 items-center justify-between panel px-5"
               >
                 <div class="min-w-0">
                   <h1 class="text-[15px] font-semibold tracking-tight text-foreground truncate">{title}</h1>
                 </div>
-                <div class="flex items-center gap-2 shrink-0" aria-label="Schnellaktionen">
+                <div class="flex items-center gap-2.5 shrink-0" aria-label="Schnellaktionen">
                   <a
                     href="/reports/new-player"
-                    class="inline-flex h-9 min-h-9 items-center rounded-xl bg-primary px-3.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-ring shadow-sm"
+                    class="inline-flex h-9 min-h-9 items-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-ring shadow-sm"
                   >
                     Spielerbericht
                   </a>
                   <a
                     href="/reports/new-team"
-                    class="inline-flex h-9 min-h-9 items-center rounded-xl border border-border bg-background/60 px-3.5 text-sm font-medium text-foreground hover:bg-muted focus-ring"
+                    class="inline-flex h-9 min-h-9 items-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted focus-ring"
                   >
                     Teambericht
                   </a>

@@ -158,10 +158,10 @@ export default function AppNavigation({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-xl text-[11px] font-medium min-h-14 min-w-0 focus-ring",
+                "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-2xl text-[11px] font-medium min-h-14 min-w-0 focus-ring",
                 active
-                  ? "text-foreground bg-muted"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "nav-active"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
               <Icon
@@ -177,10 +177,10 @@ export default function AppNavigation({
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
           <SheetTrigger
             className={cn(
-              "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-xl text-[11px] font-medium min-h-14 min-w-0 focus-ring",
+              "flex flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-2xl text-[11px] font-medium min-h-14 min-w-0 focus-ring",
               moreActive
-                ? "text-foreground bg-muted"
-                : "text-muted-foreground hover:text-foreground"
+                ? "nav-active"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
             aria-label="Mehr Menü öffnen"
             aria-expanded={moreOpen}
@@ -232,10 +232,8 @@ export default function AppNavigation({
       <div className="px-0.5 pb-3">
         <ModeSwitcher className="w-full justify-stretch [&>button]:flex-1" />
       </div>
-      <p className="px-2.5 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        Navigation
-      </p>
-      <div className="space-y-0.5 flex-1 overflow-y-auto">
+      <p className="px-2.5 pb-1.5 label-caps">Navigation</p>
+      <div className="space-y-1 flex-1 overflow-y-auto">
         {sidebarItems.map((item) => {
           const active = isActive(activeNav, item.key);
           const Icon = item.Icon;
@@ -245,13 +243,13 @@ export default function AppNavigation({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm font-medium transition-colors min-h-11 focus-ring",
+                "flex items-center gap-2.5 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors min-h-11 focus-ring",
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-xs"
-                  : "text-sidebar-foreground/75 hover:bg-muted/70 hover:text-sidebar-foreground"
+                  ? "nav-active"
+                  : "text-sidebar-foreground/70 hover:bg-muted/60 hover:text-sidebar-foreground"
               )}
             >
-              <Icon className="size-4 shrink-0 opacity-70" aria-hidden="true" strokeWidth={1.75} />
+              <Icon className="size-4 shrink-0 opacity-75" aria-hidden="true" strokeWidth={1.75} />
               {item.label}
             </a>
           );
